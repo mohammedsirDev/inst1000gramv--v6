@@ -1747,15 +1747,26 @@ export async function handleQrShorten(req: any, res: any) {
 
   // POST: Create short link for QR code
   const body = await parseRequestBody(req);
-  const { targetUrl, sourceUrl, slideIndex, extension, filename, quality, thumbnail, author } = body || {};
-  if (!targetUrl) {
+  const { targetUrl, proxyUrl, mode, sourceUrl, slideIndex, extension, filename, quality, thumbnail, author } = body || {};
+  if (!targetUrl && !proxyUrl) {
     return sendJsonResponse(res, 400, { error: 'targetUrl required' });
+  }
+
+  // Unwrap inner CDN / SnapCDN URL from /api/download/proxy?url=... if present
+  let rawMediaUrl = String(targetUrl || '');
+  const candidateProxy = String(proxyUrl || targetUrl || '');
+  if (candidateProxy.includes('/api/download/proxy') || candidateProxy.includes('/api/download/stream')) {
+    try {
+      const parsedProxy = new URL(candidateProxy, 'http://localhost');
+      const innerUrl = parsedProxy.searchParams.get('url');
+      if (innerUrl) rawMediaUrl = innerUrl;
+    } catch {}
   }
 
   const shortId = Math.random().toString(36).substring(2, 7);
   let igPath = extractCompactInstagramPath(sourceUrl || '');
-  if (!igPath && targetUrl.includes('instagram.com')) {
-    igPath = extractCompactInstagramPath(targetUrl);
+  if (!igPath && rawMediaUrl.includes('instagram.com')) {
+    igPath = extractCompactInstagramPath(rawMediaUrl);
   }
 
   const ext = String(extension || (filename ? filename.split('.').pop() : '') || 'mp4').toLowerCase();
@@ -1773,7 +1784,7 @@ export async function handleQrShorten(req: any, res: any) {
 
   const record: ShortLinkRecord = {
     code,
-    targetUrl,
+    targetUrl: rawMediaUrl || targetUrl,
     filename: filename || `insta1000gram_media.${ext}`,
     quality: quality || '1080p Ultra HD',
     thumbnail,
@@ -1784,15 +1795,53 @@ export async function handleQrShorten(req: any, res: any) {
   shortLinkMap.set(code, record);
   shortLinkMap.set(shortId, record);
 
-  const protocol = req.headers?.['x-forwarded-proto'] || req.protocol || 'https';
-  const host = req.headers?.['x-forwarded-host'] || req.headers?.host || 'www.insta1000gram.com';
-  const selfShortUrl = `${protocol}://${host}/m/${code}`;
+  // Always resolve to the PUBLIC production domain (never a Vercel SSO-protected preview URL like *-mohamedsire99-4700.vercel.app)
+  const rawHost = String(req.headers?.['x-forwarded-host'] || req.headers?.host || 'inst1000gramv-v6.vercel.app')
+    .split(',')[0]
+    .trim();
+  let publicHost = process.env.VERCEL_PROJECT_PRODUCTION_URL || rawHost;
+
+  // Strip Vercel deployment-specific preview suffix (<project>-<hash>-<scope>.vercel.app -> <project>.vercel.app)
+  const vercelPreviewMatch = publicHost.match(/^([a-z0-9-]+)-[a-z0-9]{8,12}-[a-z0-9-]+\.vercel\.app$/i);
+  if (vercelPreviewMatch) {
+    publicHost = `${vercelPreviewMatch[1]}.vercel.app`;
+  } else if (
+    publicHost.includes('-mohamedsire99') ||
+    publicHost.includes('.run.app') ||
+    publicHost.includes('localhost') ||
+    publicHost.includes('127.0.0.1')
+  ) {
+    publicHost = 'inst1000gramv-v6.vercel.app';
+  }
+
+  const publicSelfShortUrl = `https://${publicHost}/m/${code}`;
+
+  // If we have a direct attachment CDN URL (e.g. dl.snapcdn.app) and mode !== 'proxy' and ext !== 'mp3',
+  // or if we shorten publicSelfShortUrl via TinyURL, phone cameras get an instant direct download without ever hitting vercel.com SSO
+  const urlToShorten =
+    ext !== 'mp3' && mode !== 'proxy' && rawMediaUrl.includes('snapcdn.app')
+      ? rawMediaUrl
+      : publicSelfShortUrl;
+
+  let finalShortUrl = publicSelfShortUrl;
+  try {
+    const tinyRes = await fetch(
+      `https://tinyurl.com/api-create.php?url=${encodeURIComponent(urlToShorten)}`,
+      { signal: AbortSignal.timeout(2500) }
+    );
+    if (tinyRes.ok) {
+      const tinyText = (await tinyRes.text()).trim();
+      if (tinyText.startsWith('https://tinyurl.com/')) {
+        finalShortUrl = tinyText;
+      }
+    }
+  } catch {}
 
   return sendJsonResponse(res, 200, {
     code,
     path: `/m/${code}`,
-    shortUrl: selfShortUrl,
-    localShortUrl: selfShortUrl,
-    directUrl: targetUrl,
+    shortUrl: finalShortUrl,
+    localShortUrl: publicSelfShortUrl,
+    directUrl: rawMediaUrl || targetUrl,
   });
 }

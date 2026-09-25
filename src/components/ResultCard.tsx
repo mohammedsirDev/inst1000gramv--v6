@@ -198,6 +198,8 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         targetUrl: targetMediaUrl,
+        proxyUrl: fullProxyUrl,
+        mode: qrMode,
         sourceUrl: result.sourceUrl,
         slideIndex: activeSlideIndex,
         extension: ext,
