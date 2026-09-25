@@ -101,6 +101,11 @@ export const DownloaderBox: React.FC<DownloaderBoxProps> = ({
       clearTimeout(stepTimer);
 
       if (!res.ok) {
+        if (res.status === 404) {
+          throw new Error(
+            'API endpoint returned 404 Not Found on this domain. If hosting on Vercel, please push the newly added vercel.json and api/ directory so Vercel can run serverless backend functions.'
+          );
+        }
         const errorJson = await res.json().catch(() => null);
         throw new Error(
           errorJson?.error ||

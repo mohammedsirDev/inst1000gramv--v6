@@ -1,6 +1,6 @@
-import { LanguageConfig, SupportedLanguage } from './types';
-import { LANGUAGES, ALL_SUPPORTED_LANGUAGES } from './config/languages';
-import { COMMON_TRANSLATIONS } from './translations/commonData';
+import { LanguageConfig, SupportedLanguage } from './types.ts';
+import { LANGUAGES, ALL_SUPPORTED_LANGUAGES } from './config/languages.ts';
+import { COMMON_TRANSLATIONS } from './translations/commonData.ts';
 
 export { LANGUAGES, ALL_SUPPORTED_LANGUAGES };
 

@@ -6,7 +6,6 @@ import https from 'https';
 import http from 'http';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
-import { createServer as createViteServer } from 'vite';
 import SnapVideo from 'cakkatrok-instagram-downloader';
 import { instagram as igJerry } from '@jerrycoder/instagram-api';
 import { snapsave as snapsaveMediaDownloader } from 'snapsave-media-downloader';
@@ -44,21 +43,21 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Early route interceptor: intercept any relative or nested API calls (e.g. /ar/api/instagram/resolve)
+// Early route interceptor: intercept any relative or nested API calls (e.g. /ar/api/instagram/resolve, /api/instagram/resolve, or serverless /instagram/resolve)
 app.use((req: Request, res: Response, next: NextFunction) => {
-  if (req.path.includes('/api/instagram/resolve')) {
+  if (req.path.includes('instagram/resolve')) {
     return handleInstagramResolve(req, res);
   }
-  if (req.path.includes('/api/download/proxy')) {
+  if (req.path.includes('download/proxy')) {
     return handleDownloadProxy(req, res);
   }
-  if (req.path.includes('/api/download/stream')) {
+  if (req.path.includes('download/stream')) {
     return handleDownloadStream(req, res);
   }
-  if (req.path.includes('/api/download/zip')) {
+  if (req.path.includes('download/zip')) {
     return handleDownloadZip(req, res);
   }
-  if (req.path.includes('/api/ads')) {
+  if (req.path.includes('api/ads') || req.path.includes('/ads')) {
     return handleAds(req, res);
   }
   next();
@@ -1737,8 +1736,8 @@ async function handleDownloadZip(req: Request, res: Response) {
       return res.status(404).send('No media items found to archive');
     }
 
-    const urls = items.map((it) => it.directUrl || it.snapUrl || it.url);
-    const filenames = items.map((it, idx) => {
+    const urls = items.map((it: any) => it.directUrl || it.snapUrl || it.url);
+    const filenames = items.map((it: any, idx: number) => {
       const ext = it.extension || (it.type === 'video' ? 'mp4' : 'jpg');
       return `insta1000gram_${idx + 1}.${ext}`;
     });
@@ -2203,6 +2202,7 @@ async function startServer() {
   const isProd = process.env.NODE_ENV === 'production';
 
   if (!isProd) {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'custom',
@@ -2255,4 +2255,11 @@ async function startServer() {
   });
 }
 
-startServer();
+// In local / standard server mode, launch Express listener.
+// In Vercel serverless mode, Vercel invokes the exported app handler.
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+export { app, handleInstagramResolve, handleDownloadProxy, handleDownloadStream, handleDownloadZip };
+export default app;
