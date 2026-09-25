@@ -1,0 +1,8 @@
+{
+  "name": "Remix Remix Remix inst1000gram",
+  "description": "Imported from GitHub: mohammedsirDev/inst1000gram",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
