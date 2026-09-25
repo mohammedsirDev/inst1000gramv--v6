@@ -31,7 +31,7 @@ export const HowToGuide: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-12">
           <span className="text-xs font-black tracking-widest text-purple-600 uppercase bg-purple-100/70 px-3 py-1 rounded-full">
-            Quick Tutorial
+            {translations.quickTutorialBadge || 'Quick Tutorial'}
           </span>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 mt-3 tracking-tight">
             {translations.howToTitle}

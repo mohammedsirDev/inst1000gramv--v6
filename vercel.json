@@ -2,6 +2,26 @@
   "version": 2,
   "rewrites": [
     {
+      "source": "/api/instagram/resolve/",
+      "destination": "/api/instagram/resolve"
+    },
+    {
+      "source": "/api/download/proxy/",
+      "destination": "/api/download/proxy"
+    },
+    {
+      "source": "/api/download/stream/",
+      "destination": "/api/download/stream"
+    },
+    {
+      "source": "/api/download/zip/",
+      "destination": "/api/download/zip"
+    },
+    {
+      "source": "/api/qr/shorten/",
+      "destination": "/api/qr/shorten"
+    },
+    {
       "source": "/((?!api/|.*\\..*).*)",
       "destination": "/index.html"
     }

@@ -89,60 +89,113 @@ export const DownloaderBox: React.FC<DownloaderBoxProps> = ({
         setStatusMessage(translations.processingStream);
       }, 500);
 
-      const apiBase = (typeof import.meta !== 'undefined' && ((import.meta as any).env?.VITE_API_URL || (import.meta as any).env?.NEXT_PUBLIC_API_URL)) || '';
-      const resolveEndpoint = apiBase ? `${apiBase.replace(/\/$/, '')}/api/instagram/resolve` : '/api/instagram/resolve';
+      const envApi = (typeof import.meta !== 'undefined' && ((import.meta as any).env?.VITE_API_URL || (import.meta as any).env?.NEXT_PUBLIC_API_URL)) || '';
+      const candidateEndpoints: string[] = [];
 
-      const res = await fetch(resolveEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url: targetUrl,
-          mediaType: detectedType,
-        }),
-      });
+      // 1. Primary relative serverless/local endpoints:
+      candidateEndpoints.push('/api/instagram/resolve');
+      candidateEndpoints.push('/api/instagram/resolve/');
+
+      // 2. Custom environment-specified endpoint (if configured and not already root):
+      if (envApi && !envApi.startsWith('/')) {
+        const cleanEnv = envApi.replace(/\/$/, '');
+        candidateEndpoints.push(`${cleanEnv}/api/instagram/resolve`);
+        candidateEndpoints.push(`${cleanEnv}/api/instagram/resolve/`);
+      }
+
+      // 3. Redundant backup server on PythonAnywhere:
+      candidateEndpoints.push('https://simo1999.pythonanywhere.com/api/instagram/resolve/');
+
+      // Filter duplicates while preserving priority order
+      const uniqueEndpoints = Array.from(new Set(candidateEndpoints));
+
+      let lastError: Error | null = null;
+      let successfulData: InstagramMediaResult | null = null;
+
+      for (let i = 0; i < uniqueEndpoints.length; i++) {
+        const endpoint = uniqueEndpoints[i];
+        if (i > 0) {
+          setRetryCount(i);
+          setStatusMessage(`${translations.retryAttempt || 'Retrying stream through backup edge CDN...'} (${i + 1}/${uniqueEndpoints.length})`);
+        }
+
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              url: targetUrl,
+              mediaType: detectedType,
+            }),
+          });
+
+          if (res.ok) {
+            successfulData = await res.json();
+            break;
+          }
+
+          const errorJson = await res.json().catch(() => null);
+          const serverError = errorJson?.error;
+          const suggestion = errorJson?.suggestion ? ` ${errorJson.suggestion}` : '';
+
+          // If the server answered with an Instagram media condition (private, invalid, rate limit):
+          if (res.status === 403) {
+            lastError = new Error(
+              serverError || (translations.anonymousBadge ? 'This Instagram post or account is private. Instagram restricts downloads to public media only.' : 'Access restricted (403): Private Instagram post.')
+            );
+            continue;
+          }
+          if (res.status === 400) {
+            lastError = new Error(
+              serverError || 'Invalid Instagram URL format (400). Please provide a valid Instagram post, reel, story, or highlight link.'
+            );
+            continue;
+          }
+          if (res.status === 429) {
+            lastError = new Error(
+              serverError || 'Instagram rate limit reached (429). Please wait a few seconds and try again.'
+            );
+            continue;
+          }
+          if (res.status === 422) {
+            lastError = new Error(
+              (serverError ? `${serverError}${suggestion}` : null) ||
+              'Could not extract media for this Instagram URL. The media might be private, expired, or age-restricted.'
+            );
+            continue;
+          }
+
+          // If it was a 404 (endpoint not found on this host), save error and allow loop to try backup endpoint!
+          if (res.status === 404) {
+            lastError = new Error(
+              serverError || `API route not found (404) at ${endpoint}. Attempting backup node...`
+            );
+            continue;
+          }
+
+          if (res.status >= 500) {
+            lastError = new Error(
+              serverError || `Server error (${res.status}) on ${endpoint}. Attempting backup node...`
+            );
+            continue;
+          }
+
+          lastError = new Error(serverError || `Request failed with HTTP ${res.status}`);
+        } catch (fetchErr: any) {
+          lastError = fetchErr;
+        }
+      }
 
       clearTimeout(stepTimer);
 
-      if (!res.ok) {
-        const errorJson = await res.json().catch(() => null);
-        const serverError = errorJson?.error;
-        const suggestion = errorJson?.suggestion ? ` ${errorJson.suggestion}` : '';
-
-        if (res.status === 404) {
-          throw new Error(
-            serverError ||
-            `API endpoint not found (404) at ${resolveEndpoint}. Please verify that the backend API is deployed and reachable.`
-          );
+      if (!successfulData) {
+        if (lastError) {
+          throw lastError;
         }
-        if (res.status === 400) {
-          throw new Error(
-            serverError || 'Invalid request (400). Please provide a valid public Instagram URL or username.'
-          );
-        }
-        if (res.status === 403) {
-          throw new Error(
-            serverError || 'Access restricted (403). This Instagram post or account is private or age-restricted.'
-          );
-        }
-        if (res.status === 429) {
-          throw new Error(
-            serverError || 'Rate limit reached (429). Instagram is throttling requests. Please wait 10 seconds and try again.'
-          );
-        }
-        if (res.status >= 500) {
-          throw new Error(
-            serverError || `Server / extractor error (${res.status}). Failed to process this media stream. Please try again.`
-          );
-        }
-
-        throw new Error(
-          (serverError ? `${serverError}${suggestion}` : null) ||
-          'Could not retrieve media from this Instagram link. The post may be private, age-restricted, or removed by Instagram.'
-        );
+        throw new Error('All Instagram API nodes are temporarily unreachable. Please verify your connection.');
       }
 
-      const data: InstagramMediaResult = await res.json();
-      onResult(data);
+      onResult(successfulData);
     } catch (err: any) {
       console.error('Fetch error:', err);
       setError(err?.message || 'Unable to resolve Instagram media stream. Please verify the URL.');

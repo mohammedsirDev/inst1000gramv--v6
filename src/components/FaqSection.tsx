@@ -13,7 +13,7 @@ export const FaqSection: React.FC = () => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <span className="text-xs font-black tracking-widest text-emerald-600 uppercase bg-emerald-100/70 px-3 py-1 rounded-full">
-            Knowledge Base
+            {translations.faqTitle || 'FAQ'}
           </span>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 mt-3 tracking-tight">
             {translations.faqTitle}

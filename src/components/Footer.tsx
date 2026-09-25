@@ -45,7 +45,7 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Col 2: Downloaders */}
           <div>
             <h4 className="font-bold text-white text-sm uppercase tracking-wider mb-3">
-              Downloaders
+              {translations.downloadersColTitle || 'Downloaders'}
             </h4>
             <ul className="space-y-2">
               {DOWNLOADER_PAGES.map((tool) => (
@@ -64,7 +64,7 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Col 3: Popular Guides */}
           <div>
             <h4 className="font-bold text-white text-sm uppercase tracking-wider mb-3">
-              Guides &amp; Tutorials
+              {translations.guidesColTitle || 'Guides & Tutorials'}
             </h4>
             <ul className="space-y-2">
               {GUIDE_PAGES.slice(0, 5).map((guide) => (
@@ -83,12 +83,12 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Col 4: 1000 Trick */}
           <div>
             <h4 className="font-bold text-white text-sm uppercase tracking-wider mb-3">
-              ⚡ 1000 Quick Trick
+              ⚡ {translations.secretShortcutBadge || '1000 Quick Trick'}
             </h4>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Add <span className="font-bold text-pink-400 font-mono">1000</span> between "insta" and "gram" in any Instagram link to start instant download without copy-pasting.
+              {translations.secretShortcutDesc}
             </p>
-            <div className="mt-3 p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/60 font-mono text-[11px] text-slate-300 break-all">
+            <div className="mt-3 p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/60 font-mono text-[11px] text-slate-300 break-all" dir="ltr">
               https://www.insta<span className="text-pink-400 font-bold">1000</span>gram.com/reels/...
             </div>
           </div>
@@ -97,7 +97,7 @@ export const Footer: React.FC<FooterProps> = ({
         {/* 29 Languages Pill Matrix */}
         <div className="py-8 border-b border-slate-800">
           <div className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center justify-between">
-            <span>Supported Languages (29)</span>
+            <span>{translations.supportedLanguagesTitle || 'Supported Languages'} (29)</span>
             <span className="text-[10px] text-pink-400 font-mono">145 Localized SEO Pages</span>
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
@@ -133,13 +133,13 @@ export const Footer: React.FC<FooterProps> = ({
               className="text-pink-400 hover:text-pink-300 font-medium transition-colors"
               title="Download project files (.zip)"
             >
-              📥 Download Source ZIP
+              {translations.sourceZipBtn || '📥 Download Source ZIP'}
             </a>
             <button
               onClick={onOpenAdmin}
               className="text-slate-500 hover:text-slate-400 underline transition-colors"
             >
-              Control Panel
+              {translations.controlPanelBtn || 'Control Panel'}
             </button>
           </div>
         </div>

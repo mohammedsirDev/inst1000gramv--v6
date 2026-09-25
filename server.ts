@@ -703,7 +703,8 @@ function buildProjectZip(): string {
     fs.mkdirSync(publicDir, { recursive: true });
   }
   const zipPath = path.resolve(publicDir, 'insta1000gram-full-source.zip');
-  const pyCode = `
+  try {
+    const pyCode = `
 import zipfile, os
 exclude = {'node_modules', 'dist', '.git', '.cache'}
 with zipfile.ZipFile('${zipPath}', 'w', zipfile.ZIP_DEFLATED) as z:
@@ -714,7 +715,12 @@ with zipfile.ZipFile('${zipPath}', 'w', zipfile.ZIP_DEFLATED) as z:
                 fp = os.path.join(root, f)
                 z.write(fp, os.path.relpath(fp, '${__dirname}'))
 `;
-  execSync(`python3 -c "${pyCode.replace(/"/g, '\\"')}"`);
+    execSync(`python3 -c "${pyCode.replace(/"/g, '\\"')}"`, { stdio: 'pipe' });
+  } catch (err: any) {
+    if (!fs.existsSync(zipPath)) {
+      throw err;
+    }
+  }
   return zipPath;
 }
 

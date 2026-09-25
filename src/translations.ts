@@ -108,6 +108,23 @@ export interface TranslationDictionary {
   itemLabel: string;
   slideLabel: string;
   storyLabel: string;
+  downloadNotice: string;
+  creatorBadge: string;
+  scanFastBadge: string;
+  iosGuideTitle: string;
+  iosGuideDesc: string;
+  androidGuideTitle: string;
+  androidGuideDesc: string;
+  quickTutorialBadge: string;
+  performanceBadge: string;
+  downloadersColTitle: string;
+  guidesColTitle: string;
+  supportedLanguagesTitle: string;
+  controlPanelBtn: string;
+  sourceZipBtn: string;
+  availableStreamsTitle: string;
+  videoLabel: string;
+  photoLabel: string;
 }
 
 // Multi-language custom content dictionaries
@@ -169,6 +186,23 @@ interface ExtendedLanguageContent {
   itemLabel: string;
   slideLabel: string;
   storyLabel: string;
+  downloadNotice?: string;
+  creatorBadge?: string;
+  scanFastBadge?: string;
+  iosGuideTitle?: string;
+  iosGuideDesc?: string;
+  androidGuideTitle?: string;
+  androidGuideDesc?: string;
+  quickTutorialBadge?: string;
+  performanceBadge?: string;
+  downloadersColTitle?: string;
+  guidesColTitle?: string;
+  supportedLanguagesTitle?: string;
+  controlPanelBtn?: string;
+  sourceZipBtn?: string;
+  availableStreamsTitle?: string;
+  videoLabel?: string;
+  photoLabel?: string;
 }
 
 const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageContent>> = {
@@ -934,6 +968,23 @@ const EN_EXTENDED: ExtendedLanguageContent = {
   itemLabel: 'Item',
   slideLabel: 'Slide',
   storyLabel: 'Story',
+  downloadNotice: 'Download Notice',
+  creatorBadge: 'Instagram Creator',
+  scanFastBadge: 'Scans in 0.1s',
+  iosGuideTitle: 'iPhone / iPad (iOS):',
+  iosGuideDesc: 'Open Camera app → aim at code → tap yellow banner → tap Download.',
+  androidGuideTitle: 'Android (Samsung, Pixel, Xiaomi):',
+  androidGuideDesc: 'Open Camera or Google Lens → tap popup link → file saves directly into Gallery / Downloads.',
+  quickTutorialBadge: 'Quick Tutorial',
+  performanceBadge: 'Performance & Reliability',
+  downloadersColTitle: 'Downloaders',
+  guidesColTitle: 'Guides & Tutorials',
+  supportedLanguagesTitle: 'Supported Languages',
+  controlPanelBtn: 'Control Panel',
+  sourceZipBtn: 'Download Source ZIP',
+  availableStreamsTitle: 'Available Streams & Resolutions',
+  videoLabel: 'Video',
+  photoLabel: 'Photo',
 };
 
 // Generate base dictionary for any supported language using COMMON_TRANSLATIONS and rich extensions
@@ -1040,6 +1091,23 @@ function buildDictionaryForLanguage(lang: SupportedLanguage): TranslationDiction
     itemLabel: ext.itemLabel,
     slideLabel: ext.slideLabel,
     storyLabel: ext.storyLabel,
+    downloadNotice: ext.downloadNotice || 'Download Notice',
+    creatorBadge: ext.creatorBadge || 'Instagram Creator',
+    scanFastBadge: ext.scanFastBadge || 'Scans in 0.1s',
+    iosGuideTitle: ext.iosGuideTitle || 'iPhone / iPad (iOS):',
+    iosGuideDesc: ext.iosGuideDesc || 'Open Camera app → aim at code → tap yellow banner → tap Download.',
+    androidGuideTitle: ext.androidGuideTitle || 'Android (Samsung, Pixel, Xiaomi):',
+    androidGuideDesc: ext.androidGuideDesc || 'Open Camera or Google Lens → tap popup link → file saves directly into Gallery / Downloads.',
+    quickTutorialBadge: ext.quickTutorialBadge || 'Quick Tutorial',
+    performanceBadge: ext.performanceBadge || 'Performance & Reliability',
+    downloadersColTitle: ext.downloadersColTitle || 'Downloaders',
+    guidesColTitle: ext.guidesColTitle || 'Guides & Tutorials',
+    supportedLanguagesTitle: ext.supportedLanguagesTitle || 'Supported Languages',
+    controlPanelBtn: ext.controlPanelBtn || 'Control Panel',
+    sourceZipBtn: ext.sourceZipBtn || 'Download Source ZIP',
+    availableStreamsTitle: ext.availableStreamsTitle || 'Available Streams & Resolutions',
+    videoLabel: ext.videoLabel || 'Video',
+    photoLabel: ext.photoLabel || 'Photo',
   };
 }
 

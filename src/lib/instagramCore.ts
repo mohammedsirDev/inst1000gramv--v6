@@ -9,6 +9,19 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const archiver = require('archiver');
 
+export function createZipArchive(options: any = { zlib: { level: 6 } }) {
+  if (typeof archiver === 'function') {
+    return archiver('zip', options);
+  }
+  if (archiver?.ZipArchive) {
+    return new archiver.ZipArchive(options);
+  }
+  if (archiver?.Archiver) {
+    return new archiver.Archiver('zip', options);
+  }
+  throw new Error('ZIP archive constructor unavailable');
+}
+
 // Helper to set universal CORS headers
 export function setCorsHeaders(res: any) {
   if (!res || res.headersSent) return;
@@ -277,16 +290,33 @@ export async function fetchSnapVideoWithCookies(targetUrl: string): Promise<any[
 
     if (liBlocks.length > 0) {
       liBlocks.forEach((block: string, idx: number) => {
-        const videoMatch = block.match(/href="([^"]+)"[^>]*class="[^"]*btn-download[^"]*"[^>]*title="Download Video"/i) ||
+        const videoMatch =
           block.match(/href="([^"]+)"[^>]*title="Download Video"/i) ||
+          block.match(/title="Download Video"[^>]*href="([^"]+)"/i) ||
+          block.match(/href="([^"]+)"[^>]*class="[^"]*btn-download[^"]*"[^>]*title="Download Video"/i) ||
+          (block.includes('Download Video') || block.includes('Download MP4') ? block.match(/href="([^"]+)"[^>]*class="[^"]*abutton[^"]*"/i) : null) ||
           block.match(/href="([^"]+)"[^>]*>(?:Download Video|Download MP4)/i);
-        const photoMatch = block.match(/href="([^"]+)"[^>]*class="[^"]*btn-download[^"]*"[^>]*title="Download Photo"/i) ||
-          block.match(/href="([^"]+)"[^>]*title="Download Photo"/i) ||
+
+        const photoMatch =
+          block.match(/href="([^"]+)"[^>]*title="Download (?:Photo|Image|JPG)"/i) ||
+          block.match(/title="Download (?:Photo|Image|JPG)"[^>]*href="([^"]+)"/i) ||
+          block.match(/href="([^"]+)"[^>]*class="[^"]*btn-download[^"]*"[^>]*title="Download Photo"/i) ||
+          (block.includes('Download Image') || block.includes('Download Photo') || block.includes('Download JPG') ? block.match(/href="([^"]+)"[^>]*class="[^"]*abutton[^"]*"/i) : null) ||
+          block.match(/<a\b[^>]*href="([^"]+)"[^>]*class="[^"]*abutton[^"]*"/i) ||
+          block.match(/<a\b[^>]*class="[^"]*abutton[^"]*"[^>]*href="([^"]+)"/i) ||
           block.match(/href="([^"]+)"[^>]*>(?:Download Photo|Download Image|Download JPG)/i);
+
+        const snapDlMatch =
+          block.match(/href="([^"]*(?:download\.php\?token=|snapcdn\.app|cdninstagram\.com)[^"]*)"/i) ||
+          block.match(/<a\b[^>]*\bhref="([^"]+)"[^>]*class="[^"]*(?:abutton|btn-download|btn-premium)[^"]*"[^>]*>/i) ||
+          block.match(/<a\b[^>]*\bclass="[^"]*(?:abutton|btn-download|btn-premium)[^"]*"[^>]*\bhref="([^"]+)"[^>]*>/i) ||
+          block.match(/<a\b[^>]*\bhref="([^"]+)"[^>]*>/i);
+
+        const optionMatch = block.match(/<option\b[^>]*value="([^"]+)"[^>]*>/i);
         const thumbMatch = block.match(/<img[^>]+src="([^"]+)"/i);
 
-        const dlUrl = videoMatch ? videoMatch[1] : (photoMatch ? photoMatch[1] : null);
-        const isVideo = Boolean(videoMatch);
+        const dlUrl = videoMatch ? videoMatch[1] : (photoMatch ? photoMatch[1] : (snapDlMatch ? snapDlMatch[1] : (optionMatch ? optionMatch[1] : null)));
+        const isVideo = Boolean(videoMatch) || /video|mp4/i.test(block) || /Download Video|Download MP4/i.test(block) || Boolean(dlUrl && (dlUrl.includes('.mp4') || dlUrl.includes('video')));
 
         if (dlUrl) {
           const cleanDlUrl = decodeHtml(dlUrl);
@@ -581,7 +611,8 @@ export async function extractFromInstagramDirectBot(
 ): Promise<{ items: any[]; author?: string; caption?: string }> {
   try {
     let cleanTarget = targetUrl;
-    if (shortcode && (targetUrl.includes('/p/') || targetUrl.includes('/reel/'))) {
+    const isHighlightOrStory = targetUrl.includes('/stories/') || targetUrl.includes('/s/');
+    if (!isHighlightOrStory && shortcode && (targetUrl.includes('/p/') || targetUrl.includes('/reel/'))) {
       cleanTarget = `https://www.instagram.com/p/${shortcode}/`;
     }
 
@@ -647,6 +678,64 @@ export async function extractFromInstagramDirectBot(
   }
 }
 
+// Engine 7: PythonAnywhere Django API Fallback Extractor
+export async function extractFromDjangoBackend(
+  url: string
+): Promise<{ items: any[]; author?: string; caption?: string }> {
+  try {
+    const res = await fetch('https://simo1999.pythonanywhere.com/api/instagram/resolve/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) return { items: [] };
+    const data: any = await res.json().catch(() => null);
+    if (!data || data.error) return { items: [] };
+
+    const items: any[] = [];
+    if (Array.isArray(data.slides) && data.slides.length > 0) {
+      data.slides.forEach((s: any, idx: number) => {
+        const isVid = s.type === 'video' || (s.directUrl && s.directUrl.includes('.mp4'));
+        items.push({
+          type: isVid ? 'video' : 'image',
+          url: s.directUrl || s.url,
+          directUrl: s.directUrl || s.url,
+          snapUrl: s.directUrl || s.url,
+          thumbnailUrl: s.thumbnail || s.directUrl,
+          mime_type: isVid ? 'video/mp4' : 'image/jpeg',
+          extension: isVid ? 'mp4' : 'jpg',
+          filename: `insta1000gram_${isVid ? 'video' : 'photo'}_${idx + 1}.${isVid ? 'mp4' : 'jpg'}`,
+          resolution: s.resolution || (isVid ? '1080p Full HD' : 'Original Master HD'),
+          index: idx + 1,
+        });
+      });
+    } else if (data.directUrl) {
+      const isVid = data.type === 'video' || data.directUrl.includes('.mp4');
+      items.push({
+        type: isVid ? 'video' : 'image',
+        url: data.directUrl,
+        directUrl: data.directUrl,
+        snapUrl: data.directUrl,
+        thumbnailUrl: data.thumbnail || data.directUrl,
+        mime_type: isVid ? 'video/mp4' : 'image/jpeg',
+        extension: isVid ? 'mp4' : 'jpg',
+        filename: `insta1000gram_${isVid ? 'video' : 'photo'}_1.${isVid ? 'mp4' : 'jpg'}`,
+        resolution: isVid ? '1080p Full HD' : 'Original Master HD',
+        index: 1,
+      });
+    }
+
+    return {
+      items: deduplicateMediaItems(items),
+      author: data.author,
+      caption: data.title,
+    };
+  } catch {
+    return { items: [] };
+  }
+}
+
 // In-memory shortlink storage for QR code mobile downloads
 export interface ShortLinkRecord {
   code: string;
@@ -681,6 +770,7 @@ export async function handleInstagramResolve(req: any, res: any) {
   // Handle shared Highlight links (e.g., https://www.instagram.com/s/aGlnaGxpZ2h0OjE3OTAwMjQxMjEwNjY2OTgz?...)
   let normalizedUrl = cleanUrl;
   let isSharedHighlight = false;
+  const originalQueryPart = cleanUrl.includes('?') ? cleanUrl.substring(cleanUrl.indexOf('?')) : '';
 
   const sharedHighlightMatch = cleanUrl.match(/\/s\/([a-zA-Z0-9_\-=]+)/i);
   if (sharedHighlightMatch) {
@@ -690,14 +780,14 @@ export async function handleInstagramResolve(req: any, res: any) {
       const decodedText = Buffer.from(padded, 'base64').toString('utf-8');
       const highlightIdMatch = decodedText.match(/highlight:(\d+)/i) || decodedText.match(/(\d{10,})/);
       if (highlightIdMatch) {
-        normalizedUrl = `https://www.instagram.com/stories/highlights/${highlightIdMatch[1]}/`;
+        normalizedUrl = `https://www.instagram.com/stories/highlights/${highlightIdMatch[1]}/${originalQueryPart}`;
         isSharedHighlight = true;
       }
     } catch {
       // If base64 decode fails, check if the string contains a numeric ID
       const directDigits = rawEncoded.match(/(\d{10,})/);
       if (directDigits) {
-        normalizedUrl = `https://www.instagram.com/stories/highlights/${directDigits[1]}/`;
+        normalizedUrl = `https://www.instagram.com/stories/highlights/${directDigits[1]}/${originalQueryPart}`;
         isSharedHighlight = true;
       }
     }
@@ -711,10 +801,11 @@ export async function handleInstagramResolve(req: any, res: any) {
   const storyMediaIdMatch = cleanUrl.match(/[?&]story_media_id=([0-9_]+)/i);
   const targetStoryMediaId = storyMediaIdMatch ? storyMediaIdMatch[1] : null;
 
-  // Clean tracking query parameters while preserving img_index and story_media_id
+  // Clean tracking query parameters while strictly preserving critical media keys:
+  // img_index, story_media_id, stkn, utm_source, igsh
   try {
     const parsed = new URL(normalizedUrl);
-    const keepKeys = ['img_index', 'story_media_id'];
+    const keepKeys = ['img_index', 'story_media_id', 'stkn', 'utm_source', 'igsh'];
     const currentParams = Array.from(parsed.searchParams.keys());
     for (const key of currentParams) {
       if (!keepKeys.includes(key.toLowerCase())) {
@@ -730,10 +821,14 @@ export async function handleInstagramResolve(req: any, res: any) {
   const cached = resolvedMediaCache.get(cacheKey) || resolvedMediaCache.get(rawCacheKey);
 
   if (cached && cached.expiry > Date.now() && cached.data?.items?.length > 0) {
-    return sendJsonResponse(res, 200, {
-      ...cached.data,
-      networkLatencyMs: Date.now() - startTime + 5,
-    });
+    const isSinglePhotoCached = cached.data.items.length === 1 && (cached.data.type === 'photo' || cached.data.mediaType === 'photo');
+    // If only 1 item was cached for a post, verify it is not an incomplete carousel fallback
+    if (!isSinglePhotoCached || cached.data.isVerifiedSingle) {
+      return sendJsonResponse(res, 200, {
+        ...cached.data,
+        networkLatencyMs: Date.now() - startTime + 5,
+      });
+    }
   }
 
   // Extract shortcode or highlight ID
@@ -806,6 +901,22 @@ export async function handleInstagramResolve(req: any, res: any) {
       if (botRes.items && botRes.items.length > 0) {
         resolvedItems = botRes.items;
         directScraperMeta = { author: botRes.author, caption: botRes.caption };
+      }
+    } catch {}
+  }
+
+  // Engine 7: PythonAnywhere Django API Fallback Extractor
+  if (!resolvedItems || resolvedItems.length === 0) {
+    try {
+      const djangoRes = await extractFromDjangoBackend(normalizedUrl);
+      if (djangoRes.items && djangoRes.items.length > 0) {
+        resolvedItems = djangoRes.items;
+        if (!directScraperMeta.author && djangoRes.author) {
+          directScraperMeta.author = djangoRes.author;
+        }
+        if (!directScraperMeta.caption && djangoRes.caption) {
+          directScraperMeta.caption = djangoRes.caption;
+        }
       }
     } catch {}
   }
@@ -1273,7 +1384,7 @@ export async function handleDownloadZip(req: any, res: any) {
     res.setHeader('Content-Type', 'application/zip');
     res.setHeader('Content-Disposition', `attachment; filename="${safeZipName}"`);
 
-    const archive = archiver('zip', { zlib: { level: 6 } });
+    const archive = createZipArchive({ zlib: { level: 6 } });
     archive.on('error', (err: any) => {
       console.error('Archive error:', err);
       if (!res.headersSent) {
@@ -1347,7 +1458,7 @@ export async function handleDownloadZip(req: any, res: any) {
     res.setHeader('Content-Type', 'application/zip');
     res.setHeader('Content-Disposition', `attachment; filename="${safeZipName}"`);
 
-    const archive = archiver('zip', { zlib: { level: 6 } });
+    const archive = createZipArchive({ zlib: { level: 6 } });
     archive.on('error', (err: any) => {
       console.error('Archive error:', err);
       if (!res.headersSent) {

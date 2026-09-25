@@ -531,7 +531,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                     {downloadProgress.status === 'completed'
                       ? (translations.downloadComplete || 'Download Complete!')
                       : downloadProgress.status === 'error'
-                      ? 'Download Notice'
+                      ? (translations.downloadNotice || 'Download Notice')
                       : (translations.downloading || 'Downloading...')}
                   </p>
                   <p className="text-[11px] text-slate-500 font-mono truncate">
@@ -639,7 +639,9 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                   <span className="font-extrabold text-xs sm:text-sm text-slate-800 block truncate">
                     @{authorUsername}
                   </span>
-                  <span className="text-[10px] text-slate-600 font-medium">Instagram Creator</span>
+                  <span className="text-[10px] text-slate-600 font-medium">
+                    {translations.creatorBadge || 'Instagram Creator'}
+                  </span>
                 </div>
               </div>
 
@@ -722,7 +724,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                     ({result.slides.length} items):
                   </p>
                   <span className="text-[11px] text-pink-600 font-semibold">
-                    #{activeSlideIndex + 1} ({currentSlide?.type === 'video' ? 'Video' : 'Photo'})
+                    #{activeSlideIndex + 1} ({currentSlide?.type === 'video' ? (translations.videoLabel || 'Video') : (translations.photoLabel || 'Photo')})
                   </span>
                 </div>
                 <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
@@ -864,7 +866,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
               <div className="mt-5 space-y-2.5">
                 <div className="flex items-center justify-between pb-1">
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                    {translations.readyInHD || 'Available Streams & Resolutions'}
+                    {translations.availableStreamsTitle || translations.readyInHD || 'Available Streams & Resolutions'}
                   </span>
                   <button
                     onClick={() => {
@@ -1028,10 +1030,10 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                             </span>
                             <span className="font-semibold text-slate-800 truncate">
                               {result.type === 'highlight'
-                                ? 'Item'
+                                ? (translations.itemLabel || 'Item')
                                 : result.type === 'carousel'
-                                ? 'Slide'
-                                : 'Story'}{' '}
+                                ? (translations.slideLabel || 'Slide')
+                                : (translations.storyLabel || 'Story')}{' '}
                               #{idx + 1} ({s.type === 'video' ? 'MP4' : 'JPG'})
                             </span>
                           </div>
@@ -1056,7 +1058,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                 rel="noopener noreferrer"
                 className="text-xs text-slate-500 hover:text-slate-800 flex items-center gap-1 font-medium transition-colors"
               >
-                <span>View original post on Instagram</span>
+                <span>{translations.viewOriginalPost || 'View original post on Instagram'}</span>
                 <ExternalLink className="w-3 h-3" />
               </a>
 
@@ -1064,7 +1066,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                 onClick={onClear}
                 className="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
               >
-                Download Another Link
+                {translations.downloadAnother || 'Download Another Link'}
               </button>
             </div>
           </div>
@@ -1097,14 +1099,14 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       </span>
                     </h3>
                     <p className="text-[11px] sm:text-xs text-slate-500 font-medium">
-                      Point camera to save directly into Camera Roll / Gallery
+                      {translations.pointCamera || 'Point camera to save directly into Camera Roll / Gallery'}
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={() => setIsQrModalOpen(false)}
                   className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors cursor-pointer shrink-0"
-                  title="Close"
+                  title={translations.close || 'Close'}
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -1120,7 +1122,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  ⚡ Direct Mobile Stream
+                  {translations.directMobileStream || '⚡ Direct Mobile Stream'}
                 </button>
                 <button
                   onClick={() => setQrMode('proxy')}
@@ -1130,7 +1132,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  🌐 Download Proxy
+                  {translations.downloadProxy || '🌐 Download Proxy'}
                 </button>
               </div>
 
@@ -1140,7 +1142,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                   {isGeneratingQr ? (
                     <div className="flex flex-col items-center justify-center p-8 text-center text-slate-400">
                       <Loader2 className="w-8 h-8 animate-spin text-pink-500 mb-2" />
-                      <span className="text-xs font-semibold">Generating HD QR code...</span>
+                      <span className="text-xs font-semibold">{translations.generatingQr || 'Generating HD QR code...'}</span>
                     </div>
                   ) : qrCodeDataUrl ? (
                     <>
@@ -1155,7 +1157,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       <div className="mt-2.5 text-center">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-bold bg-slate-100 text-slate-800">
                           <Zap className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                          {activeFormatForQr?.quality || '1080p Ultra HD'} • Scans in 0.1s
+                          {activeFormatForQr?.quality || '1080p Ultra HD'} • {translations.scanFastBadge || 'Scans in 0.1s'}
                         </span>
                       </div>
                     </>
@@ -1177,9 +1179,9 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2.5">
                   <span className="text-base leading-none shrink-0">🍏</span>
                   <div>
-                    <p className="font-bold text-slate-900">iPhone / iPad (iOS):</p>
+                    <p className="font-bold text-slate-900">{translations.iosGuideTitle || 'iPhone / iPad (iOS):'}</p>
                     <p className="text-slate-600 text-[11px] leading-relaxed">
-                      Open Camera app → aim at code → tap yellow banner → tap <strong>Download</strong>.
+                      {translations.iosGuideDesc || 'Open Camera app → aim at code → tap yellow banner → tap Download.'}
                     </p>
                   </div>
                 </div>
@@ -1187,10 +1189,9 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2.5">
                   <span className="text-base leading-none shrink-0">🤖</span>
                   <div>
-                    <p className="font-bold text-slate-900">Android (Samsung, Pixel, Xiaomi):</p>
+                    <p className="font-bold text-slate-900">{translations.androidGuideTitle || 'Android (Samsung, Pixel, Xiaomi):'}</p>
                     <p className="text-slate-600 text-[11px] leading-relaxed">
-                      Open Camera or Google Lens → tap popup link → file saves directly into{' '}
-                      <strong>Gallery / Downloads</strong>.
+                      {translations.androidGuideDesc || 'Open Camera or Google Lens → tap popup link → file saves directly into Gallery / Downloads.'}
                     </p>
                   </div>
                 </div>
@@ -1209,12 +1210,12 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                   {copiedLink ? (
                     <>
                       <Check className="w-4 h-4 text-emerald-400" />
-                      <span className="text-emerald-300">Link Copied!</span>
+                      <span className="text-emerald-300">{translations.linkCopied || 'Link Copied!'}</span>
                     </>
                   ) : (
                     <>
                       <Copy className="w-4 h-4" />
-                      <span>Copy Mobile Link</span>
+                      <span>{translations.copyMobileLink || 'Copy Mobile Link'}</span>
                     </>
                   )}
                 </button>
@@ -1228,14 +1229,14 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                     title="Preview this exact link in your browser"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
-                    <span>Test Link</span>
+                    <span>{translations.testLink || 'Test Link'}</span>
                   </a>
 
                   <button
                     onClick={() => setIsQrModalOpen(false)}
                     className="flex-1 sm:flex-initial py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer text-center"
                   >
-                    Done
+                    {translations.close || 'Done'}
                   </button>
                 </div>
               </div>
