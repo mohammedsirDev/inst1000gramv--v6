@@ -1649,10 +1649,21 @@ export async function handleQrShorten(req: any, res: any) {
     if (!targetUrl && rawCode.includes('.')) {
       try {
         const tokenPart = rawCode.split('.').slice(1).join('.');
-        const decodedPayload = JSON.parse(Buffer.from(tokenPart, 'base64url').toString('utf-8'));
-        const igPath = decodedPayload?.p || '';
-        const slideIdx = Number(decodedPayload?.i) || 0;
-        const reqExt = String(decodedPayload?.e || '').toLowerCase();
+        const rawDecoded = Buffer.from(tokenPart, 'base64url').toString('utf-8');
+        let igPath = '';
+        let slideIdx = 0;
+        let reqExt = '';
+        if (rawDecoded.includes('|')) {
+          const [p, i, e] = rawDecoded.split('|');
+          igPath = p || '';
+          slideIdx = Number(i) || 0;
+          reqExt = String(e || '').toLowerCase();
+        } else {
+          const decodedPayload = JSON.parse(rawDecoded);
+          igPath = decodedPayload?.p || '';
+          slideIdx = Number(decodedPayload?.i) || 0;
+          reqExt = String(decodedPayload?.e || '').toLowerCase();
+        }
         if (reqExt) ext = reqExt;
 
         if (igPath) {
@@ -1772,13 +1783,7 @@ export async function handleQrShorten(req: any, res: any) {
   const ext = String(extension || (filename ? filename.split('.').pop() : '') || 'mp4').toLowerCase();
   let code = shortId;
   if (igPath) {
-    const token = Buffer.from(
-      JSON.stringify({
-        p: igPath,
-        i: Number(slideIndex) || 0,
-        e: ext,
-      })
-    ).toString('base64url');
+    const token = Buffer.from(`${igPath}|${Number(slideIndex) || 0}|${ext}`).toString('base64url');
     code = `${shortId}.${token}`;
   }
 
@@ -1816,31 +1821,10 @@ export async function handleQrShorten(req: any, res: any) {
 
   const publicSelfShortUrl = `https://${publicHost}/m/${code}`;
 
-  // If we have a direct attachment CDN URL (e.g. dl.snapcdn.app) and mode !== 'proxy' and ext !== 'mp3',
-  // or if we shorten publicSelfShortUrl via TinyURL, phone cameras get an instant direct download without ever hitting vercel.com SSO
-  const urlToShorten =
-    ext !== 'mp3' && mode !== 'proxy' && rawMediaUrl.includes('snapcdn.app')
-      ? rawMediaUrl
-      : publicSelfShortUrl;
-
-  let finalShortUrl = publicSelfShortUrl;
-  try {
-    const tinyRes = await fetch(
-      `https://tinyurl.com/api-create.php?url=${encodeURIComponent(urlToShorten)}`,
-      { signal: AbortSignal.timeout(2500) }
-    );
-    if (tinyRes.ok) {
-      const tinyText = (await tinyRes.text()).trim();
-      if (tinyText.startsWith('https://tinyurl.com/')) {
-        finalShortUrl = tinyText;
-      }
-    }
-  } catch {}
-
   return sendJsonResponse(res, 200, {
     code,
     path: `/m/${code}`,
-    shortUrl: finalShortUrl,
+    shortUrl: publicSelfShortUrl,
     localShortUrl: publicSelfShortUrl,
     directUrl: rawMediaUrl || targetUrl,
   });

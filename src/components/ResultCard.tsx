@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
+import QRCode from 'qrcode';
 import { useLanguage } from '../context/LanguageContext';
 import { InstagramMediaResult, MediaFormat } from '../types';
 import {
@@ -210,29 +211,36 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
       }),
     })
       .then((res) => res.json())
-      .then((data) => {
+      .then(async (data) => {
         if (!isMounted) return;
         const mobileUrl =
           data.shortUrl ||
           (typeof window !== 'undefined' ? `${window.location.origin}${data.path}` : data.path);
         setQrShortUrl(mobileUrl);
-        setIsGeneratingQr(false);
-        setQrCodeDataUrl(
-          `https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=4&data=${encodeURIComponent(
-            mobileUrl
-          )}`
-        );
-      })
-      .catch(() => {
+        const dataUrl = await QRCode.toDataURL(mobileUrl, {
+          width: 280,
+          margin: 2,
+          errorCorrectionLevel: 'M',
+          color: { dark: '#0f172a', light: '#ffffff' },
+        });
         if (!isMounted) return;
+        setQrCodeDataUrl(dataUrl);
         setIsGeneratingQr(false);
+      })
+      .catch(async () => {
+        if (!isMounted) return;
         const fallbackDlUrl = fullProxyUrl || targetMediaUrl;
         setQrShortUrl(fallbackDlUrl);
-        setQrCodeDataUrl(
-          `https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=4&data=${encodeURIComponent(
-            fallbackDlUrl
-          )}`
-        );
+        try {
+          const dataUrl = await QRCode.toDataURL(fallbackDlUrl, {
+            width: 280,
+            margin: 2,
+            errorCorrectionLevel: 'M',
+            color: { dark: '#0f172a', light: '#ffffff' },
+          });
+          if (isMounted) setQrCodeDataUrl(dataUrl);
+        } catch {}
+        if (isMounted) setIsGeneratingQr(false);
       });
 
     return () => {
