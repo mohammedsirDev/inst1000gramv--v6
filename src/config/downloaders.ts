@@ -1,4 +1,4 @@
-import { DownloaderSlug, MediaType } from '../types';
+import type { DownloaderSlug, MediaType } from '../types.ts';
 
 export interface DownloaderDefinition {
   slug: DownloaderSlug;

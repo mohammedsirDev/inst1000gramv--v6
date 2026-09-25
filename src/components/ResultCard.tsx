@@ -26,7 +26,20 @@ import {
   Archive,
   ChevronLeft,
   ChevronRight,
+  AlertCircle,
 } from 'lucide-react';
+
+export interface DownloadProgressInfo {
+  formatId: string;
+  filename: string;
+  percent: number;
+  loadedBytes: number;
+  totalBytes: number;
+  speedText?: string;
+  downloadUrl?: string;
+  status: 'connecting' | 'downloading' | 'completed' | 'error';
+  errorMessage?: string;
+}
 
 interface ResultCardProps {
   result: InstagramMediaResult;
@@ -40,8 +53,10 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
   const safeNetworkLatencyMs = Number(result?.networkLatencyMs ?? 45) || 45;
   const safeMediaType = result?.type || (result?.mediaType as any) || 'video';
   const [downloadingFormatId, setDownloadingFormatId] = useState<string | null>(null);
+  const [downloadProgress, setDownloadProgress] = useState<DownloadProgressInfo | null>(null);
   const [activeSlideIndex, setActiveSlideIndex] = useState<number>(result?.selectedIndex ?? 0);
   const [downloadSuccessMessage, setDownloadSuccessMessage] = useState<{ text: string; url?: string } | null>(null);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
   const [isQrModalOpen, setIsQrModalOpen] = useState<boolean>(false);
   const [selectedQrFormat, setSelectedQrFormat] = useState<MediaFormat | null>(null);
   const [qrMode, setQrMode] = useState<'direct' | 'proxy'>('direct');
@@ -105,7 +120,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
       });
       dynamicList.push({
         id: `slide-fmt-audio-${activeSlideIndex}`,
-        quality: `Audio Only (MP3)`,
+        quality: translations.downloadAudio || 'Audio Only (MP3)',
         resolution: '320 kbps Original Track',
         extension: 'mp3',
         size: 'Original Audio',
@@ -126,31 +141,44 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
     }
 
     // Preserve the ZIP download format if present in the main result
-    const zipFormat = result.formats?.find(f => f.extension === 'zip');
+    const zipFormat = result.formats?.find((f) => f.extension === 'zip');
     if (zipFormat) {
       dynamicList.push(zipFormat);
     }
 
     return dynamicList;
-  }, [currentSlide, activeSlideIndex, result]);
+  }, [currentSlide, activeSlideIndex, result, translations]);
 
-  const primaryFormat = activeFormats.find(f => f.quality?.includes('1080p') || f.quality?.includes('Master')) || activeFormats[0] || {
-    id: 'fmt-direct',
-    quality: '1080p Full HD',
-    resolution: '1080p HD',
-    extension: isSlideVideo ? 'mp4' : 'jpg',
-    size: 'HD',
-    downloadUrl: result?.directUrl || '',
-    directUrl: result?.directUrl || '',
-  };
+  const primaryFormat =
+    activeFormats.find((f) => f.quality?.includes('1080p') || f.quality?.includes('Master')) ||
+    activeFormats[0] || {
+      id: 'fmt-direct',
+      quality: '1080p Full HD',
+      resolution: '1080p HD',
+      extension: isSlideVideo ? 'mp4' : 'jpg',
+      size: 'HD',
+      downloadUrl: result?.directUrl || '',
+      directUrl: result?.directUrl || '',
+    };
   const activeFormatForQr = selectedQrFormat || primaryFormat;
 
-  const directCandidate = activeFormatForQr?.directUrl || result?.directUrl || (currentSlide?.directUrl) || activeVideoUrl || result?.sourceUrl;
-  const proxyCandidate = activeFormatForQr?.downloadUrl || (currentSlide?.downloadUrl) || primaryFormat?.downloadUrl || '';
+  const directCandidate =
+    activeFormatForQr?.directUrl ||
+    result?.directUrl ||
+    currentSlide?.directUrl ||
+    activeVideoUrl ||
+    result?.sourceUrl;
+  const proxyCandidate =
+    activeFormatForQr?.downloadUrl ||
+    currentSlide?.downloadUrl ||
+    primaryFormat?.downloadUrl ||
+    '';
   const fullProxyUrl = proxyCandidate.startsWith('http')
     ? proxyCandidate
-    : (typeof window !== 'undefined' ? `${window.location.origin}${proxyCandidate}` : proxyCandidate);
-  const fullQrTargetUrl = (qrMode === 'direct' && directCandidate) ? directCandidate : fullProxyUrl;
+    : typeof window !== 'undefined'
+    ? `${window.location.origin}${proxyCandidate}`
+    : proxyCandidate;
+  const fullQrTargetUrl = qrMode === 'direct' && directCandidate ? directCandidate : fullProxyUrl;
 
   // Generate ultra-short, camera-scannable QR code whenever the modal opens or format changes
   useEffect(() => {
@@ -158,9 +186,11 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
 
     let isMounted = true;
     setIsGeneratingQr(true);
-    
+
     const targetMediaUrl = fullQrTargetUrl;
-    const targetFilename = `insta1000gram_${result.type}_${(activeFormatForQr?.quality || '1080p').replace(/[^a-zA-Z0-9]/g, '_')}.${activeFormatForQr?.extension || 'mp4'}`;
+    const targetFilename = `insta1000gram_${result.type}_${(
+      activeFormatForQr?.quality || '1080p'
+    ).replace(/[^a-zA-Z0-9]/g, '_')}.${activeFormatForQr?.extension || 'mp4'}`;
 
     fetch('/api/qr/shorten', {
       method: 'POST',
@@ -176,11 +206,15 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
       .then((res) => res.json())
       .then((data) => {
         if (!isMounted) return;
-        const mobileUrl = data.shortUrl || (typeof window !== 'undefined' ? `${window.location.origin}${data.path}` : data.path);
+        const mobileUrl =
+          data.shortUrl ||
+          (typeof window !== 'undefined' ? `${window.location.origin}${data.path}` : data.path);
         setQrShortUrl(mobileUrl);
         setIsGeneratingQr(false);
         setQrCodeDataUrl(
-          `https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=4&data=${encodeURIComponent(mobileUrl)}`
+          `https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=4&data=${encodeURIComponent(
+            mobileUrl
+          )}`
         );
       })
       .catch(() => {
@@ -188,7 +222,9 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
         setIsGeneratingQr(false);
         setQrShortUrl(targetMediaUrl);
         setQrCodeDataUrl(
-          `https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=4&data=${encodeURIComponent(targetMediaUrl)}`
+          `https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=4&data=${encodeURIComponent(
+            targetMediaUrl
+          )}`
         );
       });
 
@@ -197,21 +233,18 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
     };
   }, [isQrModalOpen, activeFormatForQr, qrMode]);
 
-  const [downloadError, setDownloadError] = useState<string | null>(null);
-
   /**
-   * Complete, robust download pipeline:
-   * 1. Sets download spinner state
-   * 2. Issues fetch() to /api/download/proxy (or media URL)
-   * 3. Validates response.ok
-   * 4. Converts response to binary Blob (response.blob())
-   * 5. Generates same-origin URL.createObjectURL(blob)
-   * 6. Creates temporary <a> element with download attribute
-   * 7. Appends to document.body, triggers .click(), removes element
-   * 8. Cleans up object URL via URL.revokeObjectURL()
+   * Complete download pipeline with LIVE PROGRESS TRACKING:
+   * 1. Connects to streaming proxy endpoint
+   * 2. Reads chunks via response.body.getReader()
+   * 3. Live calculates percent, downloaded MB, total MB, speed
+   * 4. Converts to binary Blob
+   * 5. Triggers native browser download dialog
+   * 6. Provides instant browser fallback link
    */
   const downloadViaBlob = async (targetUrl: string, filename: string, formatId?: string) => {
-    if (formatId) setDownloadingFormatId(formatId);
+    const fid = formatId || 'default';
+    setDownloadingFormatId(fid);
     setDownloadError(null);
 
     const safeFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
@@ -226,13 +259,25 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
     ) {
       const ext = safeFilename.split('.').pop()?.toLowerCase() || 'mp4';
       const isImg = ext === 'jpg' || ext === 'jpeg' || ext === 'png' || ext === 'webp';
-      const type = ext === 'mp3' ? 'audio' : (isImg ? 'photo' : 'video');
-      downloadProxyUrl = `/api/download/proxy?url=${encodeURIComponent(targetUrl)}&filename=${encodeURIComponent(safeFilename)}&type=${type}`;
+      const type = ext === 'mp3' ? 'audio' : isImg ? 'photo' : 'video';
+      downloadProxyUrl = `/api/download/proxy?url=${encodeURIComponent(
+        targetUrl
+      )}&filename=${encodeURIComponent(safeFilename)}&type=${type}`;
     }
+
+    setDownloadProgress({
+      formatId: fid,
+      filename: safeFilename,
+      percent: 0,
+      loadedBytes: 0,
+      totalBytes: 0,
+      downloadUrl: downloadProxyUrl,
+      status: 'connecting',
+    });
 
     try {
       setDownloadSuccessMessage({
-        text: `Downloading ${safeFilename}...`,
+        text: `${translations.downloading || 'Downloading'} ${safeFilename}...`,
         url: downloadProxyUrl,
       });
 
@@ -240,7 +285,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
       const response = await fetch(downloadProxyUrl, {
         method: 'GET',
         headers: {
-          'Accept': '*/*',
+          Accept: '*/*',
         },
       });
 
@@ -250,20 +295,81 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
           const jsonErr = await response.json();
           errBody = jsonErr.error || jsonErr.message || '';
         } catch {}
-        throw new Error(errBody || `Download server returned HTTP ${response.status} (${response.statusText})`);
+        throw new Error(
+          errBody || `Download server returned HTTP ${response.status} (${response.statusText})`
+        );
       }
 
-      // 2. Obtain binary Blob from response
-      const blob = await response.blob();
+      const contentLength = Number(response.headers.get('content-length')) || 0;
+      const chunks: Uint8Array[] = [];
+      let receivedLength = 0;
+      const startTime = Date.now();
+
+      // 2. Read live data chunks with real progress calculation
+      if (response.body && response.body.getReader) {
+        const reader = response.body.getReader();
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          if (value) {
+            chunks.push(value);
+            receivedLength += value.length;
+            const elapsed = (Date.now() - startTime) / 1000;
+            const speedMb =
+              elapsed > 0 ? (receivedLength / (1024 * 1024) / elapsed).toFixed(1) : '1.5';
+
+            let pct = 0;
+            if (contentLength > 0) {
+              pct = Math.min(99, Math.round((receivedLength / contentLength) * 100));
+            } else {
+              // Simulated estimation for chunked streaming without content-length
+              pct = Math.min(
+                95,
+                Math.round(100 * (1 - Math.exp(-receivedLength / (4 * 1024 * 1024))))
+              );
+            }
+
+            setDownloadProgress({
+              formatId: fid,
+              filename: safeFilename,
+              percent: pct,
+              loadedBytes: receivedLength,
+              totalBytes: contentLength,
+              speedText: `${speedMb} MB/s`,
+              downloadUrl: downloadProxyUrl,
+              status: 'downloading',
+            });
+          }
+        }
+      } else {
+        const blobFallback = await response.blob();
+        chunks.push(new Uint8Array(await blobFallback.arrayBuffer()));
+        receivedLength = blobFallback.size;
+      }
+
+      const sizeMb = (receivedLength / (1024 * 1024)).toFixed(1);
+      const contentType =
+        response.headers.get('content-type') ||
+        (safeFilename.endsWith('.zip')
+          ? 'application/zip'
+          : safeFilename.endsWith('.mp4')
+          ? 'video/mp4'
+          : 'image/jpeg');
+
+      // 3. Assemble binary Blob
+      const blob = new Blob(chunks as BlobPart[], { type: contentType });
       if (!blob || blob.size === 0) {
         throw new Error('Downloaded media file is empty (0 bytes received).');
       }
 
-      // Verify that response is binary media and not an HTML webpage or JSON error disguised as 200
-      const blobContentType = response.headers.get('content-type') || blob.type || '';
-      if (blobContentType.includes('text/html') || blobContentType.includes('text/plain') || blobContentType.includes('application/json')) {
+      // 4. Verify that response is media and not an HTML error
+      if (
+        blob.type.includes('text/html') ||
+        blob.type.includes('text/plain') ||
+        blob.type.includes('application/json')
+      ) {
         const textSample = await blob.text();
-        let extractedErr = 'Received HTML page instead of playable video data.';
+        let extractedErr = 'Received HTML page instead of playable media data.';
         try {
           const parsed = JSON.parse(textSample);
           if (parsed.error) extractedErr = parsed.error;
@@ -271,39 +377,53 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
         throw new Error(extractedErr);
       }
 
-      // 3. Create same-origin Object URL
-      const objectUrl = window.URL.createObjectURL(blob);
+      // Mark progress 100%
+      setDownloadProgress({
+        formatId: fid,
+        filename: safeFilename,
+        percent: 100,
+        loadedBytes: receivedLength,
+        totalBytes: receivedLength,
+        speedText: 'Complete',
+        downloadUrl: downloadProxyUrl,
+        status: 'completed',
+      });
 
-      // 4. Create temporary anchor and trigger native browser save
+      // 5. Create same-origin Object URL and trigger download
+      const objectUrl = window.URL.createObjectURL(blob);
       const tempAnchor = document.createElement('a');
       tempAnchor.style.display = 'none';
       tempAnchor.href = objectUrl;
       tempAnchor.download = safeFilename;
       document.body.appendChild(tempAnchor);
       tempAnchor.click();
-
-      // 5. Clean up temporary DOM element
       document.body.removeChild(tempAnchor);
 
-      // 6. Revoke object URL after timeout
       setTimeout(() => {
         try {
           window.URL.revokeObjectURL(objectUrl);
         } catch {}
-      }, 15000);
+      }, 30000);
 
-      const sizeMb = (blob.size / (1024 * 1024)).toFixed(1);
       setDownloadSuccessMessage({
-        text: `Downloaded ${safeFilename} (${sizeMb} MB) successfully!`,
+        text: `${translations.downloadComplete || 'Downloaded'} ${safeFilename} (${sizeMb} MB) ${
+          translations.savingToDevice || 'saved to your device!'
+        }`,
         url: downloadProxyUrl,
       });
     } catch (err: any) {
       console.error('[insta1000gram] Download error:', err);
       const errMsg = err?.message || 'Download failed. Please try the direct mirror link.';
       setDownloadError(errMsg);
-      setDownloadSuccessMessage({
-        text: `Direct download notice: ${errMsg}`,
-        url: downloadProxyUrl,
+      setDownloadProgress({
+        formatId: fid,
+        filename: safeFilename,
+        percent: 0,
+        loadedBytes: 0,
+        totalBytes: 0,
+        downloadUrl: downloadProxyUrl,
+        status: 'error',
+        errorMessage: errMsg,
       });
 
       // Direct fallback
@@ -318,7 +438,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
         document.body.removeChild(fallbackAnchor);
       } catch {}
     } finally {
-      if (formatId) setDownloadingFormatId(null);
+      setDownloadingFormatId(null);
     }
   };
 
@@ -326,16 +446,25 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
     const isZip = format.extension === 'zip';
     const filename = isZip
       ? `insta1000gram_${result.type || 'album'}_all.zip`
-      : `insta1000gram_${result.type}_${format.quality.replace(/[^a-zA-Z0-9]/g, '_')}.${format.extension}`;
+      : `insta1000gram_${result.type}_${format.quality.replace(/[^a-zA-Z0-9]/g, '_')}.${
+          format.extension
+        }`;
 
     let downloadTarget = format.downloadUrl || format.directUrl || '';
     if (!isZip) {
-      const directCandidate = format.directUrl || (format.downloadUrl?.includes('url=') ? decodeURIComponent(format.downloadUrl.split('url=')[1].split('&')[0]) : '');
-      const isDirectMediaCdn = directCandidate && !directCandidate.includes('instagram.com/reel') && !directCandidate.includes('instagram.com/p/');
+      const candidate =
+        format.directUrl ||
+        (format.downloadUrl?.includes('url=')
+          ? decodeURIComponent(format.downloadUrl.split('url=')[1].split('&')[0])
+          : '');
+      const isDirectMediaCdn =
+        candidate && !candidate.includes('instagram.com/reel') && !candidate.includes('instagram.com/p/');
       if (isDirectMediaCdn) {
         const ext = format.extension;
         const isImg = ext === 'jpg' || ext === 'png' || ext === 'webp';
-        downloadTarget = `/api/download/proxy?url=${encodeURIComponent(directCandidate)}&filename=${encodeURIComponent(filename)}&type=${isImg ? 'photo' : safeMediaType}`;
+        downloadTarget = `/api/download/proxy?url=${encodeURIComponent(
+          candidate
+        )}&filename=${encodeURIComponent(filename)}&type=${isImg ? 'photo' : safeMediaType}`;
       }
     }
     if (downloadTarget) {
@@ -343,148 +472,239 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
     }
   };
 
-  const handleCopyQrLink = () => {
-    navigator.clipboard.writeText(fullQrTargetUrl);
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2000);
-  };
-
   return (
-    <div className="w-full max-w-4xl mx-auto mt-8 transition-all animate-in fade-in slide-in-from-bottom-4 duration-300">
-      <div className="bg-white rounded-3xl p-5 sm:p-7 shadow-xl shadow-slate-200/70 border border-slate-200/90 relative overflow-hidden">
-        {/* Top Header: Author and Verified Badge */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-5 border-b border-slate-100 gap-3">
-          <div className="flex items-center gap-3">
-            <div className="relative w-12 h-12 rounded-full p-0.5 bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600 shadow-xs shrink-0">
-              <img
-                src={authorAvatarSrc}
-                alt={authorUsername}
-                loading="eager"
-                onError={() => {
-                  setAuthorAvatarSrc(
-                    `https://ui-avatars.com/api/?name=${encodeURIComponent(authorUsername || 'IG')}&background=E1306C&color=fff&size=160&bold=true`
-                  );
-                }}
-                className="w-full h-full rounded-full object-cover bg-slate-900 border border-white"
-              />
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="font-bold text-slate-900 text-sm sm:text-base">
-                  @{result?.author?.username || 'instagram_user'}
-                </span>
-                {result?.author?.isVerified && (
-                  <CheckCircle2 className="w-4 h-4 text-sky-500 fill-sky-500 text-white shrink-0" />
-                )}
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-pink-100 text-pink-700 shrink-0">
-                  {safeMediaType}
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 font-medium">
-                {result?.author?.fullName || 'Instagram Creator'}
-              </p>
-            </div>
+    <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 my-6 sm:my-8 animate-in fade-in duration-300">
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden relative">
+        {/* Top Badges Bar */}
+        <div className="bg-slate-50 px-5 sm:px-8 py-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-extrabold bg-gradient-to-r from-pink-500 to-rose-600 text-white shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5" />
+              {result.type === 'highlight'
+                ? (translations.highlightItems || 'Highlight')
+                : result.type === 'carousel'
+                ? (translations.carouselSlides || 'Carousel')
+                : result.type === 'stories' || result.type === 'story'
+                ? (translations.storiesList || 'Story')
+                : (result.type?.toUpperCase() || 'MEDIA')}
+            </span>
+            <span className="hidden sm:inline-flex items-center gap-1 font-semibold text-slate-500">
+              <Zap className="w-3.5 h-3.5 text-amber-500" />
+              {safeNetworkLatencyMs}ms CDN Stream
+            </span>
           </div>
 
-          {/* Social Stats, Latency, and Send to Phone Button */}
-          <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 font-semibold self-end sm:self-center">
-            <span className="flex items-center gap-1 bg-slate-100 px-2.5 py-1 rounded-lg">
-              <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
-              {safeLikesCount.toLocaleString()}
-            </span>
-            <span className="flex items-center gap-1 bg-slate-100 px-2.5 py-1 rounded-lg">
-              <MessageCircle className="w-3.5 h-3.5 text-blue-500" />
-              {safeCommentsCount.toLocaleString()}
-            </span>
-            <span className="flex items-center gap-1 bg-emerald-50 text-emerald-700 px-2 py-1 rounded-lg border border-emerald-200/60 font-mono">
-              <Zap className="w-3 h-3 text-emerald-500" />
-              {safeNetworkLatencyMs.toLocaleString()}ms
+          <div className="flex items-center gap-2 text-slate-500 font-medium">
+            <span className="inline-flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md font-semibold">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              {translations.anonymousBadge || 'Anonymous Active'}
             </span>
             <button
-              onClick={() => {
-                setSelectedQrFormat(primaryFormat);
-                setIsQrModalOpen(true);
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-2xs transition-all active:scale-95 cursor-pointer"
-              title="Scan QR code to transfer directly to mobile phone"
+              onClick={onClear}
+              className="p-1 hover:bg-slate-200 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"
+              title="Close and Search Again"
             >
-              <QrCode className="w-3.5 h-3.5 text-pink-400" />
-              <span>Phone QR</span>
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* Content Layout: Preview Media + Download Options */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mt-6">
-          {/* Media Preview Column */}
+        {/* LIVE DOWNLOAD PROGRESS BAR CARD */}
+        {downloadProgress && (
+          <div
+            className={`mx-4 sm:mx-6 mt-4 p-4 rounded-2xl border transition-all ${
+              downloadProgress.status === 'completed'
+                ? 'bg-emerald-50/70 border-emerald-300'
+                : downloadProgress.status === 'error'
+                ? 'bg-rose-50 border-rose-300'
+                : 'bg-gradient-to-r from-pink-50/80 via-purple-50/50 to-indigo-50/80 border-pink-200 shadow-sm'
+            }`}
+          >
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <div className="flex items-center gap-2.5 min-w-0">
+                {downloadProgress.status === 'completed' ? (
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                ) : downloadProgress.status === 'error' ? (
+                  <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+                ) : (
+                  <Loader2 className="w-5 h-5 text-pink-600 animate-spin shrink-0" />
+                )}
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm font-extrabold text-slate-900 truncate">
+                    {downloadProgress.status === 'completed'
+                      ? (translations.downloadComplete || 'Download Complete!')
+                      : downloadProgress.status === 'error'
+                      ? 'Download Notice'
+                      : (translations.downloading || 'Downloading...')}
+                  </p>
+                  <p className="text-[11px] text-slate-500 font-mono truncate">
+                    {downloadProgress.filename}
+                  </p>
+                </div>
+              </div>
+
+              <div className="text-right shrink-0">
+                <span className="text-sm sm:text-base font-black text-pink-600 font-mono">
+                  {downloadProgress.percent}%
+                </span>
+              </div>
+            </div>
+
+            {/* Visual Animated Progress Bar Track */}
+            <div className="w-full bg-slate-200/80 rounded-full h-3 overflow-hidden p-0.5 border border-slate-300/60 shadow-inner">
+              <div
+                className={`h-full rounded-full transition-all duration-150 ${
+                  downloadProgress.status === 'completed'
+                    ? 'bg-gradient-to-r from-emerald-500 to-teal-500'
+                    : downloadProgress.status === 'error'
+                    ? 'bg-rose-500'
+                    : 'bg-gradient-to-r from-pink-500 via-rose-500 to-indigo-600 animate-pulse'
+                }`}
+                style={{ width: `${Math.max(5, downloadProgress.percent)}%` }}
+              />
+            </div>
+
+            {/* Bottom info stats and immediate browser download fallback */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-2.5 text-[11px] text-slate-600 font-medium">
+              <div>
+                {downloadProgress.status === 'completed' ? (
+                  <span className="text-emerald-700 font-bold">
+                    ✓ File saved to device ({(downloadProgress.loadedBytes / (1024 * 1024)).toFixed(1)} MB)
+                  </span>
+                ) : downloadProgress.status === 'error' ? (
+                  <span className="text-rose-700">{downloadProgress.errorMessage}</span>
+                ) : (
+                  <span>
+                    {(downloadProgress.loadedBytes / (1024 * 1024)).toFixed(1)} MB
+                    {downloadProgress.totalBytes > 0 &&
+                      ` / ${(downloadProgress.totalBytes / (1024 * 1024)).toFixed(1)} MB`}
+                    {downloadProgress.speedText && ` • ${downloadProgress.speedText}`}
+                  </span>
+                )}
+              </div>
+
+              {downloadProgress.downloadUrl && (
+                <div className="flex items-center gap-2 self-end sm:self-auto">
+                  <a
+                    href={downloadProgress.downloadUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-pink-600 hover:text-pink-700 font-bold underline flex items-center gap-1"
+                  >
+                    <span>{translations.browserDownloadFallback || 'Save directly in browser'}</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Main Result Content */}
+        <div className="p-5 sm:p-8 grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8">
+          {/* Left Column: Media Preview + Slide Carousel */}
           <div className="md:col-span-5 flex flex-col items-center">
-            <div className="w-full relative rounded-2xl overflow-hidden bg-slate-950 aspect-[4/5] shadow-inner group flex items-center justify-center">
+            {/* Creator Author Bar */}
+            <div className="w-full flex items-center justify-between mb-3 px-1">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <img
+                  src={authorAvatarSrc}
+                  alt={authorUsername}
+                  onError={() => {
+                    if (authorAvatarSrc !== fallbackAvatarUrl) {
+                      setAuthorAvatarSrc(fallbackAvatarUrl);
+                    }
+                  }}
+                  className="w-8 h-8 rounded-full border border-pink-200 object-cover shrink-0"
+                />
+                <div className="min-w-0">
+                  <span className="font-extrabold text-xs sm:text-sm text-slate-800 block truncate">
+                    @{authorUsername}
+                  </span>
+                  <span className="text-[10px] text-slate-600 font-medium">Instagram Creator</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 text-slate-600 text-xs font-semibold">
+                {safeLikesCount > 0 && (
+                  <span className="flex items-center gap-1">
+                    <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
+                    {safeLikesCount > 999
+                      ? `${(safeLikesCount / 1000).toFixed(1)}k`
+                      : safeLikesCount}
+                  </span>
+                )}
+                {safeCommentsCount > 0 && (
+                  <span className="flex items-center gap-1">
+                    <MessageCircle className="w-3.5 h-3.5 text-blue-500" />
+                    {safeCommentsCount}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Media Player or Thumbnail Box */}
+            <div className="relative w-full aspect-square max-w-[340px] rounded-2xl overflow-hidden bg-slate-900 border border-slate-200 shadow-md group">
               {isSlideVideo && activeVideoUrl ? (
                 <video
                   key={activeVideoUrl}
+                  src={activeVideoUrl}
+                  poster={activeThumbnail}
                   controls
                   playsInline
-                  autoPlay={false}
                   preload="metadata"
-                  poster={activeThumbnail}
-                  className="w-full h-full object-contain bg-black rounded-2xl"
-                  src={activeVideoUrl}
+                  className="w-full h-full object-cover"
                 />
               ) : (
                 <img
+                  key={activeThumbnail}
                   src={activeThumbnail}
-                  alt={result?.title || 'Instagram Media'}
+                  alt={result.title || 'Instagram media'}
                   loading="eager"
                   referrerPolicy="no-referrer"
                   crossOrigin="anonymous"
                   onError={(e) => {
                     const img = e.currentTarget;
                     if (currentSlide?.directUrl && !img.src.includes('/api/download/proxy')) {
-                      img.src = `/api/download/proxy?url=${encodeURIComponent(currentSlide.directUrl)}&type=photo`;
+                      img.src = `/api/download/proxy?url=${encodeURIComponent(
+                        currentSlide.directUrl
+                      )}&type=photo`;
                     }
                   }}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               )}
 
-              {/* Media Type Badge Overlay */}
-              <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md text-white text-xs font-bold flex items-center gap-1.5 pointer-events-none">
-                {isSlideVideo ? (
-                  <Film className="w-3.5 h-3.5 text-pink-400" />
-                ) : (
-                  <ImageIcon className="w-3.5 h-3.5 text-pink-400" />
-                )}
-                <span className="uppercase">
-                  {currentSlide
-                    ? `${result.type === 'highlight' ? 'Highlight' : (result.type === 'carousel' ? 'Slide' : safeMediaType)} #${activeSlideIndex + 1}`
-                    : safeMediaType}
-                </span>
-                {result?.duration && <span>• {result.duration}</span>}
-              </div>
+              {/* Slide Counter Overlay for Carousel / Highlights */}
+              {result.slides && result.slides.length > 1 && (
+                <div className="absolute top-3 left-3 bg-black/75 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+                  <span>
+                    #{activeSlideIndex + 1} / {result.slides.length}
+                  </span>
+                </div>
+              )}
 
-              {/* Original Quality Ribbon */}
-              <div className="absolute bottom-3 left-3 right-3 bg-white/90 backdrop-blur-md p-2 rounded-xl text-center shadow-lg border border-white/40 pointer-events-none">
-                <span className="text-xs font-bold text-slate-800 flex items-center justify-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  {translations.readyInHD}
-                </span>
+              {/* HD Badge Overlay */}
+              <div className="absolute bottom-3 right-3 bg-black/75 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-pink-400" />
+                <span>{translations.readyInHD || '1080p Ultra HD'}</span>
               </div>
             </div>
 
-            {/* Slide / Story / Highlight Thumbnails if multi-post */}
+            {/* Multi-Slide Thumbnail Selector (If Carousel, Stories, or Highlights) */}
             {result.slides && result.slides.length > 1 && (
               <div className="w-full mt-3">
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-1.5 px-1">
                   <p className="text-xs font-bold text-slate-700">
-                    {result.type === 'stories'
-                      ? 'Stories List'
+                    {result.type === 'stories' || result.type === 'story'
+                      ? (translations.storiesList || 'Stories List')
                       : result.type === 'highlight'
-                      ? 'Highlight Items'
-                      : 'Carousel Slides'}{' '}
+                      ? (translations.highlightItems || 'Highlight Items')
+                      : (translations.carouselSlides || 'Carousel Slides')}{' '}
                     ({result.slides.length} items):
                   </p>
                   <span className="text-[11px] text-pink-600 font-semibold">
-                    Selected: #{activeSlideIndex + 1} ({currentSlide?.type === 'video' ? 'Video' : 'Photo'})
+                    #{activeSlideIndex + 1} ({currentSlide?.type === 'video' ? 'Video' : 'Photo'})
                   </span>
                 </div>
                 <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
@@ -546,7 +766,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       rel="noopener noreferrer"
                       className="px-2.5 py-1 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 transition-colors whitespace-nowrap self-end sm:self-auto"
                     >
-                      Mirror / Open File ↗
+                      {translations.directLink || 'Mirror / Open File ↗'}
                     </a>
                   )}
                 </div>
@@ -558,7 +778,11 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-black uppercase text-pink-700 tracking-wide flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-pink-600" />
-                      Download {result.type === 'stories' ? `Story #${activeSlideIndex + 1}` : (result.type === 'highlight' ? `Highlight Item #${activeSlideIndex + 1}` : `Slide #${activeSlideIndex + 1}`)}
+                      {result.type === 'stories' || result.type === 'story'
+                        ? `${translations.downloadStory || 'Download Story'} #${activeSlideIndex + 1}`
+                        : result.type === 'highlight'
+                        ? `${translations.downloadHighlight || 'Download Highlight'} #${activeSlideIndex + 1}`
+                        : `${translations.downloadSlide || 'Download Slide'} #${activeSlideIndex + 1}`}
                     </span>
                     <span className="text-[11px] font-bold text-slate-500 uppercase">
                       {currentSlide.type === 'video' ? 'MP4 Video' : 'JPG Image'}
@@ -570,7 +794,12 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       type="button"
                       onClick={() => {
                         const ext = currentSlide.type === 'video' ? 'mp4' : 'jpg';
-                        const prefix = result.type === 'highlight' ? 'highlight' : (result.type === 'carousel' ? 'carousel' : (result.type || 'media'));
+                        const prefix =
+                          result.type === 'highlight'
+                            ? 'highlight'
+                            : result.type === 'carousel'
+                            ? 'carousel'
+                            : result.type || 'media';
                         const filename = `insta1000gram_${prefix}_${activeSlideIndex + 1}.${ext}`;
                         const url = currentSlide.downloadUrl || currentSlide.url;
                         downloadViaBlob(url, filename, `slide-${activeSlideIndex}`);
@@ -579,15 +808,25 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white text-xs sm:text-sm font-bold shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-75"
                     >
                       {downloadingFormatId === `slide-${activeSlideIndex}` ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>
+                            {downloadProgress?.formatId === `slide-${activeSlideIndex}` &&
+                            downloadProgress.percent > 0
+                              ? `${translations.downloading || 'Downloading'} ${downloadProgress.percent}%`
+                              : translations.downloading || 'Downloading...'}
+                          </span>
+                        </>
                       ) : (
-                        <Download className="w-4 h-4" />
+                        <>
+                          <Download className="w-4 h-4" />
+                          <span>
+                            {currentSlide.type === 'video'
+                              ? translations.downloadVideo || 'Download Video (MP4)'
+                              : translations.downloadPhoto || 'Download Image (JPG)'}
+                          </span>
+                        </>
                       )}
-                      <span>
-                        {downloadingFormatId === `slide-${activeSlideIndex}`
-                          ? 'Downloading...'
-                          : `Download ${currentSlide.type === 'video' ? 'Video (MP4)' : 'Image (JPG)'}`}
-                      </span>
                     </button>
 
                     <a
@@ -595,7 +834,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="p-2.5 rounded-xl bg-white border border-pink-200 text-pink-700 hover:bg-pink-100/50 transition-colors"
-                      title="Direct Link in New Tab / Mirror"
+                      title={translations.directLink || 'Direct Link in New Tab / Mirror'}
                     >
                       <ExternalLink className="w-4 h-4" />
                     </a>
@@ -607,7 +846,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
               <div className="mt-5 space-y-2.5">
                 <div className="flex items-center justify-between pb-1">
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                    Available Streams &amp; Resolutions
+                    {translations.readyInHD || 'Available Streams & Resolutions'}
                   </span>
                   <button
                     onClick={() => {
@@ -617,13 +856,14 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                     className="flex items-center gap-1 text-xs font-bold text-pink-600 hover:text-pink-700 transition-colors cursor-pointer"
                   >
                     <QrCode className="w-3.5 h-3.5" />
-                    <span>Scan with Phone</span>
+                    <span>{translations.scanQrCode || 'Scan with Phone'}</span>
                   </button>
                 </div>
 
                 {activeFormats.map((fmt) => {
                   const isCurrentLoading = downloadingFormatId === fmt.id;
                   const isAudio = fmt.isAudio;
+                  const isZip = fmt.extension === 'zip';
 
                   return (
                     <div
@@ -633,14 +873,22 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                         <div
                           className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
-                            isAudio
+                            isZip
+                              ? 'bg-purple-100 text-purple-800'
+                              : isAudio
                               ? 'bg-amber-100 text-amber-800'
                               : fmt.quality.includes('1080p')
                               ? 'bg-pink-100 text-pink-700'
                               : 'bg-blue-100 text-blue-700'
                           }`}
                         >
-                          {isAudio ? <Music className="w-4 h-4" /> : fmt.extension.toUpperCase()}
+                          {isZip ? (
+                            <Archive className="w-4 h-4" />
+                          ) : isAudio ? (
+                            <Music className="w-4 h-4" />
+                          ) : (
+                            fmt.extension.toUpperCase()
+                          )}
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5 flex-wrap">
@@ -660,36 +908,53 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
-                        {/* Interactive Direct Blob Download */}
+                        {/* Interactive Direct Blob Download with Live Progress */}
                         <button
                           type="button"
                           onClick={() => handleTriggerDownload(fmt)}
                           disabled={isCurrentLoading}
                           className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer disabled:opacity-75 ${
-                            fmt.quality.includes('1080p')
+                            isZip
+                              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white'
+                              : fmt.quality.includes('1080p')
                               ? 'bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white'
                               : 'bg-slate-900 hover:bg-slate-800 text-white'
                           }`}
                         >
                           {isCurrentLoading ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+                            <>
+                              <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+                              <span>
+                                {downloadProgress?.formatId === fmt.id && downloadProgress.percent > 0
+                                  ? `${translations.downloading || 'Downloading'} ${downloadProgress.percent}%`
+                                  : translations.downloading || 'Downloading...'}
+                              </span>
+                            </>
                           ) : (
-                            <Download className="w-3.5 h-3.5 shrink-0" />
+                            <>
+                              {isZip ? <Archive className="w-3.5 h-3.5 shrink-0" /> : <Download className="w-3.5 h-3.5 shrink-0" />}
+                              <span>
+                                {isZip
+                                  ? translations.downloadZip || 'Download All (.ZIP)'
+                                  : translations.downloadFileBtn}
+                              </span>
+                            </>
                           )}
-                          <span>{isCurrentLoading ? 'Downloading...' : translations.downloadFileBtn}</span>
                         </button>
 
                         {/* Phone QR Code */}
-                        <button
-                          onClick={() => {
-                            setSelectedQrFormat(fmt);
-                            setIsQrModalOpen(true);
-                          }}
-                          className="p-2.5 sm:p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-pink-600 hover:border-pink-300 transition-colors cursor-pointer shrink-0"
-                          title={`Scan QR code for ${fmt.quality} on phone`}
-                        >
-                          <QrCode className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
-                        </button>
+                        {!isZip && (
+                          <button
+                            onClick={() => {
+                              setSelectedQrFormat(fmt);
+                              setIsQrModalOpen(true);
+                            }}
+                            className="p-2.5 sm:p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-pink-600 hover:border-pink-300 transition-colors cursor-pointer shrink-0"
+                            title={`Scan QR code for ${fmt.quality} on phone`}
+                          >
+                            <QrCode className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+                          </button>
+                        )}
 
                         {/* Mirror in New Tab */}
                         <a
@@ -711,34 +976,51 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
               {result.slides && result.slides.length > 1 && (
                 <div className="mt-5 pt-4 border-t border-slate-100">
                   <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2.5">
-                    Download Each {result.type === 'highlight' ? 'Highlight Item' : (result.type === 'carousel' ? 'Carousel Slide' : 'Story')} Individually ({result.slides.length} Available)
+                    {result.type === 'highlight'
+                      ? (translations.highlightItems || 'Highlight Items')
+                      : result.type === 'carousel'
+                      ? (translations.carouselSlides || 'Carousel Slides')
+                      : (translations.storiesList || 'Stories')}{' '}
+                    ({result.slides.length} Available)
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-80 overflow-y-auto pr-1">
                     {result.slides.map((s, idx) => {
                       const isItemLoading = downloadingFormatId === `item-${idx}`;
                       const ext = s.type === 'video' ? 'mp4' : 'jpg';
-                      const prefix = result.type === 'highlight' ? 'highlight' : (result.type === 'carousel' ? 'carousel' : 'story');
+                      const prefix =
+                        result.type === 'highlight'
+                          ? 'highlight'
+                          : result.type === 'carousel'
+                          ? 'carousel'
+                          : 'story';
                       const filename = `insta1000gram_${prefix}_${idx + 1}.${ext}`;
                       return (
                         <button
                           key={s.id || idx}
                           type="button"
-                          onClick={() => downloadViaBlob(s.downloadUrl || s.url, filename, `item-${idx}`)}
+                          onClick={() =>
+                            downloadViaBlob(s.downloadUrl || s.url, filename, `item-${idx}`)
+                          }
                           disabled={isItemLoading}
-                          className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 hover:border-pink-300 hover:bg-pink-50/30 text-xs transition-colors cursor-pointer text-left"
+                          className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 hover:border-pink-300 hover:bg-pink-50/30 text-xs transition-colors cursor-pointer text-left rtl:text-right"
                         >
-                          <div className="flex items-center gap-2">
-                            <span className="w-5 h-5 rounded-full bg-slate-100 font-bold text-[10px] flex items-center justify-center text-slate-700">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="w-5 h-5 rounded-full bg-slate-100 font-bold text-[10px] flex items-center justify-center text-slate-700 shrink-0">
                               {idx + 1}
                             </span>
-                            <span className="font-semibold text-slate-800">
-                              {result.type === 'highlight' ? 'Item' : (result.type === 'carousel' ? 'Slide' : 'Story')} #{idx + 1} ({s.type === 'video' ? 'MP4' : 'JPG'})
+                            <span className="font-semibold text-slate-800 truncate">
+                              {result.type === 'highlight'
+                                ? 'Item'
+                                : result.type === 'carousel'
+                                ? 'Slide'
+                                : 'Story'}{' '}
+                              #{idx + 1} ({s.type === 'video' ? 'MP4' : 'JPG'})
                             </span>
                           </div>
                           {isItemLoading ? (
-                            <Loader2 className="w-3.5 h-3.5 text-pink-600 animate-spin" />
+                            <Loader2 className="w-3.5 h-3.5 text-pink-600 animate-spin shrink-0" />
                           ) : (
-                            <Download className="w-3.5 h-3.5 text-pink-600" />
+                            <Download className="w-3.5 h-3.5 text-pink-600 shrink-0" />
                           )}
                         </button>
                       );
@@ -762,7 +1044,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
 
               <button
                 onClick={onClear}
-                className="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+                className="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 Download Another Link
               </button>
@@ -771,175 +1053,178 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
         </div>
       </div>
 
-      {/* ========================================================================= */}
-      {/* PHONE QR CODE TRANSFER MODAL (Rendered to document.body via Portal)       */}
-      {/* ========================================================================= */}
-      {isQrModalOpen && typeof document !== 'undefined' && createPortal(
-        <div 
-          className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200 overflow-y-auto"
-          onClick={() => setIsQrModalOpen(false)}
-        >
-          <div 
-            className="bg-white rounded-3xl max-w-md w-full max-h-[92vh] overflow-y-auto p-4 sm:p-6 shadow-2xl border border-slate-200 relative animate-in zoom-in-95 duration-200 z-[100000]"
-            onClick={(e) => e.stopPropagation()}
+      {/* PHONE QR CODE TRANSFER MODAL (Rendered to document.body via Portal) */}
+      {isQrModalOpen &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200 overflow-y-auto"
+            onClick={() => setIsQrModalOpen(false)}
           >
-            {/* Modal Header */}
-            <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600 text-white flex items-center justify-center shadow-md shadow-pink-500/20 shrink-0">
-                  <QrCode className="w-5 h-5 sm:w-6 sm:h-6" />
-                </div>
-                <div>
-                  <h3 className="font-black text-slate-900 text-sm sm:text-base flex items-center gap-1.5 flex-wrap">
-                    <span>Scan to Phone</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-pink-100 text-pink-700 uppercase">
-                      {activeFormatForQr?.quality.split(' ')[0] || '1080p'}
-                    </span>
-                  </h3>
-                  <p className="text-[11px] sm:text-xs text-slate-500 font-medium">
-                    Point camera to save directly into Camera Roll / Gallery
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsQrModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors cursor-pointer shrink-0"
-                title="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Target Stream Mode Selector */}
-            <div className="mt-3.5 p-1 bg-slate-100 rounded-xl flex items-center text-xs font-bold">
-              <button
-                onClick={() => setQrMode('direct')}
-                className={`flex-1 py-1.5 px-2.5 sm:px-3 rounded-lg transition-all cursor-pointer text-[11px] sm:text-xs ${
-                  qrMode === 'direct'
-                    ? 'bg-white text-pink-600 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                ⚡ Direct Mobile Stream
-              </button>
-              <button
-                onClick={() => setQrMode('proxy')}
-                className={`flex-1 py-1.5 px-2.5 sm:px-3 rounded-lg transition-all cursor-pointer text-[11px] sm:text-xs ${
-                  qrMode === 'proxy'
-                    ? 'bg-white text-pink-600 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                🌐 Download Proxy
-              </button>
-            </div>
-
-            {/* QR Code Container with sleek scan frame */}
-            <div className="my-4 sm:my-5 flex flex-col items-center">
-              <div className="p-3 bg-white rounded-2xl border-2 border-slate-200 shadow-xl flex flex-col items-center relative w-full max-w-[250px] min-h-[220px] justify-center">
-                {isGeneratingQr ? (
-                  <div className="flex flex-col items-center justify-center p-8 text-center text-slate-400">
-                    <Loader2 className="w-8 h-8 animate-spin text-pink-500 mb-2" />
-                    <span className="text-xs font-semibold">Generating HD QR code...</span>
+            <div
+              className="bg-white rounded-3xl max-w-md w-full max-h-[92vh] overflow-y-auto p-4 sm:p-6 shadow-2xl border border-slate-200 relative animate-in zoom-in-95 duration-200 z-[100000]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600 text-white flex items-center justify-center shadow-md shadow-pink-500/20 shrink-0">
+                    <QrCode className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                ) : qrCodeDataUrl ? (
-                  <>
-                    <img
-                      src={qrCodeDataUrl}
-                      alt="Scan QR code with phone camera"
-                      width={220}
-                      height={220}
-                      className="rounded-xl block shadow-2xs max-w-[190px] sm:max-w-[220px] w-full h-auto aspect-square object-contain"
-                      loading="eager"
-                    />
-                    <div className="mt-2.5 text-center">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-bold bg-slate-100 text-slate-800">
-                        <Zap className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                        {activeFormatForQr?.quality || '1080p Ultra HD'} • Scans in 0.1s
+                  <div>
+                    <h3 className="font-black text-slate-900 text-sm sm:text-base flex items-center gap-1.5 flex-wrap">
+                      <span>{translations.scanQrCode || 'Scan to Phone'}</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-pink-100 text-pink-700 uppercase">
+                        {activeFormatForQr?.quality.split(' ')[0] || '1080p'}
                       </span>
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-xs text-rose-500 p-4 font-bold">Failed to render QR. Use the link below.</div>
-                )}
-              </div>
-              {qrShortUrl && (
-                <p className="mt-2 text-[11px] text-slate-400 font-mono tracking-tight break-all text-center">
-                  {qrShortUrl.replace(/^https?:\/\//, '')}
-                </p>
-              )}
-            </div>
-
-            {/* Platform Instructions */}
-            <div className="space-y-2 text-xs">
-              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2.5">
-                <span className="text-base leading-none shrink-0">🍏</span>
-                <div>
-                  <p className="font-bold text-slate-900">iPhone / iPad (iOS):</p>
-                  <p className="text-slate-600 text-[11px] leading-relaxed">
-                    Open Camera app → aim at code → tap yellow banner → tap <strong>Download</strong>.
-                  </p>
+                    </h3>
+                    <p className="text-[11px] sm:text-xs text-slate-500 font-medium">
+                      Point camera to save directly into Camera Roll / Gallery
+                    </p>
+                  </div>
                 </div>
-              </div>
-
-              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2.5">
-                <span className="text-base leading-none shrink-0">🤖</span>
-                <div>
-                  <p className="font-bold text-slate-900">Android (Samsung, Pixel, Xiaomi):</p>
-                  <p className="text-slate-600 text-[11px] leading-relaxed">
-                    Open Camera or Google Lens → tap popup link → file saves directly into <strong>Gallery / Downloads</strong>.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Bar - Fully flexible on mobile, tablet, and desktop */}
-            <div className="mt-5 pt-3.5 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(qrShortUrl || fullQrTargetUrl);
-                  setCopiedLink(true);
-                  setTimeout(() => setCopiedLink(false), 2000);
-                }}
-                className="flex-1 py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-98 cursor-pointer shadow-xs"
-              >
-                {copiedLink ? (
-                  <>
-                    <Check className="w-4 h-4 text-emerald-400" />
-                    <span className="text-emerald-300">Link Copied!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4" />
-                    <span>Copy Mobile Link</span>
-                  </>
-                )}
-              </button>
-
-              <div className="flex items-center gap-2">
-                <a
-                  href={qrShortUrl || fullQrTargetUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 sm:flex-initial py-2.5 px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
-                  title="Preview this exact link in your browser"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  <span>Test Link</span>
-                </a>
-
                 <button
                   onClick={() => setIsQrModalOpen(false)}
-                  className="flex-1 sm:flex-initial py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer text-center"
+                  className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition-colors cursor-pointer shrink-0"
+                  title="Close"
                 >
-                  Done
+                  <X className="w-4 h-4" />
                 </button>
               </div>
+
+              {/* Target Stream Mode Selector */}
+              <div className="mt-3.5 p-1 bg-slate-100 rounded-xl flex items-center text-xs font-bold">
+                <button
+                  onClick={() => setQrMode('direct')}
+                  className={`flex-1 py-1.5 px-2.5 sm:px-3 rounded-lg transition-all cursor-pointer text-[11px] sm:text-xs ${
+                    qrMode === 'direct'
+                      ? 'bg-white text-pink-600 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  ⚡ Direct Mobile Stream
+                </button>
+                <button
+                  onClick={() => setQrMode('proxy')}
+                  className={`flex-1 py-1.5 px-2.5 sm:px-3 rounded-lg transition-all cursor-pointer text-[11px] sm:text-xs ${
+                    qrMode === 'proxy'
+                      ? 'bg-white text-pink-600 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  🌐 Download Proxy
+                </button>
+              </div>
+
+              {/* QR Code Container with sleek scan frame */}
+              <div className="my-4 sm:my-5 flex flex-col items-center">
+                <div className="p-3 bg-white rounded-2xl border-2 border-slate-200 shadow-xl flex flex-col items-center relative w-full max-w-[250px] min-h-[220px] justify-center">
+                  {isGeneratingQr ? (
+                    <div className="flex flex-col items-center justify-center p-8 text-center text-slate-400">
+                      <Loader2 className="w-8 h-8 animate-spin text-pink-500 mb-2" />
+                      <span className="text-xs font-semibold">Generating HD QR code...</span>
+                    </div>
+                  ) : qrCodeDataUrl ? (
+                    <>
+                      <img
+                        src={qrCodeDataUrl}
+                        alt="Scan QR code with phone camera"
+                        width={220}
+                        height={220}
+                        className="rounded-xl block shadow-2xs max-w-[190px] sm:max-w-[220px] w-full h-auto aspect-square object-contain"
+                        loading="eager"
+                      />
+                      <div className="mt-2.5 text-center">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-bold bg-slate-100 text-slate-800">
+                          <Zap className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                          {activeFormatForQr?.quality || '1080p Ultra HD'} • Scans in 0.1s
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-xs text-rose-500 p-4 font-bold">
+                      Failed to render QR. Use the link below.
+                    </div>
+                  )}
+                </div>
+                {qrShortUrl && (
+                  <p className="mt-2 text-[11px] text-slate-400 font-mono tracking-tight break-all text-center">
+                    {qrShortUrl.replace(/^https?:\/\//, '')}
+                  </p>
+                )}
+              </div>
+
+              {/* Platform Instructions */}
+              <div className="space-y-2 text-xs">
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2.5">
+                  <span className="text-base leading-none shrink-0">🍏</span>
+                  <div>
+                    <p className="font-bold text-slate-900">iPhone / iPad (iOS):</p>
+                    <p className="text-slate-600 text-[11px] leading-relaxed">
+                      Open Camera app → aim at code → tap yellow banner → tap <strong>Download</strong>.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2.5">
+                  <span className="text-base leading-none shrink-0">🤖</span>
+                  <div>
+                    <p className="font-bold text-slate-900">Android (Samsung, Pixel, Xiaomi):</p>
+                    <p className="text-slate-600 text-[11px] leading-relaxed">
+                      Open Camera or Google Lens → tap popup link → file saves directly into{' '}
+                      <strong>Gallery / Downloads</strong>.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Bar */}
+              <div className="mt-5 pt-3.5 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(qrShortUrl || fullQrTargetUrl);
+                    setCopiedLink(true);
+                    setTimeout(() => setCopiedLink(false), 2000);
+                  }}
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all active:scale-98 cursor-pointer shadow-xs"
+                >
+                  {copiedLink ? (
+                    <>
+                      <Check className="w-4 h-4 text-emerald-400" />
+                      <span className="text-emerald-300">Link Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      <span>Copy Mobile Link</span>
+                    </>
+                  )}
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <a
+                    href={qrShortUrl || fullQrTargetUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 sm:flex-initial py-2.5 px-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+                    title="Preview this exact link in your browser"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>Test Link</span>
+                  </a>
+
+                  <button
+                    onClick={() => setIsQrModalOpen(false)}
+                    className="flex-1 sm:flex-initial py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer text-center"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>,
-        document.body
-      )}
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

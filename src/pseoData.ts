@@ -1,4 +1,4 @@
-import { PseoPage, PseoTemplateConfig, SupportedLanguage, MediaType } from './types.ts';
+import type { PseoPage, PseoTemplateConfig, SupportedLanguage, MediaType } from './types.ts';
 
 export const INITIAL_PSEO_CONFIG: PseoTemplateConfig = {
   titlePattern: 'Download Instagram {type} {quality} in {country} - Free Fast {device}',

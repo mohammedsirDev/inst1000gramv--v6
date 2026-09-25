@@ -1,4 +1,4 @@
-import { LanguageConfig, SupportedLanguage } from '../types';
+import type { LanguageConfig, SupportedLanguage } from '../types.ts';
 
 export const ALL_SUPPORTED_LANGUAGES: SupportedLanguage[] = [
   'ar',

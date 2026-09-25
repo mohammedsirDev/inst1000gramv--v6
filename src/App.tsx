@@ -43,62 +43,167 @@ function MainApp() {
   const [adminOpen, setAdminOpen] = useState<boolean>(false);
   const [legacyPseoPage, setLegacyPseoPage] = useState<PseoPage | null>(null);
 
-  const categoryLabels: Record<string, { title: string; desc: string; badge: string }> = {
-    reel: {
-      title: translations.navReels,
-      desc: currentLang === 'ar' ? 'تحميل مقاطع ريلز بجودة فائقة 1080p Full HD بدون علامة مائية' : 'Download Instagram Reels in 1080p Full HD without watermark',
-      badge: currentLang === 'ar' ? 'تحميل ريلز' : 'Instagram Reels',
-    },
-    reels: {
-      title: translations.navReels,
-      desc: currentLang === 'ar' ? 'تحميل مقاطع ريلز بجودة فائقة 1080p Full HD بدون علامة مائية' : 'Download Instagram Reels in 1080p Full HD without watermark',
-      badge: currentLang === 'ar' ? 'تحميل ريلز' : 'Instagram Reels',
-    },
-    video: {
-      title: translations.navVideo,
-      desc: currentLang === 'ar' ? 'تحميل فيديوهات انستقرام الأصلية بصيغة MP4 بأعلى دقة' : 'Download Instagram Videos in original MP4 high definition',
-      badge: currentLang === 'ar' ? 'تحميل فيديو' : 'Instagram Video',
-    },
-    photo: {
-      title: translations.navPhoto,
-      desc: currentLang === 'ar' ? 'تحميل صور وألبومات انستقرام المتعددة بأعلى جودة أصلية JPG' : 'Download Instagram photos and carousel albums in full resolution JPG',
-      badge: currentLang === 'ar' ? 'تحميل صور' : 'Instagram Photo & Album',
-    },
-    carousel: {
-      title: translations.navPhoto,
-      desc: currentLang === 'ar' ? 'تحميل صور وألبومات انستقرام المتعددة بأعلى جودة أصلية JPG' : 'Download Instagram photos and carousel albums in full resolution JPG',
-      badge: currentLang === 'ar' ? 'تحميل صور' : 'Instagram Photo & Album',
-    },
-    story: {
-      title: translations.navStories,
-      desc: currentLang === 'ar' ? 'مشاهدة وتحميل ستوري انستقرام دون الكشف عن هويتك' : 'Download and view Instagram Stories anonymously in full quality',
-      badge: currentLang === 'ar' ? 'تحميل ستوري' : 'Instagram Stories',
-    },
-    stories: {
-      title: translations.navStories,
-      desc: currentLang === 'ar' ? 'مشاهدة وتحميل ستوري انستقرام دون الكشف عن هويتك' : 'Download and view Instagram Stories anonymously in full quality',
-      badge: currentLang === 'ar' ? 'تحميل ستوري' : 'Instagram Stories',
-    },
-    highlight: {
-      title: translations.navHighlights,
-      desc: currentLang === 'ar' ? 'تحميل هايلايت انستقرام الكامل والألبومات المحفوظة بضغطة واحدة' : 'Download Instagram profile Highlights and archived albums in one click',
-      badge: currentLang === 'ar' ? 'تحميل هايلايت' : 'Instagram Highlights',
-    },
-    highlights: {
-      title: translations.navHighlights,
-      desc: currentLang === 'ar' ? 'تحميل هايلايت انستقرام الكامل والألبومات المحفوظة بضغطة واحدة' : 'Download Instagram profile Highlights and archived albums in one click',
-      badge: currentLang === 'ar' ? 'تحميل هايلايت' : 'Instagram Highlights',
-    },
-    igtv: {
-      title: translations.navIgtv || 'IGTV',
-      desc: currentLang === 'ar' ? 'تحميل مقاطع IGTV الطويلة وسلاسل الفيديو بجودة عالية' : 'Download long-form IGTV videos and series in 1080p Full HD',
-      badge: 'IGTV',
-    },
-    all: {
+  const getCategoryMeta = (type: string) => {
+    const t = type.toLowerCase();
+    if (t === 'reel' || t === 'reels') {
+      return {
+        title: translations.navReels,
+        desc:
+          currentLang === 'ar'
+            ? 'تحميل مقاطع ريلز بجودة فائقة 1080p Full HD بدون علامة مائية'
+            : currentLang === 'es'
+            ? 'Descargar Instagram Reels en 1080p Full HD sin marca de agua'
+            : currentLang === 'fr'
+            ? 'Télécharger les Reels Instagram en 1080p Full HD sans filigrane'
+            : currentLang === 'de'
+            ? 'Instagram Reels in 1080p Full HD ohne Wasserzeichen herunterladen'
+            : currentLang === 'it'
+            ? 'Scarica Instagram Reels in 1080p Full HD senza watermark'
+            : currentLang === 'pt'
+            ? 'Baixar Instagram Reels em 1080p Full HD sem marca d\'água'
+            : currentLang === 'tr'
+            ? 'Instagram Reels videolarını 1080p Full HD kalitede filigransız indirin'
+            : currentLang === 'ru'
+            ? 'Скачать Instagram Reels в 1080p Full HD без водяных знаков'
+            : currentLang === 'id'
+            ? 'Unduh Instagram Reels dalam 1080p Full HD tanpa watermark'
+            : 'Download Instagram Reels in 1080p Full HD without watermark',
+        badge: `${translations.navReels} 1080p`,
+      };
+    }
+    if (t === 'video') {
+      return {
+        title: translations.navVideo,
+        desc:
+          currentLang === 'ar'
+            ? 'تحميل فيديوهات انستقرام الأصلية بصيغة MP4 بأعلى دقة'
+            : currentLang === 'es'
+            ? 'Descargar videos de Instagram en formato MP4 de alta definición'
+            : currentLang === 'fr'
+            ? 'Télécharger les vidéos Instagram au format MP4 haute définition'
+            : currentLang === 'de'
+            ? 'Instagram Videos im originalen MP4 HD-Format herunterladen'
+            : currentLang === 'it'
+            ? 'Scarica video di Instagram in formato MP4 ad alta definizione'
+            : currentLang === 'pt'
+            ? 'Baixar vídeos do Instagram em formato MP4 em alta definição'
+            : currentLang === 'tr'
+            ? 'Instagram videolarını orijinal MP4 yüksek çözünürlükte indirin'
+            : currentLang === 'ru'
+            ? 'Скачать видео Instagram в оригинальном качестве MP4 HD'
+            : currentLang === 'id'
+            ? 'Unduh video Instagram dalam format MP4 definisi tinggi asli'
+            : 'Download Instagram Videos in original MP4 high definition',
+        badge: `${translations.navVideo} MP4`,
+      };
+    }
+    if (t === 'photo' || t === 'carousel') {
+      return {
+        title: translations.navPhoto,
+        desc:
+          currentLang === 'ar'
+            ? 'تحميل صور وألبومات انستقرام المتعددة بأعلى جودة أصلية JPG'
+            : currentLang === 'es'
+            ? 'Descargar fotos y álbumes de carrusel en resolución original JPG'
+            : currentLang === 'fr'
+            ? 'Télécharger photos et albums carrousels en résolution originale JPG'
+            : currentLang === 'de'
+            ? 'Instagram Fotos und Karussell-Alben in Originalauflösung JPG herunterladen'
+            : currentLang === 'it'
+            ? 'Scarica foto e album carosello di Instagram in risoluzione originale JPG'
+            : currentLang === 'pt'
+            ? 'Baixar fotos e álbuns carrossel do Instagram em resolução original JPG'
+            : currentLang === 'tr'
+            ? 'Instagram fotoğraflarını ve çoklu gönderileri tam çözünürlüklü JPG olarak indirin'
+            : currentLang === 'ru'
+            ? 'Скачать фото и карусели Instagram в оригинальном разрешении JPG'
+            : currentLang === 'id'
+            ? 'Unduh foto dan album karosel Instagram dalam resolusi JPG asli'
+            : 'Download Instagram photos and carousel albums in full resolution JPG',
+        badge: `${translations.navPhoto} HD`,
+      };
+    }
+    if (t === 'story' || t === 'stories') {
+      return {
+        title: translations.navStories,
+        desc:
+          currentLang === 'ar'
+            ? 'مشاهدة وتحميل ستوري انستقرام دون الكشف عن هويتك'
+            : currentLang === 'es'
+            ? 'Descargar y ver Stories de Instagram de forma 100% anónima'
+            : currentLang === 'fr'
+            ? 'Télécharger et regarder les stories Instagram de manière anonyme'
+            : currentLang === 'de'
+            ? 'Instagram Stories anonym und in voller Qualität herunterladen'
+            : currentLang === 'it'
+            ? 'Scarica e guarda le storie di Instagram in modo totalmente anonimo'
+            : currentLang === 'pt'
+            ? 'Baixar e ver Stories do Instagram de forma 100% anônima'
+            : currentLang === 'tr'
+            ? 'Instagram Hikayelerini kimliğinizi ifşa etmeden anonim olarak indirin'
+            : currentLang === 'ru'
+            ? 'Смотреть и скачивать истории Instagram абсолютно анонимно'
+            : currentLang === 'id'
+            ? 'Unduh dan lihat Story Instagram secara anonim dalam kualitas penuh'
+            : 'Download and view Instagram Stories anonymously in full quality',
+        badge: `${translations.navStories} Anonymous`,
+      };
+    }
+    if (t === 'highlight' || t === 'highlights') {
+      return {
+        title: translations.navHighlights,
+        desc:
+          currentLang === 'ar'
+            ? 'تحميل هايلايت انستقرام الكامل والألبومات المحفوظة بضغطة واحدة'
+            : currentLang === 'es'
+            ? 'Descargar historias destacadas completas de Instagram en un clic'
+            : currentLang === 'fr'
+            ? 'Télécharger les stories à la une d\'Instagram en un clic'
+            : currentLang === 'de'
+            ? 'Instagram Story-Highlights komplett mit einem Klick herunterladen'
+            : currentLang === 'it'
+            ? 'Scarica contenuti in evidenza di Instagram con un solo clic'
+            : currentLang === 'pt'
+            ? 'Baixar destaques do Instagram em um clique'
+            : currentLang === 'tr'
+            ? 'Instagram Öne Çıkanlarını tek tıkla eksiksiz indirin'
+            : currentLang === 'ru'
+            ? 'Скачать хайлайтс Instagram в один клик'
+            : currentLang === 'id'
+            ? 'Unduh Sorotan Instagram lengkap dalam satu klik'
+            : 'Download Instagram profile Highlights and archived albums in one click',
+        badge: `${translations.navHighlights} Full`,
+      };
+    }
+    if (t === 'igtv') {
+      return {
+        title: translations.navIgtv || 'IGTV',
+        desc:
+          currentLang === 'ar'
+            ? 'تحميل مقاطع IGTV الطويلة وسلاسل الفيديو بجودة عالية'
+            : 'Download long-form IGTV videos and series in 1080p Full HD',
+        badge: 'IGTV HD',
+      };
+    }
+    return {
       title: translations.navReels,
       desc: translations.heroSubtitle,
       badge: translations.heroHighlight,
-    },
+    };
+  };
+
+  const categoryLabels: Record<string, { title: string; desc: string; badge: string }> = {
+    reel: getCategoryMeta('reel'),
+    reels: getCategoryMeta('reels'),
+    video: getCategoryMeta('video'),
+    photo: getCategoryMeta('photo'),
+    carousel: getCategoryMeta('carousel'),
+    story: getCategoryMeta('story'),
+    stories: getCategoryMeta('stories'),
+    highlight: getCategoryMeta('highlight'),
+    highlights: getCategoryMeta('highlights'),
+    igtv: getCategoryMeta('igtv'),
+    all: getCategoryMeta('all'),
   };
 
   // Listen for browser forward/back history events
@@ -373,7 +478,25 @@ function MainApp() {
           <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
         </span>
         <span>
-          insta1000gram Engine 3.2 • Multi-stream 1080p resolution active • Free &amp; Anonymous
+          {currentLang === 'ar'
+            ? 'محرك insta1000gram 3.2 • استخراج بدقة 1080p فائقة الوضوح • مجاني وبشكل مجهول 100%'
+            : currentLang === 'es'
+            ? 'Motor insta1000gram 3.2 • Extracción 1080p Full HD activa • Gratis y 100% Anónimo'
+            : currentLang === 'fr'
+            ? 'Moteur insta1000gram 3.2 • Résolution 1080p Full HD active • Gratuit et Anonyme'
+            : currentLang === 'de'
+            ? 'insta1000gram Engine 3.2 • 1080p Full HD aktiv • Kostenlos & 100% Anonym'
+            : currentLang === 'it'
+            ? 'Motore insta1000gram 3.2 • Risoluzione 1080p Full HD attiva • Gratuito e Anonimo'
+            : currentLang === 'pt'
+            ? 'Motor insta1000gram 3.2 • Resolução 1080p Full HD ativa • Grátis e 100% Anônimo'
+            : currentLang === 'tr'
+            ? 'insta1000gram Motoru 3.2 • 1080p Full HD çözünürlük aktif • Ücretsiz ve %100 Anonim'
+            : currentLang === 'ru'
+            ? 'Движок insta1000gram 3.2 • Разрешение 1080p Full HD активно • Бесплатно и 100% анонимно'
+            : currentLang === 'id'
+            ? 'Mesin insta1000gram 3.2 • Resolusi 1080p Full HD aktif • Gratis & 100% Anonim'
+            : 'insta1000gram Engine 3.2 • Multi-stream 1080p resolution active • Free & Anonymous'}
         </span>
       </div>
 

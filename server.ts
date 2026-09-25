@@ -1,4 +1,5 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
@@ -13,7 +14,7 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const archiver = require('archiver');
 import { generatePseoPages, INITIAL_PSEO_CONFIG } from './src/pseoData.ts';
-import { PseoPage, PseoTemplateConfig } from './src/types.ts';
+import type { PseoPage, PseoTemplateConfig } from './src/types.ts';
 import { ALL_SUPPORTED_LANGUAGES } from './src/config/languages.ts';
 import { DOWNLOADER_PAGES, GUIDE_PAGES } from './src/config/downloaders.ts';
 
@@ -708,7 +709,7 @@ async function fetchSnapVideoWithCookies(targetUrl: string): Promise<any[]> {
     });
 
     if (!searchRes.ok) return [];
-    const searchJson = await searchRes.json();
+    const searchJson = await searchRes.json().catch(() => null);
     const data = searchJson?.data || '';
 
     const liBlocks = data.match(/<li\b[\s\S]*?<\/li>/gi) || [];
@@ -953,18 +954,26 @@ async function extractFromJerryCoder(targetUrl: string): Promise<any[]> {
   }
 }
 
-// Engine 5 Helper: Direct Instagram Public Scraper (Googlebot User-Agent)
-// Extracts high-resolution photos/carousel media directly from public Instagram posts
+// Engine 5 Helper: Direct Instagram Public Scraper (Googlebot & Mobile Bot User-Agent)
+// Extracts high-resolution photos/carousel/video media directly from public Instagram posts, reels, and highlights
 async function extractFromInstagramDirectBot(targetUrl: string, shortcode: string): Promise<{ items: any[]; author?: string; caption?: string }> {
   try {
-    const fetchUrl = `https://www.instagram.com/p/${shortcode}/`;
+    let fetchUrl = targetUrl;
+    if (/\/(reel|reels)\//i.test(targetUrl) && shortcode) {
+      fetchUrl = `https://www.instagram.com/reel/${shortcode}/`;
+    } else if (/\/(stories\/highlights|highlights)\//i.test(targetUrl) && shortcode) {
+      fetchUrl = `https://www.instagram.com/stories/highlights/${shortcode}/`;
+    } else if (/\/p\//i.test(targetUrl) && shortcode) {
+      fetchUrl = `https://www.instagram.com/p/${shortcode}/`;
+    }
+
     const res = await fetch(fetchUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.9',
       },
-      signal: AbortSignal.timeout(6000),
+      signal: AbortSignal.timeout(7000),
     });
 
     if (!res.ok) return { items: [] };
@@ -980,16 +989,37 @@ async function extractFromInstagramDirectBot(targetUrl: string, shortcode: strin
     if (descMatch) caption = decodeHtml(descMatch[1]);
 
     const items: any[] = [];
-
-    // 1. Extract candidates (standard Instagram image candidate arrays)
-    const candidateMatches = [...text.matchAll(/"candidates":\s*(\[[^\]]+\])/g)];
     const seenMediaUrls = new Set<string>();
 
+    // 1. Extract video URLs (og:video, video_url)
+    const ogVideoMatch = text.match(/<meta property="og:video(?::secure_url)?" content="([^"]+)"/i);
+    if (ogVideoMatch && ogVideoMatch[1]) {
+      const vidUrl = decodeHtml(ogVideoMatch[1]);
+      if (!seenMediaUrls.has(vidUrl)) {
+        seenMediaUrls.add(vidUrl);
+        const ogThumbMatch = text.match(/<meta property="og:image" content="([^"]+)"/i);
+        const thumb = ogThumbMatch ? decodeHtml(ogThumbMatch[1]) : vidUrl;
+        items.push({
+          type: 'video',
+          url: vidUrl,
+          directUrl: vidUrl,
+          snapUrl: vidUrl,
+          thumbnailUrl: thumb,
+          mime_type: 'video/mp4',
+          extension: 'mp4',
+          filename: `insta1000gram_video_${shortcode}.mp4`,
+          resolution: '1080p Full HD',
+          index: 1,
+        });
+      }
+    }
+
+    // 2. Extract JSON candidates (standard Instagram image candidate arrays)
+    const candidateMatches = [...text.matchAll(/"candidates":\s*(\[[^\]]+\])/g)];
     for (const m of candidateMatches) {
       try {
         const arr = JSON.parse(m[1]);
         if (Array.isArray(arr) && arr.length > 0) {
-          // Select highest resolution candidate
           const best = arr.reduce((prev: any, curr: any) => ((curr.width || 0) > (prev.width || 0) ? curr : prev), arr[0]);
           if (best && best.url && !seenMediaUrls.has(best.url)) {
             seenMediaUrls.add(best.url);
@@ -1011,7 +1041,7 @@ async function extractFromInstagramDirectBot(targetUrl: string, shortcode: strin
       } catch {}
     }
 
-    // 2. If no candidates, check og:image meta tag
+    // 3. If no candidates, check og:image meta tag
     if (items.length === 0) {
       const ogImageMatch = text.match(/<meta property="og:image" content="([^"]+)"/i);
       if (ogImageMatch && ogImageMatch[1]) {
@@ -2209,7 +2239,7 @@ async function startServer() {
     });
 
     app.use(async (req: Request, res: Response, next: NextFunction) => {
-      if (req.method !== 'GET') return next();
+      if (req.method !== 'GET' && req.method !== 'HEAD') return next();
       if (
         req.path.startsWith('/api/') ||
         req.path.startsWith('/@') ||
