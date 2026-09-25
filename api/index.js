@@ -6,32 +6,33 @@ import {
   handleQrShorten,
   sendJsonResponse,
   sendNoContent,
-} from '../src/lib/instagramCore';
+} from './_core.js';
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     return sendNoContent(res);
   }
 
-  const url = req.url || '';
-  if (url.includes('instagram/resolve')) {
+  const urlPath = String(req.url || '');
+
+  if (urlPath.includes('instagram/resolve')) {
     return handleInstagramResolve(req, res);
   }
-  if (url.includes('download/proxy')) {
+  if (urlPath.includes('download/proxy')) {
     return handleDownloadProxy(req, res);
   }
-  if (url.includes('download/stream')) {
+  if (urlPath.includes('download/stream')) {
     return handleDownloadStream(req, res);
   }
-  if (url.includes('download/zip')) {
+  if (urlPath.includes('download/zip')) {
     return handleDownloadZip(req, res);
   }
-  if (url.includes('qr/shorten')) {
+  if (urlPath.includes('qr/shorten')) {
     return handleQrShorten(req, res);
   }
 
-  return sendJsonResponse(res, 404, {
-    error: `API route not found: ${url}`,
-    status: 404,
+  return sendJsonResponse(res, 200, {
+    status: 'ok',
+    engine: 'insta1000gram-serverless-v6',
   });
 }

@@ -3,14 +3,16 @@ import http from 'http';
 import { URL, URLSearchParams } from 'url';
 import SnapVideo from 'cakkatrok-instagram-downloader';
 import { instagram as igJerry } from '@jerrycoder/instagram-api';
-import { createRequire } from 'module';
+import * as archiverNamespace from 'archiver';
 
-const require = createRequire(import.meta.url);
-const archiver = require('archiver');
+const archiver: any = (archiverNamespace as any)?.default || archiverNamespace;
 
 export function createZipArchive(options: any = { zlib: { level: 6 } }) {
   if (typeof archiver === 'function') {
     return archiver('zip', options);
+  }
+  if (archiver?.create) {
+    return archiver.create('zip', options);
   }
   if (archiver?.ZipArchive) {
     return new archiver.ZipArchive(options);
