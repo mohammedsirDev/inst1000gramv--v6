@@ -954,6 +954,90 @@ async function extractFromJerryCoder(targetUrl: string): Promise<any[]> {
   }
 }
 
+// Engine 5 Helper: Direct Instagram Public Scraper (Googlebot User-Agent)
+// Extracts high-resolution photos/carousel media directly from public Instagram posts
+async function extractFromInstagramDirectBot(targetUrl: string, shortcode: string): Promise<{ items: any[]; author?: string; caption?: string }> {
+  try {
+    const fetchUrl = `https://www.instagram.com/p/${shortcode}/`;
+    const res = await fetch(fetchUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
+      signal: AbortSignal.timeout(6000),
+    });
+
+    if (!res.ok) return { items: [] };
+    const text = await res.text();
+    if (!text || text.length < 500) return { items: [] };
+
+    // Extract author & caption if available
+    let author: string | undefined;
+    let caption: string | undefined;
+    const authorMatch = text.match(/"owner":\s*\{"username":\s*"([^"]+)"/i) || text.match(/"username":\s*"([^"]+)"/i);
+    if (authorMatch) author = authorMatch[1];
+    const descMatch = text.match(/<meta property="og:description" content="([^"]+)"/i) || text.match(/<meta name="description" content="([^"]+)"/i);
+    if (descMatch) caption = decodeHtml(descMatch[1]);
+
+    const items: any[] = [];
+
+    // 1. Extract candidates (standard Instagram image candidate arrays)
+    const candidateMatches = [...text.matchAll(/"candidates":\s*(\[[^\]]+\])/g)];
+    const seenMediaUrls = new Set<string>();
+
+    for (const m of candidateMatches) {
+      try {
+        const arr = JSON.parse(m[1]);
+        if (Array.isArray(arr) && arr.length > 0) {
+          // Select highest resolution candidate
+          const best = arr.reduce((prev: any, curr: any) => ((curr.width || 0) > (prev.width || 0) ? curr : prev), arr[0]);
+          if (best && best.url && !seenMediaUrls.has(best.url)) {
+            seenMediaUrls.add(best.url);
+            const directUrl = best.url;
+            items.push({
+              type: 'image',
+              url: directUrl,
+              directUrl,
+              snapUrl: directUrl,
+              thumbnailUrl: directUrl,
+              mime_type: 'image/jpeg',
+              extension: 'jpg',
+              filename: `insta1000gram_photo_${shortcode}_${items.length + 1}.jpg`,
+              resolution: best.width && best.height ? `${best.width}x${best.height}` : 'Original Master HD',
+              index: items.length + 1,
+            });
+          }
+        }
+      } catch {}
+    }
+
+    // 2. If no candidates, check og:image meta tag
+    if (items.length === 0) {
+      const ogImageMatch = text.match(/<meta property="og:image" content="([^"]+)"/i);
+      if (ogImageMatch && ogImageMatch[1]) {
+        const rawOgUrl = decodeHtml(ogImageMatch[1]);
+        items.push({
+          type: 'image',
+          url: rawOgUrl,
+          directUrl: rawOgUrl,
+          snapUrl: rawOgUrl,
+          thumbnailUrl: rawOgUrl,
+          mime_type: 'image/jpeg',
+          extension: 'jpg',
+          filename: `insta1000gram_photo_${shortcode}.jpg`,
+          resolution: 'Original Master HD',
+          index: 1,
+        });
+      }
+    }
+
+    return { items: deduplicateMediaItems(items), author, caption };
+  } catch {
+    return { items: [] };
+  }
+}
+
 async function handleInstagramResolve(req: Request, res: Response) {
   if (req.method === 'OPTIONS') {
     return res.sendStatus(204);
@@ -1100,6 +1184,18 @@ async function handleInstagramResolve(req: Request, res: Response) {
     } catch {}
   }
 
+  // Engine 6: Direct Instagram Public Scraper (Googlebot User-Agent for photos & carousels)
+  let directScraperMeta: { author?: string; caption?: string } = {};
+  if (!resolvedItems || resolvedItems.length === 0) {
+    try {
+      const botRes = await extractFromInstagramDirectBot(normalizedUrl, shortcode);
+      if (botRes.items && botRes.items.length > 0) {
+        resolvedItems = botRes.items;
+        directScraperMeta = { author: botRes.author, caption: botRes.caption };
+      }
+    } catch {}
+  }
+
   // Fallback: ONLY for single static photo posts (/p/) if all extractors fail.
   // NEVER downgrade a Reel or Highlight into a single photo thumbnail!
   if ((!resolvedItems || resolvedItems.length === 0) && oembed?.thumbnail_url && !isReel && !isHighlight) {
@@ -1153,7 +1249,7 @@ async function handleInstagramResolve(req: Request, res: Response) {
   }
 
   // Clean author name & handle
-  let authorHandle = 'instagram_creator';
+  let authorHandle = directScraperMeta.author || 'instagram_creator';
   if (oembed?.author_url) {
     const handleMatch = oembed.author_url.match(/instagram\.com\/([^/?#]+)/i);
     if (handleMatch) authorHandle = handleMatch[1];
@@ -1161,7 +1257,7 @@ async function handleInstagramResolve(req: Request, res: Response) {
     authorHandle = oembed.author_name.toLowerCase().replace(/[^a-z0-9_]/g, '_');
   }
 
-  const authorFullName = oembed?.author_name || authorHandle;
+  const authorFullName = oembed?.author_name || directScraperMeta.author || authorHandle;
 
   // Determine post type accurately: reel | video | photo | carousel | highlight | story | igtv
   let detectedType: 'reel' | 'video' | 'photo' | 'carousel' | 'highlight' | 'story' | 'igtv' = 'photo';
@@ -1226,8 +1322,8 @@ async function handleInstagramResolve(req: Request, res: Response) {
 
   const postTitle = oembed?.title
     ? oembed.title.replace(/\n+/g, ' ').slice(0, 120)
-    : `Instagram ${detectedType.toUpperCase()} #${shortcode}`;
-  const postCaption = oembed?.title || `Original ${detectedType} shared on Instagram by @${authorHandle}. Downloaded via insta1000gram.com.`;
+    : (directScraperMeta.caption ? directScraperMeta.caption.slice(0, 120) : `Instagram ${detectedType.toUpperCase()} #${shortcode}`);
+  const postCaption = oembed?.title || directScraperMeta.caption || `Original ${detectedType} shared on Instagram by @${authorHandle}. Downloaded via insta1000gram.com.`;
 
   // Build items array matching requested specification
   const items = resolvedItems.map((item, idx) => {
@@ -1613,12 +1709,35 @@ async function handleDownloadZip(req: Request, res: Response) {
   }
 
   try {
-    const items = await fetchSnapVideoWithCookies(targetUrl);
+    // Check if media was already resolved in cache
+    const cached = resolvedMediaCache.get(targetUrl.toLowerCase()) || resolvedMediaCache.get(targetUrl.toLowerCase().split('?')[0]);
+    let items = cached?.data?.items?.map((it: any) => ({
+      directUrl: it.directUrl || it.url,
+      snapUrl: it.snapUrl || it.url,
+      extension: it.type === 'video' ? 'mp4' : 'jpg',
+      type: it.type,
+    })) || [];
+
+    if (!items || items.length === 0) {
+      items = await fetchSnapVideoWithCookies(targetUrl);
+    }
+    if (!items || items.length === 0) {
+      const snapPkg = await extractFromSnapVideoPackage(targetUrl);
+      items = snapPkg.items;
+    }
+    if (!items || items.length === 0) {
+      const shortcodeMatch = targetUrl.match(/\/(?:p|reel|reels|tv|stories)(?:\/[^/]+)*\/([^/?#&]+)/i);
+      if (shortcodeMatch) {
+        const botRes = await extractFromInstagramDirectBot(targetUrl, shortcodeMatch[1]);
+        items = botRes.items;
+      }
+    }
+
     if (!items || items.length === 0) {
       return res.status(404).send('No media items found to archive');
     }
 
-    const urls = items.map((it) => it.snapUrl || it.directUrl);
+    const urls = items.map((it) => it.directUrl || it.snapUrl || it.url);
     const filenames = items.map((it, idx) => {
       const ext = it.extension || (it.type === 'video' ? 'mp4' : 'jpg');
       return `insta1000gram_${idx + 1}.${ext}`;
@@ -1629,11 +1748,15 @@ async function handleDownloadZip(req: Request, res: Response) {
     res.setHeader('Content-Disposition', `attachment; filename="${safeZipName}"`);
 
     const archive = archiver('zip', { zlib: { level: 6 } });
+    archive.on('error', (err: any) => {
+      console.error('ZIP archive error:', err);
+    });
     archive.pipe(res);
 
     for (let i = 0; i < urls.length; i++) {
-      const decoded = decodeSnapCdnToken(urls[i]);
-      const fileUrl = decoded?.url || urls[i];
+      const rawUrl = urls[i];
+      const decoded = decodeSnapCdnToken(rawUrl);
+      const fileUrl = decoded?.url || rawUrl;
       try {
         const isSnapCdn = fileUrl.includes('snapcdn.app');
         const fetchRes = await fetch(fileUrl, {
@@ -1649,12 +1772,15 @@ async function handleDownloadZip(req: Request, res: Response) {
           const arrayBuf = await fetchRes.arrayBuffer();
           archive.append(Buffer.from(arrayBuf), { name: filenames[i] });
         }
-      } catch {}
+      } catch (err: any) {
+        console.warn(`Item ${i + 1} fetch error:`, err?.message);
+      }
     }
 
     await archive.finalize();
   } catch (err: any) {
-    if (!res.headersSent) res.status(500).send(err?.message || 'ZIP failed');
+    console.error('handleDownloadZip GET exception:', err);
+    if (!res.headersSent) res.status(500).send('ZIP generation failed');
   }
 }
 
