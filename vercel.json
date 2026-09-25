@@ -5,6 +5,10 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
+      "source": "/m/:code*",
+      "destination": "/api/qr/shorten?code=:code*"
+    },
+    {
       "source": "/api/instagram/resolve/",
       "destination": "/api/instagram/resolve"
     },

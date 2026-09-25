@@ -188,15 +188,19 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
     setIsGeneratingQr(true);
 
     const targetMediaUrl = fullQrTargetUrl;
+    const ext = activeFormatForQr?.extension || (isSlideVideo ? 'mp4' : 'jpg');
     const targetFilename = `insta1000gram_${result.type}_${(
       activeFormatForQr?.quality || '1080p'
-    ).replace(/[^a-zA-Z0-9]/g, '_')}.${activeFormatForQr?.extension || 'mp4'}`;
+    ).replace(/[^a-zA-Z0-9]/g, '_')}.${ext}`;
 
     fetch('/api/qr/shorten', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         targetUrl: targetMediaUrl,
+        sourceUrl: result.sourceUrl,
+        slideIndex: activeSlideIndex,
+        extension: ext,
         filename: targetFilename,
         quality: activeFormatForQr?.quality || '1080p Ultra HD',
         thumbnail: activeThumbnail,
@@ -220,10 +224,11 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
       .catch(() => {
         if (!isMounted) return;
         setIsGeneratingQr(false);
-        setQrShortUrl(targetMediaUrl);
+        const fallbackDlUrl = fullProxyUrl || targetMediaUrl;
+        setQrShortUrl(fallbackDlUrl);
         setQrCodeDataUrl(
           `https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=4&data=${encodeURIComponent(
-            targetMediaUrl
+            fallbackDlUrl
           )}`
         );
       });
@@ -231,7 +236,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
     return () => {
       isMounted = false;
     };
-  }, [isQrModalOpen, activeFormatForQr, qrMode]);
+  }, [isQrModalOpen, activeFormatForQr, qrMode, activeSlideIndex, result.sourceUrl]);
 
   /**
    * Complete download pipeline with LIVE PROGRESS TRACKING:

@@ -128,19 +128,6 @@ export const Footer: React.FC<FooterProps> = ({
 
           <div className="flex items-center gap-4">
             <span className="text-slate-400 font-medium">{translations.fastSpeedNotice}</span>
-            <a
-              href="/download-source"
-              className="text-pink-400 hover:text-pink-300 font-medium transition-colors"
-              title="Download project files (.zip)"
-            >
-              {translations.sourceZipBtn || '📥 Download Source ZIP'}
-            </a>
-            <button
-              onClick={onOpenAdmin}
-              className="text-slate-500 hover:text-slate-400 underline transition-colors"
-            >
-              {translations.controlPanelBtn || 'Control Panel'}
-            </button>
           </div>
         </div>
 

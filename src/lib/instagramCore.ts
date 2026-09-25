@@ -1602,20 +1602,179 @@ export async function handleDownloadZip(req: any, res: any) {
   }
 }
 
-// Endpoint to generate clean short code for mobile scanning
+// Helper to extract compact Instagram path (e.g. "p/Ddl1lsKjgw_" or "reel/DdmbSgYx2k6")
+function extractCompactInstagramPath(url: string): string {
+  if (!url) return '';
+  try {
+    const u = new URL(url.startsWith('http') ? url : `https://www.instagram.com/${url.replace(/^\/+/, '')}`);
+    const match = u.pathname.match(/\/(reel|reels|p|tv|stories\/highlights|highlights|stories|s)\/([^/?#]+(?:\/[^/?#]+)?)/i);
+    if (match) {
+      return `${match[1]}/${match[2].replace(/\/+$/, '')}`;
+    }
+  } catch {}
+  return '';
+}
+
+// Endpoint to generate clean short code for mobile scanning AND stream direct download when scanned
 export async function handleQrShorten(req: any, res: any) {
   if (req.method === 'OPTIONS') return sendNoContent(res);
+  setCorsHeaders(res);
+
+  // GET / HEAD: Phone camera scanned /m/:code or /api/qr/shorten?code=... -> stream download directly!
+  if (req.method === 'GET' || req.method === 'HEAD') {
+    let rawCode = String(req.params?.code || req.query?.code || '').trim();
+    if (!rawCode && req.url) {
+      try {
+        const parsedReqUrl = new URL(req.url, 'http://localhost');
+        rawCode = parsedReqUrl.searchParams.get('code') || '';
+        if (!rawCode) {
+          const mMatch = parsedReqUrl.pathname.match(/\/m\/([^/?#]+)/);
+          if (mMatch) rawCode = decodeURIComponent(mMatch[1]);
+        }
+      } catch {}
+    }
+
+    if (!rawCode) {
+      return sendJsonResponse(res, 400, { error: 'Missing QR download code' });
+    }
+
+    const shortId = rawCode.split('.')[0];
+    const record = shortLinkMap.get(rawCode) || shortLinkMap.get(shortId);
+
+    let targetUrl = record?.targetUrl || '';
+    let filename = record?.filename || '';
+    let ext = (filename.split('.').pop() || '').toLowerCase();
+
+    // Stateless fallback for serverless cold instances: decode embedded Instagram path + slide index
+    if (!targetUrl && rawCode.includes('.')) {
+      try {
+        const tokenPart = rawCode.split('.').slice(1).join('.');
+        const decodedPayload = JSON.parse(Buffer.from(tokenPart, 'base64url').toString('utf-8'));
+        const igPath = decodedPayload?.p || '';
+        const slideIdx = Number(decodedPayload?.i) || 0;
+        const reqExt = String(decodedPayload?.e || '').toLowerCase();
+        if (reqExt) ext = reqExt;
+
+        if (igPath) {
+          const igUrl = igPath.startsWith('http')
+            ? igPath
+            : `https://www.instagram.com/${igPath.replace(/^\/+/, '')}/`;
+
+          const cached =
+            resolvedMediaCache.get(igUrl.toLowerCase()) ||
+            resolvedMediaCache.get(igUrl.toLowerCase().replace(/\/+$/, ''));
+
+          let items: any[] = cached?.data?.items || [];
+          if (!items || items.length === 0) {
+            items = await fetchSnapVideoWithCookies(igUrl);
+          }
+          if (!items || items.length === 0) {
+            items = await extractFromJerryCoder(igUrl);
+          }
+          if (!items || items.length === 0) {
+            const shortcode = igPath.split('/').filter(Boolean).pop() || '';
+            const directBot = await extractFromInstagramDirectBot(igUrl, shortcode);
+            items = directBot.items || [];
+          }
+
+          if (items && items.length > 0) {
+            const chosen = items[slideIdx] || items[0];
+            targetUrl = chosen.snapUrl || chosen.directUrl || chosen.url || '';
+            const isVid = detectIsVideoItem({
+              directUrl: chosen.directUrl || chosen.url,
+              rawUrl: targetUrl,
+              filename: chosen.filename,
+              explicitType: chosen.type,
+            });
+            const finalExt = reqExt === 'mp3' ? 'mp3' : isVid ? 'mp4' : 'jpg';
+            ext = finalExt;
+            filename =
+              chosen.filename?.replace(/\.[a-zA-Z0-9]+$/, `.${finalExt}`) ||
+              `insta1000gram_media_${slideIdx + 1}.${finalExt}`;
+          }
+        }
+      } catch (e: any) {
+        console.warn('QR token decode error:', e?.message);
+      }
+    }
+
+    if (!targetUrl) {
+      return sendJsonResponse(res, 404, { error: 'QR download link expired or could not be resolved.' });
+    }
+
+    // If targetUrl is wrapped in /api/download/proxy?url=..., unwrap the inner media URL
+    if (targetUrl.includes('/api/download/proxy') || targetUrl.includes('/api/download/stream')) {
+      try {
+        const parsedProxy = new URL(targetUrl, 'http://localhost');
+        const innerUrl = parsedProxy.searchParams.get('url');
+        const innerFilename = parsedProxy.searchParams.get('filename');
+        if (innerUrl) targetUrl = innerUrl;
+        if (innerFilename && !filename) filename = innerFilename;
+      } catch {}
+    }
+
+    // If targetUrl is still an Instagram page URL, resolve it to CDN stream
+    if (targetUrl.includes('instagram.com') && /\/(reel|reels|p|stories|tv|highlights|s)\//i.test(targetUrl)) {
+      try {
+        const items = await fetchSnapVideoWithCookies(targetUrl);
+        if (items && items.length > 0) {
+          targetUrl = items[0].snapUrl || items[0].directUrl || items[0].url;
+        }
+      } catch {}
+    }
+
+    if (!ext) {
+      const isVid = detectIsVideoItem({ directUrl: targetUrl, rawUrl: targetUrl, filename });
+      ext = isVid ? 'mp4' : 'jpg';
+    }
+    if (!filename) {
+      filename = `insta1000gram_media.${ext}`;
+    }
+
+    const mediaType =
+      ext === 'mp3'
+        ? 'audio'
+        : ext === 'jpg' || ext === 'jpeg' || ext === 'png' || ext === 'webp'
+        ? 'photo'
+        : 'video';
+
+    return streamDownloadFromUrl(targetUrl, res, {
+      filename,
+      type: mediaType,
+      isAttachment: true,
+    });
+  }
+
+  // POST: Create short link for QR code
   const body = await parseRequestBody(req);
-  const { targetUrl, filename, quality, thumbnail, author } = body || {};
+  const { targetUrl, sourceUrl, slideIndex, extension, filename, quality, thumbnail, author } = body || {};
   if (!targetUrl) {
     return sendJsonResponse(res, 400, { error: 'targetUrl required' });
   }
 
-  const code = Math.random().toString(36).substring(2, 8);
+  const shortId = Math.random().toString(36).substring(2, 7);
+  let igPath = extractCompactInstagramPath(sourceUrl || '');
+  if (!igPath && targetUrl.includes('instagram.com')) {
+    igPath = extractCompactInstagramPath(targetUrl);
+  }
+
+  const ext = String(extension || (filename ? filename.split('.').pop() : '') || 'mp4').toLowerCase();
+  let code = shortId;
+  if (igPath) {
+    const token = Buffer.from(
+      JSON.stringify({
+        p: igPath,
+        i: Number(slideIndex) || 0,
+        e: ext,
+      })
+    ).toString('base64url');
+    code = `${shortId}.${token}`;
+  }
+
   const record: ShortLinkRecord = {
     code,
     targetUrl,
-    filename: filename || 'insta1000gram_media.mp4',
+    filename: filename || `insta1000gram_media.${ext}`,
     quality: quality || '1080p Ultra HD',
     thumbnail,
     author,
@@ -1623,6 +1782,7 @@ export async function handleQrShorten(req: any, res: any) {
   };
 
   shortLinkMap.set(code, record);
+  shortLinkMap.set(shortId, record);
 
   const protocol = req.headers?.['x-forwarded-proto'] || req.protocol || 'https';
   const host = req.headers?.['x-forwarded-host'] || req.headers?.host || 'www.insta1000gram.com';
