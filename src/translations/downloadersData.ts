@@ -293,7 +293,7 @@ export function getDownloaderDataForLocale(
   }
 
   // Localized title & name builders for the other 27 languages
-  const toolNameLocalized: Record<SupportedLanguage, Record<MediaType, string>> = {
+  const toolNameLocalized: Record<SupportedLanguage, Partial<Record<MediaType, string>>> = {
     en: { reels: 'Instagram Reels Downloader', video: 'Instagram Video Downloader', photo: 'Instagram Photo Downloader', stories: 'Instagram Story Downloader', highlights: 'Instagram Highlights Downloader', all: 'Downloader', igtv: 'IGTV' },
     ar: { reels: 'تحميل ريلز انستقرام', video: 'تحميل فيديو انستقرام', photo: 'تحميل صور انستقرام', stories: 'تحميل ستوري انستقرام', highlights: 'تحميل هايلايت انستقرام', all: 'تنزيل', igtv: 'IGTV' },
     bn: { reels: 'ইনস্টাগ্রাম রিলস ডাউনলোডার', video: 'ইনস্টাগ্রাম ভিডিও ডাউনলোডার', photo: 'ইনস্টাগ্রাম ফটো ডাউনলোডার', stories: 'ইনস্টাগ্রাম স্টোরি ডাউনলোডার', highlights: 'ইনস্টাগ্রাম হাইলাইটস ডাউনলোডার', all: 'ডাউনলোডার', igtv: 'IGTV' },
@@ -325,7 +325,7 @@ export function getDownloaderDataForLocale(
     'zh-Hans': { reels: 'Instagram Reels 视频下载器', video: 'Instagram 视频下载器', photo: 'Instagram 图片下载器', stories: 'Instagram 快拍下载器', highlights: 'Instagram 精选集下载器', all: '下载器', igtv: 'IGTV' },
   };
 
-  const localizedName = toolNameLocalized[locale]?.[type] || toolNameLocalized.en[type];
+  const localizedName = toolNameLocalized[locale]?.[type] || toolNameLocalized.en?.[type] || 'Instagram Downloader';
 
   return {
     slug,

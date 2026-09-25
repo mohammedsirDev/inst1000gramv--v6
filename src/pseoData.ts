@@ -236,19 +236,24 @@ export function generatePseoPages(count: number, template: PseoTemplateConfig): 
     let intro = '';
 
     if (lang === 'ar') {
-      const arTypes: Record<MediaType, string> = {
+      const arTypes: Partial<Record<MediaType, string>> = {
         reels: 'ريلز انستقرام',
+        reel: 'ريلز انستقرام',
         video: 'فيديوهات انستقرام',
         photo: 'صور انستقرام',
+        carousel: 'صور وألبومات انستقرام',
         stories: 'ستوري وقصص انستقرام',
+        story: 'ستوري وقصص انستقرام',
         highlights: 'هايلايت انستقرام',
+        highlight: 'هايلايت انستقرام',
         igtv: 'تلفزيون انستقرام IGTV',
         all: 'محتوى انستقرام',
       };
+      const arTypeStr = arTypes[mediaType] || 'محتوى انستقرام';
       slug = `ar/tahmeel-${mediaType}-instagram-${currentId}`;
-      title = `تحميل ${arTypes[mediaType]} بجودة ${quality} في ${country} | insta1000gram`;
-      h1 = `أسرع موقع لتحميل ${arTypes[mediaType]} (${quality})`;
-      intro = `احفظ وحمّل ${arTypes[mediaType]} على أجهزة ${device} بأعلى دقة متوفرة مع الحفاظ التام على نقاوة الألوان ودون أي علامات مائية.`;
+      title = `تحميل ${arTypeStr} بجودة ${quality} في ${country} | insta1000gram`;
+      h1 = `أسرع موقع لتحميل ${arTypeStr} (${quality})`;
+      intro = `احفظ وحمّل ${arTypeStr} على أجهزة ${device} بأعلى دقة متوفرة مع الحفاظ التام على نقاوة الألوان ودون أي علامات مائية.`;
     } else if (lang === 'es') {
       slug = `es/descargar-${mediaType}-instagram-${currentId}`;
       title = `Descargar ${mediaType.toUpperCase()} de Instagram en ${quality} - ${country} | insta1000gram`;

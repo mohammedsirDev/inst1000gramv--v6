@@ -9,6 +9,7 @@ import { execSync } from 'child_process';
 import { createServer as createViteServer } from 'vite';
 import SnapVideo from 'cakkatrok-instagram-downloader';
 import { instagram as igJerry } from '@jerrycoder/instagram-api';
+import { snapsave as snapsaveMediaDownloader } from 'snapsave-media-downloader';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const archiver = require('archiver');
@@ -41,6 +42,27 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Early route interceptor: intercept any relative or nested API calls (e.g. /ar/api/instagram/resolve)
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.path.includes('/api/instagram/resolve')) {
+    return handleInstagramResolve(req, res);
+  }
+  if (req.path.includes('/api/download/proxy')) {
+    return handleDownloadProxy(req, res);
+  }
+  if (req.path.includes('/api/download/stream')) {
+    return handleDownloadStream(req, res);
+  }
+  if (req.path.includes('/api/download/zip')) {
+    return handleDownloadZip(req, res);
+  }
+  if (req.path.includes('/api/ads')) {
+    return handleAds(req, res);
+  }
+  next();
+});
 
 // In-memory pSEO store & state
 let currentPseoConfig: PseoTemplateConfig = { ...INITIAL_PSEO_CONFIG };
@@ -823,11 +845,12 @@ async function unpackSnapSave(targetUrl: string): Promise<any[]> {
 }
 
 // Engine 2 Helper: cakkatrok SnapVideo with native https.request
-async function extractFromSnapVideoPackage(targetUrl: string): Promise<any[]> {
+async function extractFromSnapVideoPackage(targetUrl: string): Promise<{ items: any[]; isPrivate?: boolean }> {
   try {
     const res = await SnapVideo(targetUrl);
+    const isPrivate = Boolean(res?.raw?.mess && /private/i.test(res.raw.mess));
     const media = res?.media || [];
-    if (!Array.isArray(media) || media.length === 0) return [];
+    if (!Array.isArray(media) || media.length === 0) return { items: [], isPrivate };
 
     const items: any[] = [];
     for (let idx = 0; idx < media.length; idx++) {
@@ -852,8 +875,45 @@ async function extractFromSnapVideoPackage(targetUrl: string): Promise<any[]> {
         index: idx + 1,
       });
     }
-    return deduplicateMediaItems(items);
+    return { items: deduplicateMediaItems(items), isPrivate };
   } catch (err: any) {
+    return { items: [], isPrivate: false };
+  }
+}
+
+// Engine 3 Helper: SnapSave package
+async function extractFromSnapsavePackage(targetUrl: string): Promise<any[]> {
+  try {
+    const res = await snapsaveMediaDownloader(targetUrl);
+    if (!res || !res.success || !res.data) return [];
+    const media = res.data.media || [];
+    if (!Array.isArray(media) || media.length === 0) return [];
+
+    const items: any[] = [];
+    for (let idx = 0; idx < media.length; idx++) {
+      const m = media[idx];
+      const snapUrl = m.url || '';
+      const decoded = decodeSnapCdnToken(snapUrl);
+      const directUrl = decoded?.url || snapUrl;
+      const isVideo = m.type === 'video' || directUrl.includes('.mp4');
+      const ext = isVideo ? 'mp4' : 'jpg';
+      const mime = isVideo ? 'video/mp4' : 'image/jpeg';
+
+      items.push({
+        type: isVideo ? 'video' : 'image',
+        url: directUrl,
+        directUrl,
+        snapUrl,
+        thumbnailUrl: res.data.preview || directUrl,
+        mime_type: mime,
+        extension: ext,
+        filename: decoded?.filename || `insta1000gram_media_${idx + 1}.${ext}`,
+        resolution: isVideo ? '1080p Full HD' : 'Original Master HD',
+        index: idx + 1,
+      });
+    }
+    return deduplicateMediaItems(items);
+  } catch {
     return [];
   }
 }
@@ -894,9 +954,14 @@ async function extractFromJerryCoder(targetUrl: string): Promise<any[]> {
   }
 }
 
-app.post('/api/instagram/resolve', async (req: Request, res: Response) => {
-  const { url = '', mediaType = 'all' } = req.body;
-  const cleanUrl = String(url).trim();
+async function handleInstagramResolve(req: Request, res: Response) {
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+
+  const rawUrl = (req.body?.url || req.query?.url || '').toString();
+  const rawMediaType = (req.body?.mediaType || req.query?.mediaType || 'all').toString();
+  const cleanUrl = String(rawUrl).trim();
 
   if (!cleanUrl) {
     return res.status(400).json({ error: 'Please provide a valid Instagram URL or username.' });
@@ -946,6 +1011,21 @@ app.post('/api/instagram/resolve', async (req: Request, res: Response) => {
   const storyMediaIdMatch = cleanUrl.match(/[?&]story_media_id=(\d+)/i);
   const targetStoryMediaId = storyMediaIdMatch ? storyMediaIdMatch[1] : null;
 
+  // Clean tracking query parameters (igsh, utm_*, etc.) while preserving img_index and story_media_id
+  try {
+    const parsed = new URL(normalizedUrl);
+    const searchParams = new URLSearchParams(parsed.search);
+    const keepKeys = ['img_index', 'story_media_id'];
+    const newParams = new URLSearchParams();
+    for (const k of keepKeys) {
+      if (searchParams.has(k)) {
+        newParams.set(k, searchParams.get(k)!);
+      }
+    }
+    parsed.search = newParams.toString() ? `?${newParams.toString()}` : '';
+    normalizedUrl = parsed.toString();
+  } catch {}
+
   // Check cache first (only return if valid and contains items)
   const cacheKey = normalizedUrl.toLowerCase();
   const rawCacheKey = cleanUrl.toLowerCase();
@@ -969,6 +1049,8 @@ app.post('/api/instagram/resolve', async (req: Request, res: Response) => {
   const isStory = /\/stories\//i.test(normalizedUrl) && !isHighlight;
   const isIgtv = /\/tv\//i.test(normalizedUrl);
 
+  let isKnownPrivate = false;
+
   // Run oEmbed and SnapVideo in parallel
   const [oembed, snapItems] = await Promise.all([
     fetchInstagramOEmbed(normalizedUrl),
@@ -980,14 +1062,25 @@ app.post('/api/instagram/resolve', async (req: Request, res: Response) => {
   // Engine 2: SnapVideo package (uses native Node https.request)
   if (!resolvedItems || resolvedItems.length === 0) {
     try {
-      const pkgItems = await extractFromSnapVideoPackage(normalizedUrl);
-      if (pkgItems && pkgItems.length > 0) {
-        resolvedItems = pkgItems;
+      const snapPkgRes = await extractFromSnapVideoPackage(normalizedUrl);
+      if (snapPkgRes.isPrivate) isKnownPrivate = true;
+      if (snapPkgRes.items && snapPkgRes.items.length > 0) {
+        resolvedItems = snapPkgRes.items;
       }
     } catch {}
   }
 
-  // Engine 3: JerryCoder Instagram API
+  // Engine 3: SnapSave package
+  if (!resolvedItems || resolvedItems.length === 0) {
+    try {
+      const snapSavePkgItems = await extractFromSnapsavePackage(normalizedUrl);
+      if (snapSavePkgItems && snapSavePkgItems.length > 0) {
+        resolvedItems = snapSavePkgItems;
+      }
+    } catch {}
+  }
+
+  // Engine 4: JerryCoder Instagram API
   if (!resolvedItems || resolvedItems.length === 0) {
     try {
       const jerryItems = await extractFromJerryCoder(normalizedUrl);
@@ -997,7 +1090,7 @@ app.post('/api/instagram/resolve', async (req: Request, res: Response) => {
     } catch {}
   }
 
-  // Engine 4: SnapSave fallback
+  // Engine 5: SnapSave fallback
   if (!resolvedItems || resolvedItems.length === 0) {
     try {
       const snapSaveItems = await unpackSnapSave(normalizedUrl);
@@ -1033,17 +1126,29 @@ app.post('/api/instagram/resolve', async (req: Request, res: Response) => {
 
   // If still no items and no oembed
   if ((!resolvedItems || resolvedItems.length === 0) && !oembed) {
+    if (isKnownPrivate) {
+      return res.status(422).json({
+        error: 'This Instagram video or account is private. Instagram restricts downloads to public posts only.',
+        suggestion: 'Please verify that this is a public Instagram Reel, Post, Story, or Highlight.',
+      });
+    }
     return res.status(422).json({
-      error: 'Unable to retrieve media from this Instagram link. The post may be private, expired, or removed by Instagram.',
-      suggestion: 'Please verify that this is a public Instagram Reel, Post, Story, or Highlight.',
+      error: 'Could not extract media for this Instagram URL. The media might be private, expired, or age-restricted.',
+      suggestion: 'Please verify that the link is a public Instagram Reel, Video, Story, or Photo.',
     });
   }
 
-  // If this was a Reel or Highlight and all video engines failed due to rate limiting:
+  // If this was a Reel or Highlight and all video engines failed due to rate limiting or private:
   if ((!resolvedItems || resolvedItems.length === 0) && (isReel || isHighlight)) {
-    return res.status(429).json({
-      error: 'Instagram rate limit reached (HTTP 429) or upstream extraction temporary block. Please wait 10 seconds and try again.',
-      suggestion: 'Please try again in a few moments.',
+    if (isKnownPrivate) {
+      return res.status(422).json({
+        error: 'This Instagram video is private. Instagram only permits downloading from public accounts.',
+        suggestion: 'Please check that the account is public.',
+      });
+    }
+    return res.status(422).json({
+      error: 'Could not extract media for this Instagram URL. The media might be private or age-restricted.',
+      suggestion: 'Please verify that the link is public or try again in a few moments.',
     });
   }
 
@@ -1281,7 +1386,12 @@ app.post('/api/instagram/resolve', async (req: Request, res: Response) => {
   });
 
   res.json(responsePayload);
-});
+}
+
+app.options('/api/instagram/resolve', (req: Request, res: Response) => res.sendStatus(204));
+app.options('/api/instagram/resolve/', (req: Request, res: Response) => res.sendStatus(204));
+app.all('/api/instagram/resolve', handleInstagramResolve);
+app.all('/api/instagram/resolve/', handleInstagramResolve);
 
 // Helper: Stream media from URL with automatic SnapCDN token decoding and redirect handling
 function streamDownloadFromUrl(
@@ -1406,8 +1516,8 @@ function streamDownloadFromUrl(
 }
 
 // Stream endpoint for inline browser video playing (<video src="...">)
-app.get('/api/download/stream', (req: Request, res: Response) => {
-  const targetUrl = req.query.url as string;
+function handleDownloadStream(req: Request, res: Response) {
+  const targetUrl = (req.query.url || req.body?.url) as string;
   if (!targetUrl) {
     return res.status(400).send('Target URL required');
   }
@@ -1416,13 +1526,13 @@ app.get('/api/download/stream', (req: Request, res: Response) => {
     isAttachment: false,
     rangeHeader: req.headers.range as string,
   });
-});
+}
 
 // Direct file download proxy that streams the real file with Content-Disposition attachment header
-app.get('/api/download/proxy', async (req: Request, res: Response) => {
-  let targetUrl = req.query.url as string;
-  const filename = (req.query.filename as string) || 'insta1000gram_download';
-  const type = (req.query.type as string) || 'video';
+async function handleDownloadProxy(req: Request, res: Response) {
+  let targetUrl = (req.query.url || req.body?.url) as string;
+  const filename = (req.query.filename || req.body?.filename || 'insta1000gram_download') as string;
+  const type = (req.query.type || req.body?.type || 'video') as string;
 
   if (!targetUrl) {
     return res.status(400).send('Target URL required');
@@ -1443,58 +1553,59 @@ app.get('/api/download/proxy', async (req: Request, res: Response) => {
     type,
     isAttachment: true,
   });
-});
+}
 
 // ZIP archive endpoint for 1-click batch download of Carousel and Highlight albums
-app.post('/api/download/zip', async (req: Request, res: Response) => {
-  const { urls = [], filenames = [], zipName = 'insta1000gram_album.zip' } = req.body;
-  if (!Array.isArray(urls) || urls.length === 0) {
-    return res.status(400).json({ error: 'No media URLs provided for ZIP archive' });
-  }
-
-  const safeZipName = String(zipName).replace(/[^a-zA-Z0-9._-]/g, '_');
-  res.setHeader('Content-Type', 'application/zip');
-  res.setHeader('Content-Disposition', `attachment; filename="${safeZipName}"`);
-
-  const archive = archiver('zip', { zlib: { level: 6 } });
-  archive.on('error', (err: any) => {
-    console.error('Archive error:', err);
-    if (!res.headersSent) res.status(500).json({ error: 'Archive failed' });
-  });
-
-  archive.pipe(res);
-
-  for (let i = 0; i < urls.length; i++) {
-    const rawUrl = urls[i];
-    const decoded = decodeSnapCdnToken(rawUrl);
-    const targetUrl = decoded?.url || rawUrl;
-    const defaultExt = targetUrl.includes('.mp4') ? 'mp4' : 'jpg';
-    const entryName = (filenames[i] || `item_${String(i + 1).padStart(2, '0')}.${defaultExt}`).replace(/[^a-zA-Z0-9._-]/g, '_');
-
-    try {
-      const isSnapCdn = targetUrl.includes('snapcdn.app');
-      const fetchRes = await fetch(targetUrl, {
-        headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-          'Referer': isSnapCdn ? 'https://snapvideo.app/' : 'https://www.instagram.com/',
-        },
-        signal: AbortSignal.timeout(15000),
-      });
-
-      if (fetchRes.ok) {
-        const arrayBuf = await fetchRes.arrayBuffer();
-        archive.append(Buffer.from(arrayBuf), { name: entryName });
-      }
-    } catch (e: any) {
-      console.warn(`Failed to archive item ${i + 1}:`, e?.message);
+async function handleDownloadZip(req: Request, res: Response) {
+  if (req.method === 'POST') {
+    const { urls = [], filenames = [], zipName = 'insta1000gram_album.zip' } = req.body;
+    if (!Array.isArray(urls) || urls.length === 0) {
+      return res.status(400).json({ error: 'No media URLs provided for ZIP archive' });
     }
+
+    const safeZipName = String(zipName).replace(/[^a-zA-Z0-9._-]/g, '_');
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="${safeZipName}"`);
+
+    const archive = archiver('zip', { zlib: { level: 6 } });
+    archive.on('error', (err: any) => {
+      console.error('Archive error:', err);
+      if (!res.headersSent) res.status(500).json({ error: 'Archive failed' });
+    });
+
+    archive.pipe(res);
+
+    for (let i = 0; i < urls.length; i++) {
+      const rawUrl = urls[i];
+      const decoded = decodeSnapCdnToken(rawUrl);
+      const targetUrl = decoded?.url || rawUrl;
+      const defaultExt = targetUrl.includes('.mp4') ? 'mp4' : 'jpg';
+      const entryName = (filenames[i] || `item_${String(i + 1).padStart(2, '0')}.${defaultExt}`).replace(/[^a-zA-Z0-9._-]/g, '_');
+
+      try {
+        const isSnapCdn = targetUrl.includes('snapcdn.app');
+        const fetchRes = await fetch(targetUrl, {
+          headers: {
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+            'Referer': isSnapCdn ? 'https://snapvideo.app/' : 'https://www.instagram.com/',
+          },
+          signal: AbortSignal.timeout(15000),
+        });
+
+        if (fetchRes.ok) {
+          const arrayBuf = await fetchRes.arrayBuffer();
+          archive.append(Buffer.from(arrayBuf), { name: entryName });
+        }
+      } catch (e: any) {
+        console.warn(`Failed to archive item ${i + 1}:`, e?.message);
+      }
+    }
+
+    await archive.finalize();
+    return;
   }
 
-  await archive.finalize();
-});
-
-app.get('/api/download/zip', async (req: Request, res: Response) => {
   const targetUrl = req.query.url as string;
   const zipName = (req.query.name as string) || 'insta1000gram_album.zip';
   if (!targetUrl) {
@@ -1545,7 +1656,23 @@ app.get('/api/download/zip', async (req: Request, res: Response) => {
   } catch (err: any) {
     if (!res.headersSent) res.status(500).send(err?.message || 'ZIP failed');
   }
-});
+}
+
+function handleAds(req: Request, res: Response) {
+  res.json({
+    ads: {
+      topBanner: { name: 'Top Responsive Banner', code: '' },
+      sidebar: { name: 'Sidebar Square Ad', code: '' },
+      inlineResult: { name: 'In-feed Native Ad', code: '' },
+      bottomBanner: { name: 'Sticky Bottom Banner', code: '' },
+    },
+  });
+}
+
+app.all(['/api/download/stream', '/api/download/stream/'], handleDownloadStream);
+app.all(['/api/download/proxy', '/api/download/proxy/'], handleDownloadProxy);
+app.all(['/api/download/zip', '/api/download/zip/'], handleDownloadZip);
+app.all(['/api/ads', '/api/ads/'], handleAds);
 
 /* ==========================================================================
    MOBILE QR CODE TRANSFER SHORT-LINK GENERATOR & LANDING PAGE
@@ -1994,7 +2121,7 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, () => {
+  app.listen(Number(PORT), '0.0.0.0', () => {
     console.log(`[insta1000gram] Server listening on http://0.0.0.0:${PORT}`);
     console.log(`[insta1000gram] Site Domain: https://${SITE_DOMAIN}`);
     console.log(`[insta1000gram] Sitemaps Index: http://localhost:${PORT}/sitemap.xml`);
