@@ -3,7 +3,6 @@ import http from 'http';
 import { URL, URLSearchParams } from 'url';
 import SnapVideo from 'cakkatrok-instagram-downloader';
 import { instagram as igJerry } from '@jerrycoder/instagram-api';
-import { snapsave as snapsaveMediaDownloader } from 'snapsave-media-downloader';
 import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
@@ -316,13 +315,24 @@ export async function fetchSnapVideoWithCookies(targetUrl: string): Promise<any[
         const thumbMatch = block.match(/<img[^>]+src="([^"]+)"/i);
 
         const dlUrl = videoMatch ? videoMatch[1] : (photoMatch ? photoMatch[1] : (snapDlMatch ? snapDlMatch[1] : (optionMatch ? optionMatch[1] : null)));
-        const isVideo = Boolean(videoMatch) || /video|mp4/i.test(block) || /Download Video|Download MP4/i.test(block) || Boolean(dlUrl && (dlUrl.includes('.mp4') || dlUrl.includes('video')));
 
         if (dlUrl) {
           const cleanDlUrl = decodeHtml(dlUrl);
           const decoded = decodeSnapCdnToken(cleanDlUrl);
           const directUrl = decoded?.url || cleanDlUrl;
-          const safeFilename = decoded?.filename || `insta1000gram_${isVideo ? 'video' : 'photo'}_${idx + 1}.${isVideo ? 'mp4' : 'jpg'}`;
+          const isVideoLabel = Boolean(videoMatch) || /Download Video|Download MP4|icon-dlvideo/i.test(block);
+          const isPhotoLabel = Boolean(photoMatch) || /Download Photo|Download Image|Download JPG|icon-dlimage/i.test(block);
+          const isVideo = detectIsVideoItem({
+            directUrl,
+            rawUrl: cleanDlUrl,
+            filename: decoded?.filename,
+            isPhotoLabel,
+            isVideoLabel,
+          });
+          const ext = isVideo ? 'mp4' : 'jpg';
+          const safeFilename = decoded?.filename
+            ? decoded.filename.replace(/^[^_]+_/, 'insta1000gram_').replace(/\.[a-zA-Z0-9]+$/, `.${ext}`)
+            : `insta1000gram_${isVideo ? 'video' : 'photo'}_${idx + 1}.${ext}`;
           const thumbUrl = thumbMatch ? decodeHtml(thumbMatch[1]) : (isVideo ? '' : directUrl);
 
           items.push({
@@ -332,7 +342,7 @@ export async function fetchSnapVideoWithCookies(targetUrl: string): Promise<any[
             snapUrl: cleanDlUrl,
             thumbnailUrl: thumbUrl,
             mime_type: isVideo ? 'video/mp4' : 'image/jpeg',
-            extension: isVideo ? 'mp4' : 'jpg',
+            extension: ext,
             filename: safeFilename,
             resolution: isVideo ? '1080p Full HD' : 'Original Master HD',
             index: idx + 1,
@@ -350,13 +360,22 @@ export async function fetchSnapVideoWithCookies(targetUrl: string): Promise<any[
       const singleThumbMatch = rawResultHtml.match(/<img[^>]+src="([^"]+)"/i);
 
       const dlUrl = singleVideoMatch ? singleVideoMatch[1] : (singlePhotoMatch ? singlePhotoMatch[1] : null);
-      const isVideo = Boolean(singleVideoMatch);
 
       if (dlUrl) {
         const cleanDlUrl = decodeHtml(dlUrl);
         const decoded = decodeSnapCdnToken(cleanDlUrl);
         const directUrl = decoded?.url || cleanDlUrl;
-        const safeFilename = decoded?.filename || `insta1000gram_${isVideo ? 'video' : 'photo'}_1.${isVideo ? 'mp4' : 'jpg'}`;
+        const isVideo = detectIsVideoItem({
+          directUrl,
+          rawUrl: cleanDlUrl,
+          filename: decoded?.filename,
+          isPhotoLabel: Boolean(singlePhotoMatch),
+          isVideoLabel: Boolean(singleVideoMatch),
+        });
+        const ext = isVideo ? 'mp4' : 'jpg';
+        const safeFilename = decoded?.filename
+          ? decoded.filename.replace(/^[^_]+_/, 'insta1000gram_').replace(/\.[a-zA-Z0-9]+$/, `.${ext}`)
+          : `insta1000gram_${isVideo ? 'video' : 'photo'}_1.${ext}`;
         const thumbUrl = singleThumbMatch ? decodeHtml(singleThumbMatch[1]) : (isVideo ? '' : directUrl);
 
         items.push({
@@ -366,7 +385,7 @@ export async function fetchSnapVideoWithCookies(targetUrl: string): Promise<any[
           snapUrl: cleanDlUrl,
           thumbnailUrl: thumbUrl,
           mime_type: isVideo ? 'video/mp4' : 'image/jpeg',
-          extension: isVideo ? 'mp4' : 'jpg',
+          extension: ext,
           filename: safeFilename,
           resolution: isVideo ? '1080p Full HD' : 'Original Master HD',
           index: 1,
@@ -378,6 +397,52 @@ export async function fetchSnapVideoWithCookies(targetUrl: string): Promise<any[
   } catch {
     return [];
   }
+}
+
+export function detectIsVideoItem(options: {
+  directUrl?: string;
+  rawUrl?: string;
+  filename?: string;
+  explicitType?: string;
+  isPhotoLabel?: boolean;
+  isVideoLabel?: boolean;
+}): boolean {
+  const { directUrl = '', rawUrl = '', filename = '', explicitType = '', isPhotoLabel, isVideoLabel } = options;
+  const combinedUrl = `${directUrl} ${rawUrl}`;
+  const cleanPath = (directUrl || rawUrl).split('?')[0].toLowerCase();
+  const cleanFilename = (filename || '').toLowerCase();
+
+  // 1. Definitive photo indicators in decoded URL path, query, or filename
+  if (
+    /\.(jpg|jpeg|png|webp|heic|avif)$/i.test(cleanPath) ||
+    /\.(jpg|jpeg|png|webp|heic|avif)$/i.test(cleanFilename) ||
+    /[?&]stp=dst-(jpg|webp|png)/i.test(combinedUrl) ||
+    /\/t51\.(2885|82787)-15\//i.test(combinedUrl)
+  ) {
+    if (!cleanPath.endsWith('.mp4') && !cleanFilename.endsWith('.mp4')) {
+      return false;
+    }
+  }
+
+  // 2. Definitive video indicators in decoded URL path, query, or filename
+  if (
+    /\.mp4$/i.test(cleanPath) ||
+    /\.mp4$/i.test(cleanFilename) ||
+    /\.mp4\?/i.test(combinedUrl) ||
+    /\/t50\.2886-16\//i.test(combinedUrl) ||
+    /\/o1\/v\/t16\//i.test(combinedUrl) ||
+    /video_dashinit/i.test(combinedUrl)
+  ) {
+    return true;
+  }
+
+  // 3. Explicit button/type labels
+  if (isPhotoLabel && !isVideoLabel) return false;
+  if (isVideoLabel && !isPhotoLabel) return true;
+  if (explicitType === 'image' || explicitType === 'photo') return false;
+  if (explicitType === 'video') return true;
+
+  return false;
 }
 
 // Unpack SnapSave obfuscated javascript payload (eval(function(p,a,c,k,e,d)...))
@@ -440,11 +505,17 @@ export async function unpackSnapSave(targetUrl: string): Promise<any[]> {
     for (const match of matches) {
       const cleanUrl = match[1].replace(/\\/g, '');
       if (cleanUrl.includes('instagram') || cleanUrl.includes('snapcdn')) {
-        const isVideo = cleanUrl.includes('.mp4') || cleanUrl.includes('video');
+        const decoded = decodeSnapCdnToken(cleanUrl);
+        const directUrl = decoded?.url || cleanUrl;
+        const isVideo = detectIsVideoItem({
+          directUrl,
+          rawUrl: cleanUrl,
+          filename: decoded?.filename,
+        });
         items.push({
           type: isVideo ? 'video' : 'image',
-          url: cleanUrl,
-          directUrl: cleanUrl,
+          url: directUrl,
+          directUrl,
           snapUrl: cleanUrl,
           mime_type: isVideo ? 'video/mp4' : 'image/jpeg',
           extension: isVideo ? 'mp4' : 'jpg',
@@ -489,10 +560,18 @@ export async function extractFromSnapVideoPackage(targetUrl: string): Promise<{ 
     candidateList.forEach((it: any, idx: number) => {
       const url = it.url || it.video || it.download || it.thumbnail || it.thumb;
       if (!url) return;
-      const isVid = it.type === 'video' || url.includes('.mp4') || String(url).includes('video');
       const decoded = decodeSnapCdnToken(url);
       const directUrl = decoded?.url || url;
-      const safeFilename = decoded?.filename || `insta1000gram_${isVid ? 'video' : 'photo'}_${idx + 1}.${isVid ? 'mp4' : 'jpg'}`;
+      const isVid = detectIsVideoItem({
+        directUrl,
+        rawUrl: url,
+        filename: decoded?.filename,
+        explicitType: it.type,
+      });
+      const ext = isVid ? 'mp4' : 'jpg';
+      const safeFilename = decoded?.filename
+        ? decoded.filename.replace(/^[^_]+_/, 'insta1000gram_').replace(/\.[a-zA-Z0-9]+$/, `.${ext}`)
+        : `insta1000gram_${isVid ? 'video' : 'photo'}_${idx + 1}.${ext}`;
 
       items.push({
         type: isVid ? 'video' : 'image',
@@ -501,7 +580,7 @@ export async function extractFromSnapVideoPackage(targetUrl: string): Promise<{ 
         snapUrl: url,
         thumbnailUrl: it.thumbnail || it.thumb || (!isVid ? directUrl : ''),
         mime_type: isVid ? 'video/mp4' : 'image/jpeg',
-        extension: isVid ? 'mp4' : 'jpg',
+        extension: ext,
         filename: safeFilename,
         resolution: it.resolution || (isVid ? '1080p Full HD' : 'Original Master HD'),
         index: idx + 1,
@@ -517,8 +596,12 @@ export async function extractFromSnapVideoPackage(targetUrl: string): Promise<{ 
 // Engine 3: Snapsave Media Downloader package
 export async function extractFromSnapsavePackage(targetUrl: string): Promise<any[]> {
   try {
+    const mod: any = await import('snapsave-media-downloader').catch(() => null);
+    const snapsaveFn = mod?.snapsave || mod?.default;
+    if (typeof snapsaveFn !== 'function') return [];
+
     const rawRes: any = await Promise.race([
-      snapsaveMediaDownloader(targetUrl),
+      snapsaveFn(targetUrl),
       new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000)),
     ]);
 
@@ -534,9 +617,14 @@ export async function extractFromSnapsavePackage(targetUrl: string): Promise<any
     list.forEach((it: any, idx: number) => {
       const url = it.url || it.download_url || it.link;
       if (!url) return;
-      const isVid = it.type === 'video' || url.includes('.mp4');
       const decoded = decodeSnapCdnToken(url);
       const directUrl = decoded?.url || url;
+      const isVid = detectIsVideoItem({
+        directUrl,
+        rawUrl: url,
+        filename: decoded?.filename,
+        explicitType: it.type,
+      });
 
       items.push({
         type: isVid ? 'video' : 'image',
@@ -580,9 +668,14 @@ export async function extractFromJerryCoder(targetUrl: string): Promise<any[]> {
     list.forEach((it: any, idx: number) => {
       const url = it.url || it.download || it.link;
       if (!url) return;
-      const isVid = it.type === 'video' || url.includes('.mp4');
       const decoded = decodeSnapCdnToken(url);
       const directUrl = decoded?.url || url;
+      const isVid = detectIsVideoItem({
+        directUrl,
+        rawUrl: url,
+        filename: decoded?.filename,
+        explicitType: it.type,
+      });
 
       items.push({
         type: isVid ? 'video' : 'image',
@@ -1045,11 +1138,17 @@ export async function handleInstagramResolve(req: any, res: any) {
 
   // Build items array matching requested specification
   const items = resolvedItems.map((item, idx) => {
-    const isVid = item.type === 'video';
     const directUrl = item.directUrl || item.url;
-    const ext = item.extension || (isVid ? 'mp4' : 'jpg');
-    const mime = item.mime_type || (isVid ? 'video/mp4' : 'image/jpeg');
-    const safeFilename = item.filename || `insta1000gram_${detectedType}_${idx + 1}.${ext}`;
+    const isVid = detectIsVideoItem({
+      directUrl,
+      rawUrl: item.snapUrl || directUrl,
+      filename: item.filename,
+      explicitType: item.type,
+    });
+    const ext = isVid ? 'mp4' : 'jpg';
+    const mime = isVid ? 'video/mp4' : 'image/jpeg';
+    const rawFilename = item.filename || `insta1000gram_${detectedType}_${idx + 1}.${ext}`;
+    const safeFilename = rawFilename.replace(/\.[a-zA-Z0-9]+$/, `.${ext}`);
     const itemProxyUrl = item.snapUrl || directUrl;
     const dlUrl = `/api/download/proxy?url=${encodeURIComponent(itemProxyUrl)}&filename=${encodeURIComponent(safeFilename)}&type=${isVid ? 'video' : 'photo'}`;
     const rawThumb = item.thumbnailUrl || (!isVid ? directUrl : primaryThumbnail);
@@ -1063,7 +1162,7 @@ export async function handleInstagramResolve(req: any, res: any) {
       thumbnailUrl: toSafeProxyThumbUrl(rawThumb),
       downloadUrl: dlUrl,
       filename: safeFilename,
-      resolution: item.resolution || (isVid ? '1080p Full HD' : 'Original Master HD'),
+      resolution: isVid ? (item.resolution || '1080p Full HD') : 'Original Master HD',
       index: idx + 1,
       isSelected: idx === selectedIndex,
     };

@@ -6,7 +6,7 @@ import {
   handleQrShorten,
   sendJsonResponse,
   sendNoContent,
-} from '../src/lib/instagramCore.ts';
+} from '../src/lib/instagramCore';
 
 export default async function handler(req: any, res: any) {
   if (req.method === 'OPTIONS') {

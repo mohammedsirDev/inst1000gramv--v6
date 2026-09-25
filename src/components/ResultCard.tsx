@@ -457,11 +457,12 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
       const isDirectMediaCdn =
         candidate && !candidate.includes('instagram.com/reel') && !candidate.includes('instagram.com/p/');
       if (isDirectMediaCdn) {
-        const ext = format.extension;
-        const isImg = ext === 'jpg' || ext === 'png' || ext === 'webp';
+        const ext = (format.extension || '').toLowerCase();
+        const isImg = ext === 'jpg' || ext === 'jpeg' || ext === 'png' || ext === 'webp';
+        const proxyType = format.isAudio || ext === 'mp3' ? 'audio' : isImg ? 'photo' : 'video';
         downloadTarget = `/api/download/proxy?url=${encodeURIComponent(
           candidate
-        )}&filename=${encodeURIComponent(filename)}&type=${isImg ? 'photo' : safeMediaType}`;
+        )}&filename=${encodeURIComponent(filename)}&type=${proxyType}`;
       }
     }
     if (downloadTarget) {
