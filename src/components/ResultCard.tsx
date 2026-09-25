@@ -318,15 +318,12 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
             const speedMb =
               elapsed > 0 ? (receivedLength / (1024 * 1024) / elapsed).toFixed(1) : '1.5';
 
-            let pct = 0;
+            let pct = -1;
             if (contentLength > 0) {
               pct = Math.min(99, Math.round((receivedLength / contentLength) * 100));
             } else {
-              // Simulated estimation for chunked streaming without content-length
-              pct = Math.min(
-                95,
-                Math.round(100 * (1 - Math.exp(-receivedLength / (4 * 1024 * 1024))))
-              );
+              // Exact: Content-Length unavailable, do not fake a percentage
+              pct = -1;
             }
 
             setDownloadProgress({
@@ -544,9 +541,20 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
               </div>
 
               <div className="text-right shrink-0">
-                <span className="text-sm sm:text-base font-black text-pink-600 font-mono">
-                  {downloadProgress.percent}%
-                </span>
+                {downloadProgress.status === 'completed' ? (
+                  <span className="text-xs sm:text-sm font-bold text-emerald-600 flex items-center gap-1">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>{translations.downloadComplete || 'Download complete'}</span>
+                  </span>
+                ) : downloadProgress.percent >= 0 ? (
+                  <span className="text-sm sm:text-base font-black text-pink-600 font-mono">
+                    {downloadProgress.percent}%
+                  </span>
+                ) : (
+                  <span className="text-xs sm:text-sm font-bold text-pink-600 font-mono">
+                    {(downloadProgress.loadedBytes / (1024 * 1024)).toFixed(1)} MB
+                  </span>
+                )}
               </div>
             </div>
 
@@ -558,9 +566,18 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                     ? 'bg-gradient-to-r from-emerald-500 to-teal-500'
                     : downloadProgress.status === 'error'
                     ? 'bg-rose-500'
+                    : downloadProgress.percent >= 0
+                    ? 'bg-gradient-to-r from-pink-500 via-rose-500 to-indigo-600'
                     : 'bg-gradient-to-r from-pink-500 via-rose-500 to-indigo-600 animate-pulse'
                 }`}
-                style={{ width: `${Math.max(5, downloadProgress.percent)}%` }}
+                style={{
+                  width:
+                    downloadProgress.status === 'completed'
+                      ? '100%'
+                      : downloadProgress.percent >= 0
+                      ? `${Math.max(5, downloadProgress.percent)}%`
+                      : '100%',
+                }}
               />
             </div>
 
@@ -569,15 +586,16 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
               <div>
                 {downloadProgress.status === 'completed' ? (
                   <span className="text-emerald-700 font-bold">
-                    ✓ File saved to device ({(downloadProgress.loadedBytes / (1024 * 1024)).toFixed(1)} MB)
+                    ✓ {translations.downloadComplete || 'Download complete'} • {(downloadProgress.loadedBytes / (1024 * 1024)).toFixed(1)} MB
                   </span>
                 ) : downloadProgress.status === 'error' ? (
                   <span className="text-rose-700">{downloadProgress.errorMessage}</span>
                 ) : (
                   <span>
                     {(downloadProgress.loadedBytes / (1024 * 1024)).toFixed(1)} MB
-                    {downloadProgress.totalBytes > 0 &&
-                      ` / ${(downloadProgress.totalBytes / (1024 * 1024)).toFixed(1)} MB`}
+                    {downloadProgress.totalBytes > 0
+                      ? ` / ${(downloadProgress.totalBytes / (1024 * 1024)).toFixed(1)} MB`
+                      : ` ${translations.downloaded || 'downloaded'}`}
                     {downloadProgress.speedText && ` • ${downloadProgress.speedText}`}
                   </span>
                 )}

@@ -1,6 +1,5 @@
-import type { Request, Response } from 'express';
-import { handleDownloadStream } from '../../server.ts';
+import { handleDownloadStream } from '../../src/lib/instagramCore.ts';
 
-export default function handler(req: Request, res: Response) {
+export default async function handler(req: any, res: any) {
   return handleDownloadStream(req, res);
 }

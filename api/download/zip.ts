@@ -1,6 +1,5 @@
-import type { Request, Response } from 'express';
-import { handleDownloadZip } from '../../server.ts';
+import { handleDownloadZip } from '../../src/lib/instagramCore.ts';
 
-export default function handler(req: Request, res: Response) {
+export default async function handler(req: any, res: any) {
   return handleDownloadZip(req, res);
 }

@@ -94,6 +94,20 @@ export interface TranslationDictionary {
   downloadProgressLabel: string;
   anonymousBadge: string;
   browserDownloadFallback: string;
+  downloaded: string;
+  viewOriginalPost: string;
+  downloadAnother: string;
+  pointCamera: string;
+  directMobileStream: string;
+  downloadProxy: string;
+  generatingQr: string;
+  copyMobileLink: string;
+  linkCopied: string;
+  testLink: string;
+  close: string;
+  itemLabel: string;
+  slideLabel: string;
+  storyLabel: string;
 }
 
 // Multi-language custom content dictionaries
@@ -141,6 +155,20 @@ interface ExtendedLanguageContent {
   downloadProgressLabel: string;
   anonymousBadge: string;
   browserDownloadFallback: string;
+  downloaded: string;
+  viewOriginalPost: string;
+  downloadAnother: string;
+  pointCamera: string;
+  directMobileStream: string;
+  downloadProxy: string;
+  generatingQr: string;
+  copyMobileLink: string;
+  linkCopied: string;
+  testLink: string;
+  close: string;
+  itemLabel: string;
+  slideLabel: string;
+  storyLabel: string;
 }
 
 const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageContent>> = {
@@ -205,6 +233,20 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
     downloadProgressLabel: 'شريط تقدم التحميل',
     anonymousBadge: 'الوضع المجهول مفعّل',
     browserDownloadFallback: 'أو انقر هنا للتحميل المباشر في المتصفح',
+    downloaded: "تم تحميله",
+    viewOriginalPost: "عرض المنشور الأصلي على انستغرام",
+    downloadAnother: "تحميل رابط آخر",
+    pointCamera: "وجّه الكاميرا للحفظ مباشرة في ألبوم الكاميرا أو المعرض",
+    directMobileStream: "بث مباشر للهاتف",
+    downloadProxy: "بروكسي التحميل",
+    generatingQr: "جاري إنشاء رمز QR عالي الدقة...",
+    copyMobileLink: "نسخ رابط الهاتف",
+    linkCopied: "تم نسخ الرابط!",
+    testLink: "تجربة الرابط",
+    close: "إغلاق",
+    itemLabel: "عنصر",
+    slideLabel: "شريحة",
+    storyLabel: "ستوري",
   },
   es: {
     feature1Title: 'Cero Pérdida de Calidad (1080p HD)',
@@ -267,6 +309,20 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
     downloadProgressLabel: 'Progreso de descarga',
     anonymousBadge: 'Modo anónimo activo',
     browserDownloadFallback: 'O haz clic aquí para descargar directamente en el navegador',
+    downloaded: "descargado",
+    viewOriginalPost: "Ver publicación original en Instagram",
+    downloadAnother: "Descargar otro enlace",
+    pointCamera: "Apunta con la cámara para guardar en la galería",
+    directMobileStream: "Transmisión móvil directa",
+    downloadProxy: "Proxy de descarga",
+    generatingQr: "Generando código QR HD...",
+    copyMobileLink: "Copiar enlace móvil",
+    linkCopied: "¡Enlace copiado!",
+    testLink: "Probar enlace",
+    close: "Cerrar",
+    itemLabel: "Elemento",
+    slideLabel: "Diapositiva",
+    storyLabel: "Historia",
   },
   fr: {
     feature1Title: 'Qualité 1080p Full HD d’Origine',
@@ -329,6 +385,20 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
     downloadProgressLabel: 'Progression du téléchargement',
     anonymousBadge: 'Mode anonyme actif',
     browserDownloadFallback: 'Ou cliquez ici pour télécharger directement dans le navigateur',
+    downloaded: "téléchargé",
+    viewOriginalPost: "Voir la publication originale sur Instagram",
+    downloadAnother: "Télécharger un autre lien",
+    pointCamera: "Pointez la caméra pour enregistrer dans la galerie",
+    directMobileStream: "Flux mobile direct",
+    downloadProxy: "Proxy de téléchargement",
+    generatingQr: "Génération du code QR HD...",
+    copyMobileLink: "Copier le lien mobile",
+    linkCopied: "Lien copié !",
+    testLink: "Tester le lien",
+    close: "Fermer",
+    itemLabel: "Élément",
+    slideLabel: "Diapositive",
+    storyLabel: "Story",
   },
   de: {
     feature1Title: 'Kein Qualitätsverlust (1080p Full HD)',
@@ -391,6 +461,20 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
     downloadProgressLabel: 'Download-Fortschritt',
     anonymousBadge: 'Anonym-Modus aktiv',
     browserDownloadFallback: 'Oder hier klicken zum direkten Download im Browser',
+    downloaded: "heruntergeladen",
+    viewOriginalPost: "Originalbeitrag auf Instagram ansehen",
+    downloadAnother: "Anderen Link herunterladen",
+    pointCamera: "Kamera darauf richten, um direkt in Galerie zu speichern",
+    directMobileStream: "Direkter mobiler Stream",
+    downloadProxy: "Download-Proxy",
+    generatingQr: "Erstelle HD QR-Code...",
+    copyMobileLink: "Mobilen Link kopieren",
+    linkCopied: "Link kopiert!",
+    testLink: "Link testen",
+    close: "Schließen",
+    itemLabel: "Element",
+    slideLabel: "Folie",
+    storyLabel: "Story",
   },
   it: {
     feature1Title: 'Qualità Originale 1080p Full HD',
@@ -453,6 +537,20 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
     downloadProgressLabel: 'Avanzamento del download',
     anonymousBadge: 'Modalità anonima attiva',
     browserDownloadFallback: 'Oppure clicca qui per scaricare direttamente nel browser',
+    downloaded: "scaricato",
+    viewOriginalPost: "Visualizza post originale su Instagram",
+    downloadAnother: "Scarica un altro link",
+    pointCamera: "Inquadra la fotocamera per salvare nella galleria",
+    directMobileStream: "Stream mobile diretto",
+    downloadProxy: "Proxy di download",
+    generatingQr: "Generazione codice QR HD...",
+    copyMobileLink: "Copia link mobile",
+    linkCopied: "Link copiato!",
+    testLink: "Testa link",
+    close: "Chiudi",
+    itemLabel: "Elemento",
+    slideLabel: "Diapositiva",
+    storyLabel: "Storia",
   },
   pt: {
     feature1Title: 'Sem Perda de Qualidade (1080p HD)',
@@ -515,6 +613,20 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
     downloadProgressLabel: 'Progresso do download',
     anonymousBadge: 'Modo anônimo ativo',
     browserDownloadFallback: 'Ou clique aqui para baixar diretamente no navegador',
+    downloaded: "baixado",
+    viewOriginalPost: "Ver postagem original no Instagram",
+    downloadAnother: "Baixar outro link",
+    pointCamera: "Aponte a câmera para salvar na galeria",
+    directMobileStream: "Transmissão móvel direta",
+    downloadProxy: "Proxy de download",
+    generatingQr: "Gerando código QR HD...",
+    copyMobileLink: "Copiar link móvel",
+    linkCopied: "Link copiado!",
+    testLink: "Testar link",
+    close: "Fechar",
+    itemLabel: "Item",
+    slideLabel: "Slide",
+    storyLabel: "Story",
   },
   tr: {
     feature1Title: 'Orijinal 1080p Full HD Kalite',
@@ -577,6 +689,20 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
     downloadProgressLabel: 'İndirme İlerlemesi',
     anonymousBadge: 'Anonim Mod Etkin',
     browserDownloadFallback: 'Veya tarayıcıda doğrudan indirmek için buraya tıklayın',
+    downloaded: "indirildi",
+    viewOriginalPost: "Orijinal gönderiyi Instagramda gör",
+    downloadAnother: "Başka Bir Bağlantı İndir",
+    pointCamera: "Galeriye kaydetmek için kamerayı doğrultun",
+    directMobileStream: "Doğrudan Mobil Akış",
+    downloadProxy: "İndirme Proxy",
+    generatingQr: "HD QR kodu oluşturuluyor...",
+    copyMobileLink: "Mobil Bağlantıyı Kopyala",
+    linkCopied: "Bağlantı Kopyalandı!",
+    testLink: "Bağlantıyı Test Et",
+    close: "Kapat",
+    itemLabel: "Öğe",
+    slideLabel: "Slayt",
+    storyLabel: "Hikaye",
   },
   ru: {
     feature1Title: 'Без потери качества (1080p HD)',
@@ -639,6 +765,20 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
     downloadProgressLabel: 'Прогресс загрузки',
     anonymousBadge: 'Анонимный режим включен',
     browserDownloadFallback: 'Или нажмите здесь для прямой загрузки в браузере',
+    downloaded: "загружено",
+    viewOriginalPost: "Посмотреть оригинал в Instagram",
+    downloadAnother: "Скачать другую ссылку",
+    pointCamera: "Наведите камеру для сохранения в галерею",
+    directMobileStream: "Прямой мобильный поток",
+    downloadProxy: "Прокси для скачивания",
+    generatingQr: "Генерация HD QR-кода...",
+    copyMobileLink: "Скопировать ссылку",
+    linkCopied: "Ссылка скопирована!",
+    testLink: "Проверить ссылку",
+    close: "Закрыть",
+    itemLabel: "Элемент",
+    slideLabel: "Слайд",
+    storyLabel: "История",
   },
   id: {
     feature1Title: 'Kualitas Asli 1080p Full HD',
@@ -701,6 +841,20 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
     downloadProgressLabel: 'Progres Pengunduhan',
     anonymousBadge: 'Mode Anonim Aktif',
     browserDownloadFallback: 'Atau klik di sini untuk mengunduh langsung di browser',
+    downloaded: "diunduh",
+    viewOriginalPost: "Lihat postingan asli di Instagram",
+    downloadAnother: "Unduh Tautan Lain",
+    pointCamera: "Arahkan kamera untuk menyimpan ke galeri",
+    directMobileStream: "Aliran Seluler Langsung",
+    downloadProxy: "Proksi Unduhan",
+    generatingQr: "Membuat kode QR HD...",
+    copyMobileLink: "Salin Tautan Seluler",
+    linkCopied: "Tautan Disalin!",
+    testLink: "Uji Tautan",
+    close: "Tutup",
+    itemLabel: "Item",
+    slideLabel: "Slide",
+    storyLabel: "Story",
   },
 };
 
@@ -766,6 +920,20 @@ const EN_EXTENDED: ExtendedLanguageContent = {
   downloadProgressLabel: 'Download Progress',
   anonymousBadge: 'Anonymous Mode Active',
   browserDownloadFallback: 'Or click here to download directly in browser',
+  downloaded: 'downloaded',
+  viewOriginalPost: 'View original post on Instagram',
+  downloadAnother: 'Download Another Link',
+  pointCamera: 'Point camera to save directly into Camera Roll / Gallery',
+  directMobileStream: 'Direct Mobile Stream',
+  downloadProxy: 'Download Proxy',
+  generatingQr: 'Generating HD QR code...',
+  copyMobileLink: 'Copy Mobile Link',
+  linkCopied: 'Link Copied!',
+  testLink: 'Test Link',
+  close: 'Close',
+  itemLabel: 'Item',
+  slideLabel: 'Slide',
+  storyLabel: 'Story',
 };
 
 // Generate base dictionary for any supported language using COMMON_TRANSLATIONS and rich extensions
@@ -858,6 +1026,20 @@ function buildDictionaryForLanguage(lang: SupportedLanguage): TranslationDiction
     downloadProgressLabel: ext.downloadProgressLabel,
     anonymousBadge: ext.anonymousBadge,
     browserDownloadFallback: ext.browserDownloadFallback,
+    downloaded: ext.downloaded,
+    viewOriginalPost: ext.viewOriginalPost,
+    downloadAnother: ext.downloadAnother,
+    pointCamera: ext.pointCamera,
+    directMobileStream: ext.directMobileStream,
+    downloadProxy: ext.downloadProxy,
+    generatingQr: ext.generatingQr,
+    copyMobileLink: ext.copyMobileLink,
+    linkCopied: ext.linkCopied,
+    testLink: ext.testLink,
+    close: ext.close,
+    itemLabel: ext.itemLabel,
+    slideLabel: ext.slideLabel,
+    storyLabel: ext.storyLabel,
   };
 }
 

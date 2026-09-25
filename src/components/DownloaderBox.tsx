@@ -89,7 +89,10 @@ export const DownloaderBox: React.FC<DownloaderBoxProps> = ({
         setStatusMessage(translations.processingStream);
       }, 500);
 
-      const res = await fetch('/api/instagram/resolve', {
+      const apiBase = (typeof import.meta !== 'undefined' && ((import.meta as any).env?.VITE_API_URL || (import.meta as any).env?.NEXT_PUBLIC_API_URL)) || '';
+      const resolveEndpoint = apiBase ? `${apiBase.replace(/\/$/, '')}/api/instagram/resolve` : '/api/instagram/resolve';
+
+      const res = await fetch(resolveEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -101,14 +104,39 @@ export const DownloaderBox: React.FC<DownloaderBoxProps> = ({
       clearTimeout(stepTimer);
 
       if (!res.ok) {
+        const errorJson = await res.json().catch(() => null);
+        const serverError = errorJson?.error;
+        const suggestion = errorJson?.suggestion ? ` ${errorJson.suggestion}` : '';
+
         if (res.status === 404) {
           throw new Error(
-            'API endpoint returned 404 Not Found on this domain. If hosting on Vercel, please push the newly added vercel.json and api/ directory so Vercel can run serverless backend functions.'
+            serverError ||
+            `API endpoint not found (404) at ${resolveEndpoint}. Please verify that the backend API is deployed and reachable.`
           );
         }
-        const errorJson = await res.json().catch(() => null);
+        if (res.status === 400) {
+          throw new Error(
+            serverError || 'Invalid request (400). Please provide a valid public Instagram URL or username.'
+          );
+        }
+        if (res.status === 403) {
+          throw new Error(
+            serverError || 'Access restricted (403). This Instagram post or account is private or age-restricted.'
+          );
+        }
+        if (res.status === 429) {
+          throw new Error(
+            serverError || 'Rate limit reached (429). Instagram is throttling requests. Please wait 10 seconds and try again.'
+          );
+        }
+        if (res.status >= 500) {
+          throw new Error(
+            serverError || `Server / extractor error (${res.status}). Failed to process this media stream. Please try again.`
+          );
+        }
+
         throw new Error(
-          errorJson?.error ||
+          (serverError ? `${serverError}${suggestion}` : null) ||
           'Could not retrieve media from this Instagram link. The post may be private, age-restricted, or removed by Instagram.'
         );
       }
