@@ -3,7 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { Shield, Sparkles, Wifi, EyeOff } from 'lucide-react';
 
 export const Features: React.FC = () => {
-  const { translations } = useLanguage();
+  const { translations, currentLang } = useLanguage();
 
   const features = [
     {
@@ -16,19 +16,58 @@ export const Features: React.FC = () => {
       title: translations.feature2Title,
       desc: translations.feature2Desc,
       icon: <EyeOff className="w-6 h-6 text-purple-500" />,
-      badge: 'Anonymous',
+      badge:
+        currentLang === 'ar'
+          ? 'مجهول 100%'
+          : currentLang === 'es'
+          ? 'Anónimo'
+          : currentLang === 'fr'
+          ? 'Anonyme'
+          : currentLang === 'de'
+          ? 'Anonym'
+          : currentLang === 'tr'
+          ? 'Anonim'
+          : currentLang === 'ru'
+          ? 'Анонимно'
+          : 'Anonymous',
     },
     {
       title: translations.feature3Title,
       desc: translations.feature3Desc,
       icon: <Wifi className="w-6 h-6 text-emerald-500" />,
-      badge: 'Smart Retry',
+      badge:
+        currentLang === 'ar'
+          ? 'خوادم سريعة'
+          : currentLang === 'es'
+          ? 'Red Rápida'
+          : currentLang === 'fr'
+          ? 'Réseau Rapide'
+          : currentLang === 'de'
+          ? 'Schnell-CDN'
+          : currentLang === 'tr'
+          ? 'Hızlı Sunucu'
+          : currentLang === 'ru'
+          ? 'Быстрый CDN'
+          : 'Smart Retry',
     },
     {
       title: translations.feature4Title,
       desc: translations.feature4Desc,
       icon: <Shield className="w-6 h-6 text-blue-500" />,
-      badge: 'Clean MP4',
+      badge:
+        currentLang === 'ar'
+          ? 'MP4 بدون علامة'
+          : currentLang === 'es'
+          ? 'MP4 Limpio'
+          : currentLang === 'fr'
+          ? 'MP4 Propre'
+          : currentLang === 'de'
+          ? 'Reines MP4'
+          : currentLang === 'tr'
+          ? 'Filigransız MP4'
+          : currentLang === 'ru'
+          ? 'Чистый MP4'
+          : 'Clean MP4',
     },
   ];
 

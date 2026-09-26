@@ -162,7 +162,7 @@ export const LOCALE_TOOL_TERMS: Partial<
       feat1: 'جودة فائقة 1080p بمعدل 60 إطار في الثانية',
       feat2: 'فيديو نظيف 100% بدون أي لوجو أو علامة مائية',
       feat3: 'إمكانية فصل وتحميل الصوت بصيغة MP3',
-      feat4: 'دعم اختصار 1000 السريع في شريط المتصفح',
+      feat4: 'دعم اختصار 1kgram.com السريع في شريط المتصفح',
     },
     video: {
       name: 'تحميل فيديو انستقرام',
@@ -270,16 +270,38 @@ export function getDownloaderDataForLocale(
   // Specific bespoke sets if available (en, ar)
   if (LOCALE_TOOL_TERMS[locale] && LOCALE_TOOL_TERMS[locale][type as 'reels' | 'video' | 'photo' | 'stories' | 'highlights']) {
     const term = LOCALE_TOOL_TERMS[locale][type as 'reels' | 'video' | 'photo' | 'stories' | 'highlights'];
+    if (locale === 'ar') {
+      return {
+        slug,
+        type,
+        title: `${term.name} – ${term.actionWord} بجودة 1080p HD | 1kgram`,
+        description: `${term.actionWord} بسرعة وسهولة عبر 1kgram. احفظ ${term.mediaNoun} بـ ${term.formatNotice}.`,
+        h1: term.name,
+        intro: `احفظ ${term.mediaNoun} مباشرة على هاتفك أو جهازك عبر موقع 1kgram. تحميل فوري بدقة 1080p الكاملة بدون علامة مائية وبخصوصية تامة 100%.`,
+        howToSteps: [
+          { step: 1, title: '1. انسخ الرابط', desc: term.step1 },
+          { step: 2, title: '2. الصق الرابط في 1kgram', desc: term.step2 },
+          { step: 3, title: '3. احفظ على جهازك', desc: term.step3 },
+        ],
+        features: [term.feat1, term.feat2, term.feat3, term.feat4],
+        faqs: [
+          { q: term.faq1Q, a: term.faq1A },
+          { q: term.faq2Q, a: term.faq2A },
+          { q: term.faq3Q, a: term.faq3A },
+          { q: term.faq4Q, a: term.faq4A },
+        ],
+      };
+    }
     return {
       slug,
       type,
-      title: `${term.name} – ${term.actionWord} in 1080p HD | Insta1000gram`,
-      description: `${term.actionWord} quickly and easily with Insta1000gram. Save ${term.mediaNoun} in ${term.formatNotice}.`,
+      title: `${term.name} – ${term.actionWord} in 1080p HD | 1kgram`,
+      description: `${term.actionWord} quickly and easily with 1kgram. Save ${term.mediaNoun} in ${term.formatNotice}.`,
       h1: term.name,
-      intro: `Save ${term.mediaNoun} directly to your device with insta1000gram. Instant 1080p full resolution download with zero watermark and complete anonymity.`,
+      intro: `Save ${term.mediaNoun} directly to your device with 1kgram. Instant 1080p full resolution download with zero watermark and complete anonymity.`,
       howToSteps: [
         { step: 1, title: '1. Copy the Link', desc: term.step1 },
-        { step: 2, title: '2. Paste into insta1000gram', desc: term.step2 },
+        { step: 2, title: '2. Paste into 1kgram', desc: term.step2 },
         { step: 3, title: '3. Save to Device', desc: term.step3 },
       ],
       features: [term.feat1, term.feat2, term.feat3, term.feat4],

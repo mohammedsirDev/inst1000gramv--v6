@@ -48,7 +48,58 @@ interface ResultCardProps {
 }
 
 export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
-  const { translations } = useLanguage();
+  const { translations, currentLang } = useLanguage();
+  const isAr = currentLang === 'ar';
+
+  const localizeQualityLabel = (q: string): string => {
+    if (!isAr) return q;
+    return q
+      .replace(/1080p Full HD \(Original Video\)/i, '1080p Full HD (الفيديو الأصلي)')
+      .replace(/1080p Full HD \(MP4\)/i, '1080p Full HD (فيديو MP4)')
+      .replace(/1080p Full HD \(Item #(\d+)\)/i, '1080p Full HD (العنصر #$1)')
+      .replace(/720p HD \(Fast Mobile\)/i, '720p HD (سريع للهاتف)')
+      .replace(/720p HD \(MP4\)/i, '720p HD (فيديو MP4)')
+      .replace(/Original Master HD \(JPG\)/i, 'الدقة الأصلية الكاملة (JPG)')
+      .replace(/Original Resolution \(JPG\)/i, 'الدقة الأصلية الكاملة (JPG)')
+      .replace(/Original Photo \(Item #(\d+)\)/i, 'الصورة الأصلية (العنصر #$1)')
+      .replace(/Audio Only \(MP3\)/i, 'الصوت فقط (MP3)')
+      .replace(/Download All (\d+) Items \(\.ZIP Archive\)/i, 'تحميل جميع العناصر ($1) كملف مضغوط (.ZIP)');
+  };
+
+  const localizeResolutionLabel = (r?: string): string => {
+    if (!r || !isAr) return r || '';
+    return r
+      .replace(/Original MP4 Stream/i, 'بث MP4 الأصلي')
+      .replace(/1080x1920 Full HD/i, '1080x1920 دقة كاملة')
+      .replace(/720x1280 HD/i, '720x1280 عالي الوضوح')
+      .replace(/320 kbps Original Track/i, '320 kbps المسار الصوتي الأصلي')
+      .replace(/Original Full HD/i, 'الدقة الأصلية الكاملة')
+      .replace(/Fast Mobile/i, 'سريع للهاتف')
+      .replace(/Full HD Photo/i, 'صورة عالية الوضوح')
+      .replace(/320kbps Stereo Audio/i, 'صوت ستيريو 320kbps')
+      .replace(/Full Album/i, 'الألبوم الكامل');
+  };
+
+  const localizeSizeLabel = (s?: string): string => {
+    if (!s || !isAr) return s || '';
+    return s
+      .replace(/High Definition/i, 'دقة فائقة الوضوح')
+      .replace(/Standard HD/i, 'دقة قياسية')
+      .replace(/Original Audio/i, 'صوت أصلي نقي')
+      .replace(/Lossless Original/i, 'جودة أصلية بدون ضغط');
+  };
+
+  const localizeMediaBadge = (t?: string): string => {
+    if (!t) return isAr ? 'وسائط' : 'MEDIA';
+    const lower = t.toLowerCase();
+    if (lower === 'highlight' || lower === 'highlights') return translations.highlightItems || (isAr ? 'الهايلايت' : 'Highlight');
+    if (lower === 'carousel') return translations.carouselSlides || (isAr ? 'ألبوم متعدد' : 'Carousel');
+    if (lower === 'stories' || lower === 'story') return translations.storiesList || (isAr ? 'ستوري' : 'Story');
+    if (lower === 'reels' || lower === 'reel') return translations.navReels || (isAr ? 'ريلز' : 'REELS');
+    if (lower === 'video') return translations.navVideo || (isAr ? 'فيديو' : 'VIDEO');
+    if (lower === 'photo') return translations.navPhoto || (isAr ? 'صور' : 'PHOTO');
+    return t.toUpperCase();
+  };
   const safeLikesCount = Number(result?.likesCount ?? 0) || 0;
   const safeCommentsCount = Number(result?.commentsCount ?? 0) || 0;
   const safeNetworkLatencyMs = Number(result?.networkLatencyMs ?? 45) || 45;
@@ -493,29 +544,23 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-extrabold bg-gradient-to-r from-pink-500 to-rose-600 text-white shadow-2xs">
               <Sparkles className="w-3.5 h-3.5" />
-              {result.type === 'highlight'
-                ? (translations.highlightItems || 'Highlight')
-                : result.type === 'carousel'
-                ? (translations.carouselSlides || 'Carousel')
-                : result.type === 'stories' || result.type === 'story'
-                ? (translations.storiesList || 'Story')
-                : (result.type?.toUpperCase() || 'MEDIA')}
+              {localizeMediaBadge(result.type)}
             </span>
             <span className="hidden sm:inline-flex items-center gap-1 font-semibold text-slate-500">
               <Zap className="w-3.5 h-3.5 text-amber-500" />
-              {safeNetworkLatencyMs}ms CDN Stream
+              {isAr ? `سرعة الاستجابة ${safeNetworkLatencyMs}ms` : `${safeNetworkLatencyMs}ms CDN Stream`}
             </span>
           </div>
 
           <div className="flex items-center gap-2 text-slate-500 font-medium">
             <span className="inline-flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md font-semibold">
               <ShieldCheck className="w-3.5 h-3.5" />
-              {translations.anonymousBadge || 'Anonymous Active'}
+              {translations.anonymousBadge || (isAr ? 'تصفح مجهول نشط' : 'Anonymous Active')}
             </span>
             <button
               onClick={onClear}
               className="p-1 hover:bg-slate-200 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"
-              title="Close and Search Again"
+              title={translations.close || (isAr ? 'إغلاق' : 'Close')}
             >
               <X className="w-4 h-4" />
             </button>
@@ -737,7 +782,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       : result.type === 'highlight'
                       ? (translations.highlightItems || 'Highlight Items')
                       : (translations.carouselSlides || 'Carousel Slides')}{' '}
-                    ({result.slides.length} items):
+                    ({result.slides.length} {isAr ? 'عنصر' : 'items'}):
                   </p>
                   <span className="text-[11px] text-pink-600 font-semibold">
                     #{activeSlideIndex + 1} ({currentSlide?.type === 'video' ? (translations.videoLabel || 'Video') : (translations.photoLabel || 'Photo')})
@@ -782,10 +827,23 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
           <div className="md:col-span-7 flex flex-col justify-between">
             <div>
               <h3 className="font-extrabold text-slate-900 text-base sm:text-lg leading-snug line-clamp-2">
-                {result.title}
+                {isAr
+                  ? (result.title || '')
+                      .replace(/^Instagram Reels \/ Media Stream$/i, 'مقطع ريلز / وسائط انستقرام')
+                      .replace(/^Instagram Video by @/i, 'فيديو انستقرام من حساب @')
+                      .replace(/^Instagram Post by @/i, 'منشور انستقرام من حساب @')
+                      .replace(/^Instagram Story by @/i, 'ستوري انستقرام من حساب @')
+                      .replace(/^Instagram Highlight by @/i, 'هايلايت انستقرام من حساب @')
+                  : result.title}
               </h3>
               <p className="mt-2 text-xs sm:text-sm text-slate-600 line-clamp-3 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100">
-                {result.caption}
+                {isAr
+                  ? (result.caption || '')
+                      .replace(
+                        /Original high-definition media fetched via (1kgram|insta1000gram)\./i,
+                        'وسائط أصلية فائقة الوضوح تم استخراجها عبر 1kgram.'
+                      )
+                  : result.caption}
               </p>
 
               {/* Download Success Notice with Direct Mirror Link */}
@@ -821,7 +879,9 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                         : `${translations.downloadSlide || 'Download Slide'} #${activeSlideIndex + 1}`}
                     </span>
                     <span className="text-[11px] font-bold text-slate-500 uppercase">
-                      {currentSlide.type === 'video' ? 'MP4 Video' : 'JPG Image'}
+                      {currentSlide.type === 'video'
+                        ? (isAr ? 'فيديو MP4' : 'MP4 Video')
+                        : (isAr ? 'صورة JPG' : 'JPG Image')}
                     </span>
                   </div>
 
@@ -929,16 +989,16 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5 flex-wrap">
                             <span className="font-bold text-slate-900 text-xs sm:text-sm truncate">
-                              {fmt.quality}
+                              {localizeQualityLabel(fmt.quality)}
                             </span>
                             {fmt.quality.includes('1080p') && (
                               <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-500 text-white shrink-0">
-                                ULTRA HD
+                                {isAr ? 'فائق الوضوح' : 'ULTRA HD'}
                               </span>
                             )}
                           </div>
                           <span className="text-[11px] text-slate-500 font-medium block truncate">
-                            {fmt.resolution} • {fmt.size}
+                            {localizeResolutionLabel(fmt.resolution)} • {localizeSizeLabel(fmt.size)}
                           </span>
                         </div>
                       </div>
@@ -1017,7 +1077,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       : result.type === 'carousel'
                       ? (translations.carouselSlides || 'Carousel Slides')
                       : (translations.storiesList || 'Stories')}{' '}
-                    ({result.slides.length} Available)
+                    ({result.slides.length} {isAr ? 'متاح' : 'Available'})
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-80 overflow-y-auto pr-1">
                     {result.slides.map((s, idx) => {

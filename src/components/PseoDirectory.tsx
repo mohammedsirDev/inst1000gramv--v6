@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { PseoPage, SupportedLanguage, DownloaderSlug } from '../types';
+import { PseoPage, SupportedLanguage } from '../types';
 import { DOWNLOADER_PAGES } from '../config/downloaders';
 import { ALL_SUPPORTED_LANGUAGES, LANGUAGES } from '../config/languages';
+import { getDownloaderDataForLocale } from '../translations/downloadersData';
 import { navigateTo } from '../utils/router';
-import { Globe, ArrowRight, Layers, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 
 interface PseoDirectoryProps {
   onSelectPseoPage?: (page: PseoPage) => void;
@@ -15,7 +16,12 @@ export const PseoDirectory: React.FC<PseoDirectoryProps> = () => {
   const [activeTab, setActiveTab] = useState<'localized' | 'sitemaps'>('localized');
   const [selectedLang, setSelectedLang] = useState<SupportedLanguage>(currentLang);
 
+  useEffect(() => {
+    setSelectedLang(currentLang);
+  }, [currentLang]);
+
   const currentLangConfig = LANGUAGES[selectedLang] || LANGUAGES.en;
+  const isAr = currentLang === 'ar';
 
   return (
     <section className="py-14 sm:py-20 bg-white border-t border-slate-200/80">
@@ -23,7 +29,7 @@ export const PseoDirectory: React.FC<PseoDirectoryProps> = () => {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>
             <span className="text-xs font-black tracking-widest text-pink-600 uppercase bg-pink-100/70 px-3 py-1 rounded-full">
-              pSEO Directory • 29 Languages
+              {isAr ? 'دليل الأدوات المترجمة • 29 لغة' : 'pSEO Directory • 29 Languages'}
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mt-2 tracking-tight">
               {translations.pseoSectionTitle}
@@ -43,7 +49,7 @@ export const PseoDirectory: React.FC<PseoDirectoryProps> = () => {
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              145 Localized Tools
+              {isAr ? '145 أداة مترجمة' : '145 Localized Tools'}
             </button>
             <button
               onClick={() => setActiveTab('sitemaps')}
@@ -53,7 +59,7 @@ export const PseoDirectory: React.FC<PseoDirectoryProps> = () => {
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              XML Sitemaps
+              {isAr ? 'خرائط الموقع XML' : 'XML Sitemaps'}
             </button>
           </div>
         </div>
@@ -63,7 +69,9 @@ export const PseoDirectory: React.FC<PseoDirectoryProps> = () => {
             {/* Language Selection Filter (29 Languages) */}
             <div className="mb-6">
               <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                Select Language to Preview Localized SEO Pages:
+                {isAr
+                  ? 'اختر اللغة لمعاينة صفحات التحميل المخصصة:'
+                  : 'Select Language to Preview Localized SEO Pages:'}
               </label>
               <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-thin">
                 {ALL_SUPPORTED_LANGUAGES.map((langCode) => {
@@ -92,6 +100,7 @@ export const PseoDirectory: React.FC<PseoDirectoryProps> = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               {DOWNLOADER_PAGES.map((tool) => {
                 const urlPath = `/${selectedLang}/${tool.slug}`;
+                const localizedTool = getDownloaderDataForLocale(selectedLang, tool.slug);
                 return (
                   <div
                     key={tool.slug}
@@ -107,15 +116,15 @@ export const PseoDirectory: React.FC<PseoDirectoryProps> = () => {
                       </div>
 
                       <h3 className="font-bold text-sm text-slate-900 group-hover:text-pink-600 transition-colors">
-                        {tool.name}
+                        {localizedTool.h1 || tool.name}
                       </h3>
                       <p className="text-xs text-slate-500 mt-1 line-clamp-2">
-                        {tool.tagline}
+                        {localizedTool.description || tool.tagline}
                       </p>
                     </div>
 
                     <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs font-semibold text-pink-600">
-                      <span className="font-mono text-[11px] text-slate-500 truncate max-w-[120px]">
+                      <span className="font-mono text-[11px] text-slate-500 truncate max-w-[120px]" dir="ltr">
                         {urlPath}
                       </span>
                       <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform" />
@@ -128,16 +137,26 @@ export const PseoDirectory: React.FC<PseoDirectoryProps> = () => {
             {/* Summary statistics bar */}
             <div className="mt-8 p-4 bg-slate-50 rounded-2xl border border-slate-200/90 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                 <span>
-                  <strong>29 languages × 5 downloaders = 145 canonical SEO URLs</strong> with clean JSON-LD and hreflang alternates.
+                  {isAr ? (
+                    <>
+                      <strong>29 لغة × 5 أدوات تحميل = 145 رابط محسن لمحركات البحث</strong> مع بيانات JSON-LD ودعم كامل للغات.
+                    </>
+                  ) : (
+                    <>
+                      <strong>29 languages × 5 downloaders = 145 canonical SEO URLs</strong> with clean JSON-LD and hreflang alternates.
+                    </>
+                  )}
                 </span>
               </div>
               <button
                 onClick={() => navigateTo(`/${selectedLang}/`)}
                 className="text-pink-600 hover:text-pink-700 font-bold underline"
               >
-                Open {currentLangConfig.name} Homepage →
+                {isAr
+                  ? `افتح الصفحة الرئيسية (${currentLangConfig.nativeName}) ←`
+                  : `Open ${currentLangConfig.nativeName} Homepage →`}
               </button>
             </div>
           </div>
@@ -147,10 +166,12 @@ export const PseoDirectory: React.FC<PseoDirectoryProps> = () => {
           <div className="space-y-4">
             <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
               <h3 className="font-bold text-base text-slate-900 mb-2">
-                Google &amp; Bing Search Engine Sitemaps
+                {isAr ? 'خرائط الموقع لمحركات البحث جوجل وبينج' : 'Google & Bing Search Engine Sitemaps'}
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 mb-4">
-                Our dynamic sitemap index lists all 145 localized core URLs, partitioned programmatic pages, and educational guides with fast Googlebot change frequencies.
+                {isAr
+                  ? 'فهرس خرائط الموقع الديناميكي يضم جميع الصفحات المترجمة البالغ عددها 145 صفحة والأدلة التعليمية لأرشفة فورية في محركات البحث.'
+                  : 'Our dynamic sitemap index lists all 145 localized core URLs, partitioned programmatic pages, and educational guides with fast Googlebot change frequencies.'}
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
@@ -159,27 +180,36 @@ export const PseoDirectory: React.FC<PseoDirectoryProps> = () => {
                   target="_blank"
                   rel="noreferrer"
                   className="p-3.5 bg-white rounded-xl border border-slate-200 hover:border-pink-300 font-mono text-xs text-slate-800 flex items-center justify-between"
+                  dir="ltr"
                 >
                   <span>/sitemap.xml</span>
-                  <span className="text-[10px] font-bold text-pink-600">Primary Index</span>
+                  <span className="text-[10px] font-bold text-pink-600 font-sans">
+                    {isAr ? 'الفهرس الرئيسي' : 'Primary Index'}
+                  </span>
                 </a>
                 <a
                   href="/sitemap-downloaders.xml"
                   target="_blank"
                   rel="noreferrer"
                   className="p-3.5 bg-white rounded-xl border border-slate-200 hover:border-pink-300 font-mono text-xs text-slate-800 flex items-center justify-between"
+                  dir="ltr"
                 >
                   <span>/sitemap-downloaders.xml</span>
-                  <span className="text-[10px] font-bold text-emerald-600">145 Tools</span>
+                  <span className="text-[10px] font-bold text-emerald-600 font-sans">
+                    {isAr ? '145 أداة' : '145 Tools'}
+                  </span>
                 </a>
                 <a
                   href="/sitemap_1.xml"
                   target="_blank"
                   rel="noreferrer"
                   className="p-3.5 bg-white rounded-xl border border-slate-200 hover:border-pink-300 font-mono text-xs text-slate-800 flex items-center justify-between"
+                  dir="ltr"
                 >
                   <span>/sitemap_1.xml</span>
-                  <span className="text-[10px] font-bold text-slate-500">Partition #1</span>
+                  <span className="text-[10px] font-bold text-slate-500 font-sans">
+                    {isAr ? 'القسم #1' : 'Partition #1'}
+                  </span>
                 </a>
               </div>
             </div>

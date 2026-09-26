@@ -4,7 +4,16 @@ import { useLanguage } from '../context/LanguageContext';
 import { DownloaderBox } from './DownloaderBox';
 import { ResultCard } from './ResultCard';
 import { DOWNLOADER_PAGES, GUIDE_PAGES } from '../config/downloaders';
+import { getDownloaderDataForLocale } from '../translations/downloadersData';
 import { Film, Video, Image, History, Sparkles, CheckCircle2, ArrowRight, HelpCircle, Smartphone, Monitor, ShieldCheck, ChevronRight, Share2 } from 'lucide-react';
+
+const ARABIC_GUIDE_TITLES: Record<string, string> = {
+  'how-to-download-instagram-reels-on-iphone': 'كيفية تحميل ريلز انستقرام على الآيفون والآيباد',
+  'how-to-download-instagram-reels-on-android': 'كيفية تحميل ريلز انستقرام على هواتف أندرويد',
+  'how-to-download-instagram-stories-anonymously': 'كيفية مشاهدة وتحميل ستوري انستقرام بشكل مجهول',
+  'how-to-save-instagram-photos-in-hd': 'كيفية حفظ صور وألبومات انستقرام بأعلى جودة HD',
+  'how-to-use-insta1000gram-url-shortcut': 'كيفية استخدام اختصار الرابط 1kgram.com للتحميل الفوري',
+};
 
 interface DownloaderPageViewProps {
   meta: DownloaderPageMeta;
@@ -137,6 +146,7 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
   }, [meta, locale]);
 
   const otherTools = DOWNLOADER_PAGES.filter((p) => p.slug !== meta.slug);
+  const isAr = locale === 'ar';
 
   const getIcon = (type: MediaType) => {
     switch (type) {
@@ -166,7 +176,7 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
                 onClick={onNavigateHome}
                 className="hover:text-pink-600 transition-colors"
               >
-                Home
+                {isAr ? 'الرئيسية' : 'Home'}
               </button>
             </li>
             <li>
@@ -185,7 +195,7 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
 
           <div className="hidden sm:flex items-center gap-2 text-xs text-slate-500 font-medium">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>High Speed Server 1080p Stream</span>
+            <span>{isAr ? 'خوادم سريعة بدقة 1080p Full HD' : 'High Speed Server 1080p Stream'}</span>
           </div>
         </div>
       </nav>
@@ -195,7 +205,7 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
         <div className="max-w-5xl mx-auto text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-white border border-slate-200 shadow-2xs mb-5 text-slate-800">
             {getIcon(meta.type)}
-            <span>1080p Ultra HD • No Watermark</span>
+            <span>{isAr ? 'جودة 1080p فائقة الوضوح • بدون علامة مائية' : '1080p Ultra HD • No Watermark'}</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.15]">
@@ -247,13 +257,15 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <span className="text-xs font-bold uppercase tracking-widest text-pink-600 bg-pink-50 px-3 py-1 rounded-full border border-pink-100">
-              Tutorial
+              {isAr ? 'دليل الاستخدام' : 'Tutorial'}
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-3">
-              How to Use {meta.h1}
+              {isAr ? `طريقة ${meta.h1}` : `How to Use ${meta.h1}`}
             </h2>
             <p className="mt-2 text-sm sm:text-base text-slate-600">
-              Download any Instagram media to your phone, tablet, or computer in 3 quick steps.
+              {isAr
+                ? 'قم بتحميل أي فيديو أو صورة من انستقرام إلى هاتفك أو حاسوبك في 3 خطوات سريعة.'
+                : 'Download any Instagram media to your phone, tablet, or computer in 3 quick steps.'}
             </p>
           </div>
 
@@ -276,7 +288,7 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
             ))}
           </div>
 
-          {/* Quick Tip for the 1000 URL trick */}
+          {/* Quick Tip for the 1k URL trick */}
           <div className="mt-10 p-5 sm:p-6 bg-linear-to-r from-purple-50 via-pink-50 to-amber-50 rounded-2xl border border-pink-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-pink-500 text-white flex items-center justify-center shrink-0">
@@ -284,15 +296,25 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
               </div>
               <div>
                 <h4 className="font-bold text-sm sm:text-base text-slate-900">
-                  ⚡ The "1k" URL Shortcut
+                  {isAr ? '⚡ اختصار الرابط الذكي "1k"' : '⚡ The "1k" URL Shortcut'}
                 </h4>
                 <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-                  Change <span className="font-mono font-semibold text-slate-900">instagram.com</span> to <span className="font-mono font-semibold text-pink-600">1kgram.com</span> in any URL to download directly!
+                  {isAr ? (
+                    <>
+                      غيّر <span className="font-mono font-semibold text-slate-900">instagram.com</span> إلى{' '}
+                      <span className="font-mono font-semibold text-pink-600">1kgram.com</span> في أي رابط للتحميل المباشر فوراً!
+                    </>
+                  ) : (
+                    <>
+                      Change <span className="font-mono font-semibold text-slate-900">instagram.com</span> to{' '}
+                      <span className="font-mono font-semibold text-pink-600">1kgram.com</span> in any URL to download directly!
+                    </>
+                  )}
                 </p>
               </div>
             </div>
             <span className="text-xs font-bold px-3 py-1 bg-white text-pink-600 rounded-lg border border-pink-200 shadow-2xs whitespace-nowrap">
-              No App Required
+              {isAr ? 'بدون تطبيقات' : 'No App Required'}
             </span>
           </div>
         </div>
@@ -303,10 +325,12 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              Features of {meta.h1}
+              {isAr ? `مميزات أداة ${meta.h1}` : `Features of ${meta.h1}`}
             </h2>
             <p className="mt-2 text-sm sm:text-base text-slate-600">
-              Why 1kgram is the fastest and most reliable Instagram downloader online.
+              {isAr
+                ? 'لماذا يعتبر 1kgram أسرع وأفضل موقع لتحميل وسائط انستقرام.'
+                : 'Why 1kgram is the fastest and most reliable Instagram downloader online.'}
             </p>
           </div>
 
@@ -324,7 +348,9 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
                     {feature}
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-600 mt-1">
-                    Optimized for rapid download speed and flawless playback across all devices.
+                    {isAr
+                      ? 'مصمم لتوفير أقصى سرعة تحميل وتشغيل سلس على جميع الهواتف والأجهزة.'
+                      : 'Optimized for rapid download speed and flawless playback across all devices.'}
                   </p>
                 </div>
               </div>
@@ -338,10 +364,12 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              Supported Devices & Operating Systems
+              {isAr ? 'الأجهزة وأنظمة التشغيل المدعومة' : 'Supported Devices & Operating Systems'}
             </h2>
             <p className="mt-2 text-sm sm:text-base text-slate-600">
-              Universal compatibility without installing apps from the App Store or Google Play.
+              {isAr
+                ? 'توافق شامل مع جميع الأجهزة دون الحاجة لتثبيت أي تطبيقات خارجية.'
+                : 'Universal compatibility without installing apps from the App Store or Google Play.'}
             </p>
           </div>
 
@@ -350,9 +378,13 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
               <div className="w-10 h-10 rounded-xl bg-pink-100 text-pink-600 flex items-center justify-center mb-4">
                 <Smartphone className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-base text-slate-900 mb-2">iPhone &amp; iPad (iOS)</h3>
+              <h3 className="font-bold text-base text-slate-900 mb-2">
+                {isAr ? 'آيفون وآيباد (iOS)' : 'iPhone & iPad (iOS)'}
+              </h3>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Open Safari, paste the link into 1kgram, click Download, and tap "Save Video" to save directly to your Photos camera roll.
+                {isAr
+                  ? 'افتح متصفح Safari، الصق الرابط في 1kgram، اضغط تحميل ثم اختر "حفظ الفيديو" لحفظه مباشرة في تطبيق الصور.'
+                  : 'Open Safari, paste the link into 1kgram, click Download, and tap "Save Video" to save directly to your Photos camera roll.'}
               </p>
             </div>
 
@@ -360,9 +392,13 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
               <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center mb-4">
                 <Smartphone className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-base text-slate-900 mb-2">Android Phones &amp; Tablets</h3>
+              <h3 className="font-bold text-base text-slate-900 mb-2">
+                {isAr ? 'هواتف وأجهزة أندرويد (Android)' : 'Android Phones & Tablets'}
+              </h3>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Works seamlessly in Google Chrome, Samsung Internet, and Firefox. Files are automatically saved to your Gallery and Downloads folder.
+                {isAr
+                  ? 'يعمل بسلاسة على Google Chrome و Samsung Internet و Firefox. تُحفظ الملفات تلقائياً في المعرض ومجلد التنزيلات.'
+                  : 'Works seamlessly in Google Chrome, Samsung Internet, and Firefox. Files are automatically saved to your Gallery and Downloads folder.'}
               </p>
             </div>
 
@@ -370,9 +406,13 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
               <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4">
                 <Monitor className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-base text-slate-900 mb-2">PC, Mac &amp; Linux</h3>
+              <h3 className="font-bold text-base text-slate-900 mb-2">
+                {isAr ? 'الكمبيوتر واللابتوب (Windows & Mac)' : 'PC, Mac & Linux'}
+              </h3>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Download original high-definition MP4 and JPG files in seconds on Windows, macOS, and Chromebooks using any web browser.
+                {isAr
+                  ? 'قم بتحميل ملفات MP4 و JPG الأصلية عالية الدقة في ثوانٍ على أنظمة Windows و macOS باستخدام أي متصفح.'
+                  : 'Download original high-definition MP4 and JPG files in seconds on Windows, macOS, and Chromebooks using any web browser.'}
               </p>
             </div>
           </div>
@@ -384,13 +424,15 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <span className="text-xs font-bold uppercase tracking-widest text-purple-600 bg-purple-50 px-3 py-1 rounded-full border border-purple-100">
-              FAQ
+              {isAr ? 'الأسئلة الشائعة' : 'FAQ'}
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-3">
-              Frequently Asked Questions
+              {translations.faqTitle || (isAr ? 'الأسئلة الشائعة' : 'Frequently Asked Questions')}
             </h2>
             <p className="mt-2 text-sm sm:text-base text-slate-600">
-              Common questions about saving {meta.h1.toLowerCase()}.
+              {isAr
+                ? `إجابات سريعة حول ${meta.h1}.`
+                : `Common questions about saving ${meta.h1.toLowerCase()}.`}
             </p>
           </div>
 
@@ -431,43 +473,50 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-10">
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              Other Instagram Downloaders ({locale.toUpperCase()})
+              {isAr
+                ? `أدوات تحميل انستقرام الأخرى (${locale.toUpperCase()})`
+                : `Other Instagram Downloaders (${locale.toUpperCase()})`}
             </h2>
             <p className="mt-2 text-sm sm:text-base text-slate-600">
-              Explore our full suite of fast, watermark-free Instagram media downloaders.
+              {isAr
+                ? 'تصفح مجموعتنا الكاملة من أدوات تحميل انستقرام السريعة وبدون علامة مائية.'
+                : 'Explore our full suite of fast, watermark-free Instagram media downloaders.'}
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {otherTools.map((tool) => (
-              <button
-                key={tool.slug}
-                onClick={() => onNavigateTool(tool.slug)}
-                className="p-5 rounded-2xl bg-slate-50 hover:bg-pink-50/50 border border-slate-200 hover:border-pink-300 text-left rtl:text-right transition-all group flex flex-col justify-between"
-              >
-                <div>
-                  <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
-                    {getIcon(tool.type)}
+            {otherTools.map((tool) => {
+              const localizedTool = getDownloaderDataForLocale(locale, tool.slug);
+              return (
+                <button
+                  key={tool.slug}
+                  onClick={() => onNavigateTool(tool.slug)}
+                  className="p-5 rounded-2xl bg-slate-50 hover:bg-pink-50/50 border border-slate-200 hover:border-pink-300 text-left rtl:text-right transition-all group flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                      {getIcon(tool.type)}
+                    </div>
+                    <h3 className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-pink-600 transition-colors">
+                      {localizedTool.h1 || tool.name}
+                    </h3>
+                    <p className="text-xs text-slate-600 mt-1.5 line-clamp-2">
+                      {localizedTool.description || tool.tagline}
+                    </p>
                   </div>
-                  <h3 className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-pink-600 transition-colors">
-                    {tool.name}
-                  </h3>
-                  <p className="text-xs text-slate-600 mt-1.5 line-clamp-2">
-                    {tool.tagline}
-                  </p>
-                </div>
-                <div className="mt-4 flex items-center gap-1 text-xs font-bold text-pink-600 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform">
-                  <span>Open Tool</span>
-                  <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
-                </div>
-              </button>
-            ))}
+                  <div className="mt-4 flex items-center gap-1 text-xs font-bold text-pink-600 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform">
+                    <span>{isAr ? 'افتح الأداة' : 'Open Tool'}</span>
+                    <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
+                  </div>
+                </button>
+              );
+            })}
           </div>
 
           {/* Long-tail Educational Guides Links */}
           <div className="mt-12 pt-8 border-t border-slate-100">
             <h3 className="text-lg font-bold text-slate-900 mb-4 text-center">
-              Helpful Step-by-Step Guides
+              {isAr ? 'أدلة وشروحات مفيدة خطوة بخطوة' : 'Helpful Step-by-Step Guides'}
             </h3>
             <div className="flex flex-wrap items-center justify-center gap-2.5">
               {GUIDE_PAGES.map((guide) => (
@@ -476,7 +525,7 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
                   onClick={() => onNavigateGuide && onNavigateGuide(guide.slug)}
                   className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors"
                 >
-                  📖 {guide.title}
+                  📖 {isAr ? ARABIC_GUIDE_TITLES[guide.slug] || guide.title : guide.title}
                 </button>
               ))}
             </div>

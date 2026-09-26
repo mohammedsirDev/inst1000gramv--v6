@@ -140,7 +140,21 @@ export const Header: React.FC<HeaderProps> = ({
                           type="text"
                           value={langSearch}
                           onChange={(e) => setLangSearch(e.target.value)}
-                          placeholder="Search 29 languages..."
+                          placeholder={
+                            currentLang === 'ar'
+                              ? 'ابحث في 29 لغة...'
+                              : currentLang === 'es'
+                              ? 'Buscar 29 idiomas...'
+                              : currentLang === 'fr'
+                              ? 'Rechercher 29 langues...'
+                              : currentLang === 'de'
+                              ? '29 Sprachen durchsuchen...'
+                              : currentLang === 'tr'
+                              ? '29 dilde ara...'
+                              : currentLang === 'ru'
+                              ? 'Поиск среди 29 языков...'
+                              : 'Search 29 languages...'
+                          }
                           className="w-full text-xs pl-8 pr-3 rtl:pr-8 rtl:pl-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-pink-500"
                         />
                       </div>

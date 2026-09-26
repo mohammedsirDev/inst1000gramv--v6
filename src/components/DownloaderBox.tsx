@@ -23,7 +23,8 @@ export const DownloaderBox: React.FC<DownloaderBoxProps> = ({
   initialUrl,
   autoTrigger,
 }) => {
-  const { translations } = useLanguage();
+  const { translations, currentLang } = useLanguage();
+  const isAr = currentLang === 'ar';
   const [url, setUrl] = useState(initialUrl || '');
   const [error, setError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string>('');
@@ -31,17 +32,23 @@ export const DownloaderBox: React.FC<DownloaderBoxProps> = ({
 
   const sampleLinks: { label: string; url: string; type: MediaType }[] = [
     {
-      label: '🎬 Verified Reel (1080p)',
+      label: isAr
+        ? '🎬 ريلز تجريبي (1080p)'
+        : `🎬 ${translations.navReels || 'Verified Reel'} (1080p)`,
       url: 'https://www.instagram.com/reel/DdmbSgYx2k6/?stkn=Y3AzZmQ5N3Jwa2d0',
       type: 'reel',
     },
     {
-      label: '📸 Verified Post (Carousel)',
+      label: isAr
+        ? '📸 ألبوم صور تجريبي'
+        : `📸 ${translations.navPhoto || 'Verified Post'} (HD)`,
       url: 'https://www.instagram.com/p/Ddl1lsKjgw_/?stkn=MWFvZWZocGs3ODZiZw==',
       type: 'photo',
     },
     {
-      label: '✨ Verified Story (Videos)',
+      label: isAr
+        ? '✨ ستوري تجريبي (فيديو)'
+        : `✨ ${translations.navStories || 'Verified Story'} (HD)`,
       url: 'https://www.instagram.com/stories/chikafakeid/3991863628785469455?utm_source=ig_story_item_share&stkn=MXhqbHBqMWl3MGFyMQ==',
       type: 'story',
     },

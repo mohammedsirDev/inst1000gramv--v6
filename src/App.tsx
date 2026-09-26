@@ -146,7 +146,7 @@ function MainApp() {
             : currentLang === 'id'
             ? 'Unduh dan lihat Story Instagram secara anonim dalam kualitas penuh'
             : 'Download and view Instagram Stories anonymously in full quality',
-        badge: `${translations.navStories} Anonymous`,
+        badge: `${translations.navStories} ${currentLang === 'ar' ? 'بشكل مجهول' : 'Anonymous'}`,
       };
     }
     if (t === 'highlight' || t === 'highlights') {
@@ -172,7 +172,7 @@ function MainApp() {
             : currentLang === 'id'
             ? 'Unduh Sorotan Instagram lengkap dalam satu klik'
             : 'Download Instagram profile Highlights and archived albums in one click',
-        badge: `${translations.navHighlights} Full`,
+        badge: `${translations.navHighlights} ${currentLang === 'ar' ? 'الكامل' : 'Full'}`,
       };
     }
     if (t === 'igtv') {
@@ -509,20 +509,34 @@ function MainApp() {
                 <Zap className="w-4 h-4 animate-bounce" />
               </span>
               <span>
-                <strong>Smart URL Shortcut Activated:</strong> Converted{' '}
-                <span className="text-slate-400 line-through">instagram.com</span> to{' '}
-                <span className="text-pink-400 font-bold">1kgram.com</span>. Resolving{' '}
-                <span className="font-mono text-pink-300 font-bold">
-                  {currentRoute.mediaType.toUpperCase()} ({currentRoute.mediaId})
-                </span>
-                ...
+                {currentLang === 'ar' ? (
+                  <>
+                    <strong>تم تفعيل اختصار الرابط الذكي:</strong> تم تحويل{' '}
+                    <span className="text-slate-400 line-through">instagram.com</span> إلى{' '}
+                    <span className="text-pink-400 font-bold">1kgram.com</span>. جاري استخراج{' '}
+                    <span className="font-mono text-pink-300 font-bold">
+                      {currentRoute.mediaType.toUpperCase()} ({currentRoute.mediaId})
+                    </span>
+                    ...
+                  </>
+                ) : (
+                  <>
+                    <strong>Smart URL Shortcut Activated:</strong> Converted{' '}
+                    <span className="text-slate-400 line-through">instagram.com</span> to{' '}
+                    <span className="text-pink-400 font-bold">1kgram.com</span>. Resolving{' '}
+                    <span className="font-mono text-pink-300 font-bold">
+                      {currentRoute.mediaType.toUpperCase()} ({currentRoute.mediaId})
+                    </span>
+                    ...
+                  </>
+                )}
               </span>
             </div>
             <button
               onClick={() => navigateTo(`/${currentLang}/`)}
               className="text-xs text-slate-400 hover:text-white underline shrink-0"
             >
-              Clear
+              {currentLang === 'ar' ? 'مسح' : 'Clear'}
             </button>
           </div>
         </div>

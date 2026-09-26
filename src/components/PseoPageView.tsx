@@ -40,8 +40,8 @@ export const PseoPageView: React.FC<PseoPageViewProps> = ({ page, onBack, onOpen
       "@graph": [
         {
           "@type": "WebPage",
-          "@id": `https://www.insta1000gram.com/${page.slug}/#webpage`,
-          "url": `https://www.insta1000gram.com/${page.slug}`,
+          "@id": `https://www.1kgram.com/${page.slug}/#webpage`,
+          "url": `https://www.1kgram.com/${page.slug}`,
           "name": page.title,
           "description": page.metaDescription,
           "inLanguage": page.lang
@@ -53,19 +53,19 @@ export const PseoPageView: React.FC<PseoPageViewProps> = ({ page, onBack, onOpen
               "@type": "ListItem",
               "position": 1,
               "name": "Home",
-              "item": "https://www.insta1000gram.com"
+              "item": "https://www.1kgram.com"
             },
             {
               "@type": "ListItem",
               "position": 2,
               "name": page.mediaType.toUpperCase(),
-              "item": `https://www.insta1000gram.com/#${page.mediaType}`
+              "item": `https://www.1kgram.com/#${page.mediaType}`
             },
             {
               "@type": "ListItem",
               "position": 3,
               "name": page.h1,
-              "item": `https://www.insta1000gram.com/${page.slug}`
+              "item": `https://www.1kgram.com/${page.slug}`
             }
           ]
         },
@@ -92,6 +92,8 @@ export const PseoPageView: React.FC<PseoPageViewProps> = ({ page, onBack, onOpen
     };
   }, [page]);
 
+  const isAr = currentLang === 'ar';
+
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Top Breadcrumb & Return Bar */}
@@ -103,7 +105,7 @@ export const PseoPageView: React.FC<PseoPageViewProps> = ({ page, onBack, onOpen
               className="flex items-center gap-1.5 text-slate-700 hover:text-pink-600 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
-              <span>Back to insta1000gram Home</span>
+              <span>{isAr ? 'العودة إلى الرئيسية 1kgram' : 'Back to 1kgram Home'}</span>
             </button>
             <span>/</span>
             <span className="text-slate-400">pSEO</span>
@@ -113,7 +115,7 @@ export const PseoPageView: React.FC<PseoPageViewProps> = ({ page, onBack, onOpen
 
           <div className="flex items-center gap-2">
             <span className="text-[11px] px-2.5 py-1 rounded-full font-bold uppercase bg-slate-100 text-slate-700">
-              Page Group #{page.chunkId}
+              {isAr ? `المجموعة #${page.chunkId}` : `Page Group #${page.chunkId}`}
             </span>
             <span className="text-[11px] px-2.5 py-1 rounded-full font-bold uppercase bg-pink-100 text-pink-700">
               {page.lang}
@@ -161,7 +163,7 @@ export const PseoPageView: React.FC<PseoPageViewProps> = ({ page, onBack, onOpen
         {/* Core Value Pillars */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm">
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4">
-            Key Advantages of insta1000gram
+            {isAr ? 'المميزات الرئيسية لموقع 1kgram' : 'Key Advantages of 1kgram'}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             {page.features.map((feat, i) => (
@@ -181,11 +183,15 @@ export const PseoPageView: React.FC<PseoPageViewProps> = ({ page, onBack, onOpen
                 <Smartphone className="w-5 h-5" />
               </div>
               <h2 className="text-xl font-bold text-slate-900">
-                Target Guide for {page.device} in {page.country || 'Global'}
+                {isAr
+                  ? `دليل التحميل المخصص لأجهزة ${page.device} في ${page.country || 'جميع الدول'}`
+                  : `Target Guide for ${page.device} in ${page.country || 'Global'}`}
               </h2>
             </div>
             <p className="text-sm text-slate-600 leading-relaxed">
-              When downloading on your {page.device}, our system automatically formats the file for seamless playback in your native media player without needing third-party converter applications.
+              {isAr
+                ? `عند التحميل على جهاز ${page.device}، يقوم النظام تلقائياً بتهيئة الملف ليتم تشغيله بسلاسة تامة في مشغل الوسائط الافتراضي لديك دون الحاجة لأي تطبيقات خارجية.`
+                : `When downloading on your ${page.device}, our system automatically formats the file for seamless playback in your native media player without needing third-party converter applications.`}
             </p>
           </div>
         )}
@@ -196,7 +202,9 @@ export const PseoPageView: React.FC<PseoPageViewProps> = ({ page, onBack, onOpen
             <div className="flex items-center gap-2 mb-4">
               <HelpCircle className="w-5 h-5 text-pink-600" />
               <h2 className="text-xl font-bold text-slate-900">
-                Frequently Asked Questions about {page.targetKeyword}
+                {isAr
+                  ? `الأسئلة الشائعة حول ${page.targetKeyword}`
+                  : `Frequently Asked Questions about ${page.targetKeyword}`}
               </h2>
             </div>
             <div className="space-y-4">

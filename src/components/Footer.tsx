@@ -2,6 +2,7 @@ import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { SupportedLanguage, DownloaderSlug } from '../types';
 import { DOWNLOADER_PAGES, GUIDE_PAGES } from '../config/downloaders';
+import { getDownloaderDataForLocale } from '../translations/downloadersData';
 
 interface FooterProps {
   onOpenAdmin: () => void;
@@ -10,6 +11,14 @@ interface FooterProps {
   onNavigateGuide?: (guideSlug: string) => void;
 }
 
+const ARABIC_GUIDE_TITLES: Record<string, string> = {
+  'how-to-download-instagram-reels-on-iphone': 'كيفية تحميل ريلز انستقرام على الآيفون والآيباد',
+  'how-to-download-instagram-reels-on-android': 'كيفية تحميل ريلز انستقرام على هواتف أندرويد',
+  'how-to-download-instagram-stories-anonymously': 'كيفية مشاهدة وتحميل ستوري انستقرام بشكل مجهول',
+  'how-to-save-instagram-photos-in-hd': 'كيفية حفظ صور وألبومات انستقرام بأعلى جودة HD',
+  'how-to-use-insta1000gram-url-shortcut': 'كيفية استخدام اختصار الرابط 1kgram.com للتحميل الفوري',
+};
+
 export const Footer: React.FC<FooterProps> = ({
   onOpenAdmin,
   onNavigateHome,
@@ -17,6 +26,7 @@ export const Footer: React.FC<FooterProps> = ({
   onNavigateGuide,
 }) => {
   const { translations, availableLanguages, currentLang, setLanguage } = useLanguage();
+  const isAr = currentLang === 'ar';
 
   return (
     <footer className="bg-slate-900 text-slate-400 text-xs py-14 border-t border-slate-800">
@@ -38,33 +48,36 @@ export const Footer: React.FC<FooterProps> = ({
             </p>
             <div className="pt-2 flex items-center gap-2 text-[11px] text-emerald-400 font-semibold">
               <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-              <span>Ultra HD 1080p Stream Online</span>
+              <span>{isAr ? 'بث فائق الوضوح 1080p متصل الآن' : 'Ultra HD 1080p Stream Online'}</span>
             </div>
           </div>
 
           {/* Col 2: Downloaders */}
           <div>
             <h4 className="font-bold text-white text-sm uppercase tracking-wider mb-3">
-              {translations.downloadersColTitle || 'Downloaders'}
+              {translations.downloadersColTitle || (isAr ? 'أدوات التحميل' : 'Downloaders')}
             </h4>
             <ul className="space-y-2">
-              {DOWNLOADER_PAGES.map((tool) => (
-                <li key={tool.slug}>
-                  <button
-                    onClick={() => onNavigateTool && onNavigateTool(tool.slug)}
-                    className="hover:text-pink-400 transition-colors text-xs text-left rtl:text-right"
-                  >
-                    {tool.name}
-                  </button>
-                </li>
-              ))}
+              {DOWNLOADER_PAGES.map((tool) => {
+                const localizedTool = getDownloaderDataForLocale(currentLang, tool.slug);
+                return (
+                  <li key={tool.slug}>
+                    <button
+                      onClick={() => onNavigateTool && onNavigateTool(tool.slug)}
+                      className="hover:text-pink-400 transition-colors text-xs text-left rtl:text-right"
+                    >
+                      {localizedTool.h1 || tool.name}
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
           {/* Col 3: Popular Guides */}
           <div>
             <h4 className="font-bold text-white text-sm uppercase tracking-wider mb-3">
-              {translations.guidesColTitle || 'Guides & Tutorials'}
+              {translations.guidesColTitle || (isAr ? 'أدلة وشروحات الاستخدام' : 'Guides & Tutorials')}
             </h4>
             <ul className="space-y-2">
               {GUIDE_PAGES.slice(0, 5).map((guide) => (
@@ -73,7 +86,7 @@ export const Footer: React.FC<FooterProps> = ({
                     onClick={() => onNavigateGuide && onNavigateGuide(guide.slug)}
                     className="hover:text-pink-400 transition-colors text-xs text-left rtl:text-right line-clamp-1"
                   >
-                    {guide.title}
+                    {isAr ? ARABIC_GUIDE_TITLES[guide.slug] || guide.title : guide.title}
                   </button>
                 </li>
               ))}
@@ -83,7 +96,7 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Col 4: 1k Trick */}
           <div>
             <h4 className="font-bold text-white text-sm uppercase tracking-wider mb-3">
-              ⚡ {translations.secretShortcutBadge || '1k Quick Trick'}
+              ⚡ {translations.secretShortcutBadge || (isAr ? 'اختصار 1k السريع' : '1k Quick Trick')}
             </h4>
             <p className="text-xs text-slate-400 leading-relaxed">
               {translations.secretShortcutDesc}
@@ -97,8 +110,10 @@ export const Footer: React.FC<FooterProps> = ({
         {/* 29 Languages Pill Matrix */}
         <div className="py-8 border-b border-slate-800">
           <div className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center justify-between">
-            <span>{translations.supportedLanguagesTitle || 'Supported Languages'} (29)</span>
-            <span className="text-[10px] text-pink-400 font-mono">145 Localized SEO Pages</span>
+            <span>{translations.supportedLanguagesTitle || (isAr ? 'اللغات المدعومة' : 'Supported Languages')} (29)</span>
+            <span className="text-[10px] text-pink-400 font-mono">
+              {isAr ? '145 صفحة مترجمة' : '145 Localized SEO Pages'}
+            </span>
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
             {availableLanguages.map((l) => (
