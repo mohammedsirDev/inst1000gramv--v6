@@ -100,9 +100,9 @@ export const HowToGuide: React.FC = () => {
                 <span className="font-bold">{translations.secretShortcutModified}</span>
               </div>
               <div className="text-white bg-black/70 px-3 py-2 rounded-lg border border-pink-500/40 break-all select-all flex items-center flex-row flex-nowrap overflow-x-auto text-[11px] sm:text-xs text-left font-mono" dir="ltr">
-                <span className="shrink-0">https://www.insta</span>
+                <span className="shrink-0">https://www.</span>
                 <span className="bg-gradient-to-r from-amber-400 to-pink-500 text-slate-950 font-black px-1.5 py-0.5 rounded mx-1 shadow-xs shrink-0 inline-block font-sans">
-                  1000
+                  1k
                 </span>
                 <span className="shrink-0">gram.com/p/DFeFJZB...</span>
               </div>

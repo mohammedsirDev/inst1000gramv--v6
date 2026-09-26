@@ -67,9 +67,14 @@ export const DownloaderBox: React.FC<DownloaderBoxProps> = ({
       return;
     }
 
-    // Auto-normalize if user typed or pasted insta1000gram.com or inst1000gram.com URL
-    if (targetUrl.includes('insta1000gram.com') || targetUrl.includes('inst1000gram.com')) {
+    // Auto-normalize if user typed or pasted 1kgram.com, insta1000gram.com, or inst1000gram.com URL
+    if (
+      targetUrl.includes('1kgram.com') ||
+      targetUrl.includes('insta1000gram.com') ||
+      targetUrl.includes('inst1000gram.com')
+    ) {
       targetUrl = targetUrl
+        .replace(/^(https?:\/\/)?(www\.)?1kgram\.com/i, 'https://www.instagram.com')
         .replace(/^(https?:\/\/)?(www\.)?insta(1000)?gram\.com/i, 'https://www.instagram.com')
         .replace(/^(https?:\/\/)?(www\.)?inst(1000)?gram\.com/i, 'https://www.instagram.com');
       setUrl(targetUrl);

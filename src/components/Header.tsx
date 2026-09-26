@@ -79,7 +79,7 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
               <div>
                 <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 group-hover:text-pink-600 transition-colors">
-                  insta<span className="bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">1000</span>gram
+                  <span className="bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">1k</span>gram
                 </span>
                 <p className="text-[10px] sm:text-xs text-slate-600 font-medium hidden sm:block">
                   {translations.brandTagline}

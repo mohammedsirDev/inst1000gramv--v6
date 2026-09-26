@@ -51,7 +51,7 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
       canonical.setAttribute('rel', 'canonical');
       document.head.appendChild(canonical);
     }
-    const currentCanonicalUrl = `https://www.insta1000gram.com/${locale}/${meta.slug}`;
+    const currentCanonicalUrl = `https://www.1kgram.com/${locale}/${meta.slug}`;
     canonical.setAttribute('href', currentCanonicalUrl);
 
     // Dynamic JSON-LD injection
@@ -94,7 +94,7 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
               '@type': 'ListItem',
               position: 1,
               name: 'Home',
-              item: `https://www.insta1000gram.com/${locale}/`,
+              item: `https://www.1kgram.com/${locale}/`,
             },
             {
               '@type': 'ListItem',
@@ -284,10 +284,10 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
               </div>
               <div>
                 <h4 className="font-bold text-sm sm:text-base text-slate-900">
-                  ⚡ The "1000" URL Shortcut
+                  ⚡ The "1k" URL Shortcut
                 </h4>
                 <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-                  Change <span className="font-mono font-semibold text-slate-900">instagram.com</span> to <span className="font-mono font-semibold text-pink-600">insta1000gram.com</span> in any URL to download directly!
+                  Change <span className="font-mono font-semibold text-slate-900">instagram.com</span> to <span className="font-mono font-semibold text-pink-600">1kgram.com</span> in any URL to download directly!
                 </p>
               </div>
             </div>
@@ -306,7 +306,7 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
               Features of {meta.h1}
             </h2>
             <p className="mt-2 text-sm sm:text-base text-slate-600">
-              Why insta1000gram is the fastest and most reliable Instagram downloader online.
+              Why 1kgram is the fastest and most reliable Instagram downloader online.
             </p>
           </div>
 
@@ -352,7 +352,7 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
               </div>
               <h3 className="font-bold text-base text-slate-900 mb-2">iPhone &amp; iPad (iOS)</h3>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Open Safari, paste the link into insta1000gram, click Download, and tap "Save Video" to save directly to your Photos camera roll.
+                Open Safari, paste the link into 1kgram, click Download, and tap "Save Video" to save directly to your Photos camera roll.
               </p>
             </div>
 

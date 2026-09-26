@@ -262,14 +262,14 @@ function MainApp() {
 
     if (currentRoute.type === 'home') {
       const targetLocale = currentRoute.locale || currentLang;
-      canonical.setAttribute('href', `https://www.insta1000gram.com/${targetLocale}/`);
+      canonical.setAttribute('href', `https://www.1kgram.com/${targetLocale}/`);
 
       // Add hreflang for all 29 languages + x-default
       ALL_SUPPORTED_LANGUAGES.forEach((l) => {
         const link = document.createElement('link');
         link.setAttribute('rel', 'alternate');
         link.setAttribute('hreflang', l);
-        link.setAttribute('href', `https://www.insta1000gram.com/${l}/`);
+        link.setAttribute('href', `https://www.1kgram.com/${l}/`);
         link.setAttribute('data-dynamic-hreflang', 'true');
         document.head.appendChild(link);
       });
@@ -277,20 +277,20 @@ function MainApp() {
       const xDefault = document.createElement('link');
       xDefault.setAttribute('rel', 'alternate');
       xDefault.setAttribute('hreflang', 'x-default');
-      xDefault.setAttribute('href', 'https://www.insta1000gram.com/en/');
+      xDefault.setAttribute('href', 'https://www.1kgram.com/en/');
       xDefault.setAttribute('data-dynamic-hreflang', 'true');
       document.head.appendChild(xDefault);
     } else if (currentRoute.type === 'downloader') {
       canonical.setAttribute(
         'href',
-        `https://www.insta1000gram.com/${currentRoute.locale}/${currentRoute.slug}`
+        `https://www.1kgram.com/${currentRoute.locale}/${currentRoute.slug}`
       );
 
       ALL_SUPPORTED_LANGUAGES.forEach((l) => {
         const link = document.createElement('link');
         link.setAttribute('rel', 'alternate');
         link.setAttribute('hreflang', l);
-        link.setAttribute('href', `https://www.insta1000gram.com/${l}/${currentRoute.slug}`);
+        link.setAttribute('href', `https://www.1kgram.com/${l}/${currentRoute.slug}`);
         link.setAttribute('data-dynamic-hreflang', 'true');
         document.head.appendChild(link);
       });
@@ -298,7 +298,7 @@ function MainApp() {
       const xDefault = document.createElement('link');
       xDefault.setAttribute('rel', 'alternate');
       xDefault.setAttribute('hreflang', 'x-default');
-      xDefault.setAttribute('href', `https://www.insta1000gram.com/en/${currentRoute.slug}`);
+      xDefault.setAttribute('href', `https://www.1kgram.com/en/${currentRoute.slug}`);
       xDefault.setAttribute('data-dynamic-hreflang', 'true');
       document.head.appendChild(xDefault);
     }
@@ -479,24 +479,24 @@ function MainApp() {
         </span>
         <span>
           {currentLang === 'ar'
-            ? 'محرك insta1000gram 3.2 • استخراج بدقة 1080p فائقة الوضوح • مجاني وبشكل مجهول 100%'
+            ? 'محرك 1kgram 3.2 • استخراج بدقة 1080p فائقة الوضوح • مجاني وبشكل مجهول 100%'
             : currentLang === 'es'
-            ? 'Motor insta1000gram 3.2 • Extracción 1080p Full HD activa • Gratis y 100% Anónimo'
+            ? 'Motor 1kgram 3.2 • Extracción 1080p Full HD activa • Gratis y 100% Anónimo'
             : currentLang === 'fr'
-            ? 'Moteur insta1000gram 3.2 • Résolution 1080p Full HD active • Gratuit et Anonyme'
+            ? 'Moteur 1kgram 3.2 • Résolution 1080p Full HD active • Gratuit et Anonyme'
             : currentLang === 'de'
-            ? 'insta1000gram Engine 3.2 • 1080p Full HD aktiv • Kostenlos & 100% Anonym'
+            ? '1kgram Engine 3.2 • 1080p Full HD aktiv • Kostenlos & 100% Anonym'
             : currentLang === 'it'
-            ? 'Motore insta1000gram 3.2 • Risoluzione 1080p Full HD attiva • Gratuito e Anonimo'
+            ? 'Motore 1kgram 3.2 • Risoluzione 1080p Full HD attiva • Gratuito e Anonimo'
             : currentLang === 'pt'
-            ? 'Motor insta1000gram 3.2 • Resolução 1080p Full HD ativa • Grátis e 100% Anônimo'
+            ? 'Motor 1kgram 3.2 • Resolução 1080p Full HD ativa • Grátis e 100% Anônimo'
             : currentLang === 'tr'
-            ? 'insta1000gram Motoru 3.2 • 1080p Full HD çözünürlük aktif • Ücretsiz ve %100 Anonim'
+            ? '1kgram Motoru 3.2 • 1080p Full HD çözünürlük aktif • Ücretsiz ve %100 Anonim'
             : currentLang === 'ru'
-            ? 'Движок insta1000gram 3.2 • Разрешение 1080p Full HD активно • Бесплатно и 100% анонимно'
+            ? 'Движок 1kgram 3.2 • Разрешение 1080p Full HD активно • Бесплатно и 100% анонимно'
             : currentLang === 'id'
-            ? 'Mesin insta1000gram 3.2 • Resolusi 1080p Full HD aktif • Gratis & 100% Anonim'
-            : 'insta1000gram Engine 3.2 • Multi-stream 1080p resolution active • Free & Anonymous'}
+            ? 'Mesin 1kgram 3.2 • Resolusi 1080p Full HD aktif • Gratis & 100% Anonim'
+            : '1kgram Engine 3.2 • Multi-stream 1080p resolution active • Free & Anonymous'}
         </span>
       </div>
 
@@ -511,7 +511,7 @@ function MainApp() {
               <span>
                 <strong>Smart URL Shortcut Activated:</strong> Converted{' '}
                 <span className="text-slate-400 line-through">instagram.com</span> to{' '}
-                <span className="text-pink-400 font-bold">insta1000gram.com</span>. Resolving{' '}
+                <span className="text-pink-400 font-bold">1kgram.com</span>. Resolving{' '}
                 <span className="font-mono text-pink-300 font-bold">
                   {currentRoute.mediaType.toUpperCase()} ({currentRoute.mediaId})
                 </span>

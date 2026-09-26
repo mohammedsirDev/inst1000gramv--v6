@@ -217,14 +217,14 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
     feature4Desc: 'احصل على المحتوى الأصلي نقياً دون شعارات مضافة أو إعلانات مزعجة مضللة.',
     step1Title: '1. انسخ رابط المنشور',
     step1Desc: 'افتح تطبيق انستقرام أو المتصفح، واضغط على أيقونة المشاركة واختر "نسخ الرابط".',
-    step2Title: '2. الصق الرابط في insta1000gram',
+    step2Title: '2. الصق الرابط في 1kgram',
     step2Desc: 'الصق الرابط المنسوخ في حقل البحث بالأعلى ثم اضغط على زر "جلب وتحميل".',
     step3Title: '3. احفظ الملف على جهازك',
     step3Desc: 'اختر الجودة المفضلة لك وسيتم حفظ الملف فوراً في ألبوم الصور أو التنزيلات.',
     faqs: [
       {
-        q: 'هل موقع insta1000gram مجاني تماماً؟',
-        a: 'نعم، خدمة insta1000gram مجانية 100% بدون أي حدود لعدد التحميلات وبدون الحاجة لإنشاء حساب.',
+        q: 'هل موقع 1kgram مجاني تماماً؟',
+        a: 'نعم، خدمة 1kgram مجانية 100% بدون أي حدود لعدد التحميلات وبدون الحاجة لإنشاء حساب.',
       },
       {
         q: 'هل يتم تحميل ريلز انستقرام بأعلى دقة 1080p؟',
@@ -236,7 +236,7 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
       },
       {
         q: 'ما هي خدعة رابط 1000 السريع؟',
-        a: 'فقط أضف الرقم 1000 إلى رابط إنستغرام ليصبح insta1000gram.com وسيفتح التحميل فوراً!',
+        a: 'فقط أضف الرقم 1000 إلى رابط إنستغرام ليصبح 1kgram.com وسيفتح التحميل فوراً!',
       },
     ],
     secretShortcutSub: 'أسرع طريقة للتحميل مباشرة من شريط العناوين',
@@ -293,14 +293,14 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
     feature4Desc: 'Archivos MP4 y JPG limpios sin logotipos, marcas añadidas ni compresión destructiva.',
     step1Title: '1. Copia el enlace de Instagram',
     step1Desc: 'Abre Instagram en la app o navegador, pulsa compartir y selecciona "Copiar enlace".',
-    step2Title: '2. Pégalo en insta1000gram',
+    step2Title: '2. Pégalo en 1kgram',
     step2Desc: 'Pega la URL en el buscador superior y haz clic en "Descargar".',
     step3Title: '3. Guarda en tu dispositivo',
     step3Desc: 'Elige tu calidad preferida y guárdalo en tu galería o carpeta de descargas.',
     faqs: [
       {
-        q: '¿Es insta1000gram completamente gratuito?',
-        a: 'Sí, insta1000gram es 100% gratis con descargas ilimitadas y sin necesidad de crear cuenta.',
+        q: '¿Es 1kgram completamente gratuito?',
+        a: 'Sí, 1kgram es 100% gratis con descargas ilimitadas y sin necesidad de crear cuenta.',
       },
       {
         q: '¿Se descargan los Reels en calidad original?',
@@ -312,7 +312,7 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
       },
       {
         q: '¿Cómo funciona el atajo del 1000 en la URL?',
-        a: 'Simplemente cambia instagram.com por insta1000gram.com en tu navegador para descargar al instante.',
+        a: 'Simplemente cambia instagram.com por 1kgram.com en tu navegador para descargar al instante.',
       },
     ],
     secretShortcutSub: 'La forma más rápida de descargar directamente desde la barra de direcciones',
@@ -369,13 +369,13 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
     feature4Desc: 'Fichiers MP4 et JPG originaux sans aucun logo superposé ni compression dégradante.',
     step1Title: '1. Copiez le lien Instagram',
     step1Desc: 'Ouvrez Instagram, appuyez sur l’icône de partage et sélectionnez "Copier le lien".',
-    step2Title: '2. Collez sur insta1000gram',
+    step2Title: '2. Collez sur 1kgram',
     step2Desc: 'Collez l’URL dans le champ ci-dessus puis cliquez sur "Télécharger".',
     step3Title: '3. Enregistrez sur votre appareil',
     step3Desc: 'Sélectionnez la qualité désirée pour sauvegarder le fichier dans vos photos ou téléchargements.',
     faqs: [
       {
-        q: 'insta1000gram est-il gratuit ?',
+        q: '1kgram est-il gratuit ?',
         a: 'Oui, le service est 100% gratuit, sans limite de téléchargement et sans inscription.',
       },
       {
@@ -388,7 +388,7 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
       },
       {
         q: 'Comment fonctionne le raccourci 1000 ?',
-        a: 'Remplacez instagram.com par insta1000gram.com dans la barre d’adresse de votre navigateur.',
+        a: 'Remplacez instagram.com par 1kgram.com dans la barre d’adresse de votre navigateur.',
       },
     ],
     secretShortcutSub: 'La méthode la plus rapide pour télécharger via la barre d’adresse',
@@ -445,14 +445,14 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
     feature4Desc: 'Reine MP4- und JPG-Dateien ohne störende Logos oder künstliche Komprimierung.',
     step1Title: '1. Instagram-Link kopieren',
     step1Desc: 'Öffne Instagram, tippe auf Teilen und wähle "Link kopieren".',
-    step2Title: '2. Bei insta1000gram einfügen',
+    step2Title: '2. Bei 1kgram einfügen',
     step2Desc: 'Füge den Link oben in das Eingabefeld ein und klicke auf "Herunterladen".',
     step3Title: '3. Datei speichern',
     step3Desc: 'Wähle dein bevorzugtes Format und speichere das Video oder Foto auf deinem Gerät.',
     faqs: [
       {
-        q: 'Ist insta1000gram kostenlos?',
-        a: 'Ja, insta1000gram ist 100% kostenlos und ohne Beschränkungen nutzbar.',
+        q: 'Ist 1kgram kostenlos?',
+        a: 'Ja, 1kgram ist 100% kostenlos und ohne Beschränkungen nutzbar.',
       },
       {
         q: 'Werden Reels in Full HD heruntergeladen?',
@@ -464,7 +464,7 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
       },
       {
         q: 'Wie funktioniert der 1000-Trick?',
-        a: 'Ersetze einfach instagram.com durch insta1000gram.com in der Adresszeile.',
+        a: 'Ersetze einfach instagram.com durch 1kgram.com in der Adresszeile.',
       },
     ],
     secretShortcutSub: 'Der schnellste Weg zum Download über die Adresszeile',
@@ -521,13 +521,13 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
     feature4Desc: 'Download puliti in formato MP4 e JPG senza loghi o marchi applicati.',
     step1Title: '1. Copia il link di Instagram',
     step1Desc: 'Apri Instagram, tocca l’icona di condivisione e seleziona "Copia link".',
-    step2Title: '2. Incolla su insta1000gram',
+    step2Title: '2. Incolla su 1kgram',
     step2Desc: 'Incolla il link nella barra in alto e clicca su "Scarica".',
     step3Title: '3. Salva sul tuo dispositivo',
     step3Desc: 'Scegli la risoluzione desiderata e salva nella galleria o nei download.',
     faqs: [
       {
-        q: 'insta1000gram è gratuito?',
+        q: '1kgram è gratuito?',
         a: 'Sì, è gratis al 100% con download illimitati e senza registrazione.',
       },
       {
@@ -540,7 +540,7 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
       },
       {
         q: 'Come funziona la scorciatoia del 1000?',
-        a: 'Aggiungi 1000 a instagram.com facendolo diventare insta1000gram.com nella barra del browser.',
+        a: 'Aggiungi 1000 a instagram.com facendolo diventare 1kgram.com nella barra del browser.',
       },
     ],
     secretShortcutSub: 'Il modo più rapido per scaricare dalla barra degli indirizzi',
@@ -597,13 +597,13 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
     feature4Desc: 'Arquivos MP4 e JPG originais e limpos sem logotipos indesejados.',
     step1Title: '1. Copie o link do Instagram',
     step1Desc: 'Abra o Instagram no aplicativo ou navegador, clique em compartilhar e em "Copiar link".',
-    step2Title: '2. Cole no insta1000gram',
+    step2Title: '2. Cole no 1kgram',
     step2Desc: 'Cole o link no campo acima e clique em "Baixar".',
     step3Title: '3. Salve no seu aparelho',
     step3Desc: 'Escolha a qualidade e salve direto na sua galeria ou pasta de downloads.',
     faqs: [
       {
-        q: 'O insta1000gram é gratuito?',
+        q: 'O 1kgram é gratuito?',
         a: 'Sim, o serviço é 100% gratuito, sem limites de download e sem cadastro.',
       },
       {
@@ -616,7 +616,7 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
       },
       {
         q: 'Como funciona o atalho do 1000?',
-        a: 'Basta colocar 1000 no meio do link (insta1000gram.com) na barra de endereços.',
+        a: 'Basta colocar 1000 no meio do link (1kgram.com) na barra de endereços.',
       },
     ],
     secretShortcutSub: 'A forma mais rápida de baixar direto pela barra de endereços',
@@ -673,13 +673,13 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
     feature4Desc: 'Üzerine herhangi bir reklam veya logo eklenmemiş tertemiz orijinal medya dosyaları.',
     step1Title: '1. Instagram Bağlantısını Kopyala',
     step1Desc: 'Instagram uygulamasında veya tarayıcıda paylaş simgesine dokunup "Bağlantıyı Kopyala"yı seçin.',
-    step2Title: '2. insta1000gram’a Yapıştır',
+    step2Title: '2. 1kgram’a Yapıştır',
     step2Desc: 'Kopyaladığınız bağlantıyı yukarıdaki kutuya yapıştırıp "İndir" butonuna tıklayın.',
     step3Title: '3. Cihazınıza Kaydedin',
     step3Desc: 'İstediğiniz kaliteyi seçerek videoyu veya fotoğrafı doğrudan galerinize indirin.',
     faqs: [
       {
-        q: 'insta1000gram ücretsiz mi?',
+        q: '1kgram ücretsiz mi?',
         a: 'Evet, hiçbir ücret ödemeden ve hesap açmadan sınırsız olarak kullanabilirsiniz.',
       },
       {
@@ -692,7 +692,7 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
       },
       {
         q: '1000 kısayolu nasıl çalışır?',
-        a: 'Tarayıcınızdaki Instagram linkine 1000 ekleyip insta1000gram.com yaparak anında indirebilirsiniz.',
+        a: 'Tarayıcınızdaki Instagram linkine 1000 ekleyip 1kgram.com yaparak anında indirebilirsiniz.',
       },
     ],
     secretShortcutSub: 'Adres çubuğundan doğrudan indirmenin en hızlı yolu',
@@ -749,13 +749,13 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
     feature4Desc: 'Чистые файлы MP4 и JPG без сторонних логотипов и сжатия.',
     step1Title: '1. Скопируйте ссылку Instagram',
     step1Desc: 'В приложении или браузере нажмите "Поделиться" и выберите "Копировать ссылку".',
-    step2Title: '2. Вставьте в insta1000gram',
+    step2Title: '2. Вставьте в 1kgram',
     step2Desc: 'Вставьте ссылку в поле выше и нажмите кнопку "Скачать".',
     step3Title: '3. Сохраните на устройство',
     step3Desc: 'Выберите нужное качество, и файл сохранится в галерею или папку загрузок.',
     faqs: [
       {
-        q: 'insta1000gram бесплатный?',
+        q: '1kgram бесплатный?',
         a: 'Да, сервис абсолютно бесплатен, без ограничений по скачиваниям и без регистрации.',
       },
       {
@@ -768,7 +768,7 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
       },
       {
         q: 'Как работает ссылка со значением 1000?',
-        a: 'Просто замените instagram.com на insta1000gram.com в адресной строке для мгновенного скачивания.',
+        a: 'Просто замените instagram.com на 1kgram.com в адресной строке для мгновенного скачивания.',
       },
     ],
     secretShortcutSub: 'Самый быстрый способ скачивания через адресную строку',
@@ -825,13 +825,13 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
     feature4Desc: 'File MP4 dan JPG asli tanpa watermark, logo tambahan, atau kompresi rusak.',
     step1Title: '1. Salin Tautan Instagram',
     step1Desc: 'Buka Instagram, ketuk ikon bagikan lalu pilih "Salin tautan".',
-    step2Title: '2. Tempel di insta1000gram',
+    step2Title: '2. Tempel di 1kgram',
     step2Desc: 'Tempel tautan ke kotak di atas lalu klik "Unduh".',
     step3Title: '3. Simpan ke Perangkat',
     step3Desc: 'Pilih resolusi yang diinginkan dan file langsung tersimpan ke galeri Anda.',
     faqs: [
       {
-        q: 'Apakah insta1000gram gratis?',
+        q: 'Apakah 1kgram gratis?',
         a: 'Ya, 100% gratis tanpa batasan unduhan dan tanpa perlu mendaftar akun.',
       },
       {
@@ -844,7 +844,7 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
       },
       {
         q: 'Bagaimana cara menggunakan trik 1000?',
-        a: 'Cukup tambahkan 1000 pada alamat link menjadi insta1000gram.com untuk mengunduh langsung.',
+        a: 'Cukup tambahkan 1000 pada alamat link menjadi 1kgram.com untuk mengunduh langsung.',
       },
     ],
     secretShortcutSub: 'Cara tercepat mengunduh langsung dari bilah alamat browser',
@@ -910,8 +910,8 @@ const EN_EXTENDED: ExtendedLanguageContent = {
   step3Desc: 'Select your preferred resolution or audio format and save directly to your camera roll or downloads folder.',
   faqs: [
     {
-      q: 'Is insta1000gram completely free to use?',
-      a: 'Yes, insta1000gram is 100% free with unlimited downloads and no account required.',
+      q: 'Is 1kgram completely free to use?',
+      a: 'Yes, 1kgram is 100% free with unlimited downloads and no account required.',
     },
     {
       q: 'Does downloading Instagram Reels reduce video quality?',
@@ -923,7 +923,7 @@ const EN_EXTENDED: ExtendedLanguageContent = {
     },
     {
       q: 'How does the 1000 URL shortcut work?',
-      a: 'Whenever you have an Instagram link, simply change instagram.com to insta1000gram.com in your browser address bar to download instantly!',
+      a: 'Whenever you have an Instagram link, simply change instagram.com to 1kgram.com in your browser address bar to download instantly!',
     },
   ],
   secretShortcutSub: 'The fastest way to download directly from your browser address bar',

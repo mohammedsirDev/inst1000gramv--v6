@@ -30,7 +30,7 @@ export const Footer: React.FC<FooterProps> = ({
                 1k
               </div>
               <span className="text-xl font-black text-white tracking-tight">
-                insta<span className="text-pink-500">1000</span>gram
+                <span className="text-pink-500">1k</span>gram
               </span>
             </div>
             <p className="text-slate-400 text-xs leading-relaxed">
@@ -80,16 +80,16 @@ export const Footer: React.FC<FooterProps> = ({
             </ul>
           </div>
 
-          {/* Col 4: 1000 Trick */}
+          {/* Col 4: 1k Trick */}
           <div>
             <h4 className="font-bold text-white text-sm uppercase tracking-wider mb-3">
-              ⚡ {translations.secretShortcutBadge || '1000 Quick Trick'}
+              ⚡ {translations.secretShortcutBadge || '1k Quick Trick'}
             </h4>
             <p className="text-xs text-slate-400 leading-relaxed">
               {translations.secretShortcutDesc}
             </p>
             <div className="mt-3 p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/60 font-mono text-[11px] text-slate-300 break-all" dir="ltr">
-              https://www.insta<span className="text-pink-400 font-bold">1000</span>gram.com/reels/...
+              https://www.<span className="text-pink-400 font-bold">1k</span>gram.com/reels/...
             </div>
           </div>
         </div>

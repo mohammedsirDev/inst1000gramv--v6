@@ -24,7 +24,7 @@ export const GuidePageView: React.FC<GuidePageViewProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    document.title = `${guide.title} (Step-by-Step Guide) | Insta1000gram`;
+    document.title = `${guide.title} (Step-by-Step Guide) | 1kgram`;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [guide]);
 
@@ -121,13 +121,13 @@ export const GuidePageView: React.FC<GuidePageViewProps> = ({
               </div>
               <div>
                 <h3 className="font-bold text-lg text-slate-900">
-                  Paste the URL into insta1000gram
+                  Paste the URL into 1kgram
                 </h3>
                 <p className="text-slate-600 text-sm sm:text-base mt-1.5 leading-relaxed">
-                  Navigate to <strong>insta1000gram.com</strong> in your browser (Safari, Chrome, Firefox, or Edge). Paste the copied Instagram link into the search box above and press <strong>Fetch &amp; Download</strong>.
+                  Navigate to <strong>1kgram.com</strong> in your browser (Safari, Chrome, Firefox, or Edge). Paste the copied Instagram link into the search box above and press <strong>Fetch &amp; Download</strong>.
                 </p>
                 <div className="mt-3 p-3 bg-pink-50 rounded-xl border border-pink-200/80 text-xs sm:text-sm text-pink-900">
-                  💡 <strong>Pro Shortcut:</strong> You can also just type <code className="font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-pink-200">1000</code> between "insta" and "gram" in the Instagram URL (e.g. <code className="font-mono">insta1000gram.com/reels/...</code>) and hit Enter!
+                  💡 <strong>Pro Shortcut:</strong> You can also just replace <code className="font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-pink-200">insta</code> with <code className="font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-pink-200">1k</code> in the Instagram URL (e.g. <code className="font-mono">1kgram.com/reels/...</code>) and hit Enter!
                 </div>
               </div>
             </div>

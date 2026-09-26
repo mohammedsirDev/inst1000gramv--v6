@@ -333,8 +333,8 @@ export async function fetchSnapVideoWithCookies(targetUrl: string): Promise<any[
           });
           const ext = isVideo ? 'mp4' : 'jpg';
           const safeFilename = decoded?.filename
-            ? decoded.filename.replace(/^[^_]+_/, 'insta1000gram_').replace(/\.[a-zA-Z0-9]+$/, `.${ext}`)
-            : `insta1000gram_${isVideo ? 'video' : 'photo'}_${idx + 1}.${ext}`;
+            ? decoded.filename.replace(/^[^_]+_/, '1kgram_').replace(/\.[a-zA-Z0-9]+$/, `.${ext}`)
+            : `1kgram_${isVideo ? 'video' : 'photo'}_${idx + 1}.${ext}`;
           const thumbUrl = thumbMatch ? decodeHtml(thumbMatch[1]) : (isVideo ? '' : directUrl);
 
           items.push({
@@ -376,8 +376,8 @@ export async function fetchSnapVideoWithCookies(targetUrl: string): Promise<any[
         });
         const ext = isVideo ? 'mp4' : 'jpg';
         const safeFilename = decoded?.filename
-          ? decoded.filename.replace(/^[^_]+_/, 'insta1000gram_').replace(/\.[a-zA-Z0-9]+$/, `.${ext}`)
-          : `insta1000gram_${isVideo ? 'video' : 'photo'}_1.${ext}`;
+          ? decoded.filename.replace(/^[^_]+_/, '1kgram_').replace(/\.[a-zA-Z0-9]+$/, `.${ext}`)
+          : `1kgram_${isVideo ? 'video' : 'photo'}_1.${ext}`;
         const thumbUrl = singleThumbMatch ? decodeHtml(singleThumbMatch[1]) : (isVideo ? '' : directUrl);
 
         items.push({
@@ -521,7 +521,7 @@ export async function unpackSnapSave(targetUrl: string): Promise<any[]> {
           snapUrl: cleanUrl,
           mime_type: isVideo ? 'video/mp4' : 'image/jpeg',
           extension: isVideo ? 'mp4' : 'jpg',
-          filename: `insta1000gram_snapsave_${idx}.${isVideo ? 'mp4' : 'jpg'}`,
+          filename: `1kgram_snapsave_${idx}.${isVideo ? 'mp4' : 'jpg'}`,
           resolution: isVideo ? '1080p Full HD' : 'Original Master HD',
           index: idx++,
         });
@@ -572,8 +572,8 @@ export async function extractFromSnapVideoPackage(targetUrl: string): Promise<{ 
       });
       const ext = isVid ? 'mp4' : 'jpg';
       const safeFilename = decoded?.filename
-        ? decoded.filename.replace(/^[^_]+_/, 'insta1000gram_').replace(/\.[a-zA-Z0-9]+$/, `.${ext}`)
-        : `insta1000gram_${isVid ? 'video' : 'photo'}_${idx + 1}.${ext}`;
+        ? decoded.filename.replace(/^[^_]+_/, '1kgram_').replace(/\.[a-zA-Z0-9]+$/, `.${ext}`)
+        : `1kgram_${isVid ? 'video' : 'photo'}_${idx + 1}.${ext}`;
 
       items.push({
         type: isVid ? 'video' : 'image',
@@ -636,7 +636,7 @@ export async function extractFromSnapsavePackage(targetUrl: string): Promise<any
         thumbnailUrl: it.thumbnail || (!isVid ? directUrl : ''),
         mime_type: isVid ? 'video/mp4' : 'image/jpeg',
         extension: isVid ? 'mp4' : 'jpg',
-        filename: `insta1000gram_snapsave_${idx + 1}.${isVid ? 'mp4' : 'jpg'}`,
+        filename: `1kgram_snapsave_${idx + 1}.${isVid ? 'mp4' : 'jpg'}`,
         resolution: isVid ? '1080p Full HD' : 'Original Master HD',
         index: idx + 1,
       });
@@ -687,7 +687,7 @@ export async function extractFromJerryCoder(targetUrl: string): Promise<any[]> {
         thumbnailUrl: it.thumbnail || (!isVid ? directUrl : ''),
         mime_type: isVid ? 'video/mp4' : 'image/jpeg',
         extension: isVid ? 'mp4' : 'jpg',
-        filename: `insta1000gram_jerry_${idx + 1}.${isVid ? 'mp4' : 'jpg'}`,
+        filename: `1kgram_jerry_${idx + 1}.${isVid ? 'mp4' : 'jpg'}`,
         resolution: isVid ? '1080p Full HD' : 'Original Master HD',
         index: idx + 1,
       });
@@ -745,7 +745,7 @@ export async function extractFromInstagramDirectBot(
         snapUrl: rawUrl,
         mime_type: 'video/mp4',
         extension: 'mp4',
-        filename: `insta1000gram_video_${shortcode}.mp4`,
+        filename: `1kgram_video_${shortcode}.mp4`,
         resolution: '1080p Full HD',
         index: items.length + 1,
       });
@@ -761,7 +761,7 @@ export async function extractFromInstagramDirectBot(
         snapUrl: rawUrl,
         mime_type: 'image/jpeg',
         extension: 'jpg',
-        filename: `insta1000gram_photo_${shortcode}_${items.length + 1}.jpg`,
+        filename: `1kgram_photo_${shortcode}_${items.length + 1}.jpg`,
         resolution: 'Original Master HD',
         index: items.length + 1,
       });
@@ -800,7 +800,7 @@ export async function extractFromDjangoBackend(
           thumbnailUrl: s.thumbnail || s.directUrl,
           mime_type: isVid ? 'video/mp4' : 'image/jpeg',
           extension: isVid ? 'mp4' : 'jpg',
-          filename: `insta1000gram_${isVid ? 'video' : 'photo'}_${idx + 1}.${isVid ? 'mp4' : 'jpg'}`,
+          filename: `1kgram_${isVid ? 'video' : 'photo'}_${idx + 1}.${isVid ? 'mp4' : 'jpg'}`,
           resolution: s.resolution || (isVid ? '1080p Full HD' : 'Original Master HD'),
           index: idx + 1,
         });
@@ -815,7 +815,7 @@ export async function extractFromDjangoBackend(
         thumbnailUrl: data.thumbnail || data.directUrl,
         mime_type: isVid ? 'video/mp4' : 'image/jpeg',
         extension: isVid ? 'mp4' : 'jpg',
-        filename: `insta1000gram_${isVid ? 'video' : 'photo'}_1.${isVid ? 'mp4' : 'jpg'}`,
+        filename: `1kgram_${isVid ? 'video' : 'photo'}_1.${isVid ? 'mp4' : 'jpg'}`,
         resolution: isVid ? '1080p Full HD' : 'Original Master HD',
         index: 1,
       });
@@ -863,7 +863,10 @@ export async function handleInstagramResolve(req: any, res: any) {
   }
 
   // Handle shared Highlight links (e.g., https://www.instagram.com/s/aGlnaGxpZ2h0OjE3OTAwMjQxMjEwNjY2OTgz?...)
-  let normalizedUrl = cleanUrl;
+  let normalizedUrl = cleanUrl
+    .replace(/^(https?:\/\/)?(www\.)?1kgram\.com/i, 'https://www.instagram.com')
+    .replace(/^(https?:\/\/)?(www\.)?insta(1000)?gram\.com/i, 'https://www.instagram.com')
+    .replace(/^(https?:\/\/)?(www\.)?inst(1000)?gram\.com/i, 'https://www.instagram.com');
   let isSharedHighlight = false;
   const originalQueryPart = cleanUrl.includes('?') ? cleanUrl.substring(cleanUrl.indexOf('?')) : '';
 
@@ -1028,7 +1031,7 @@ export async function handleInstagramResolve(req: any, res: any) {
         thumbnailUrl: photoUrl,
         mime_type: 'image/jpeg',
         extension: 'jpg',
-        filename: `insta1000gram_photo_${shortcode}.jpg`,
+        filename: `1kgram_photo_${shortcode}.jpg`,
         resolution: `${oembed.thumbnail_width || 1080}x${oembed.thumbnail_height || 1350}`,
         index: 1,
       },
@@ -1136,7 +1139,7 @@ export async function handleInstagramResolve(req: any, res: any) {
   const postTitle = oembed?.title
     ? oembed.title.replace(/\n+/g, ' ').slice(0, 120)
     : (directScraperMeta.caption ? directScraperMeta.caption.slice(0, 120) : `Instagram ${detectedType.toUpperCase()} #${shortcode}`);
-  const postCaption = oembed?.title || directScraperMeta.caption || `Original ${detectedType} shared on Instagram by @${authorHandle}. Downloaded via insta1000gram.com.`;
+  const postCaption = oembed?.title || directScraperMeta.caption || `Original ${detectedType} shared on Instagram by @${authorHandle}. Downloaded via 1kgram.com.`;
 
   // Build items array matching requested specification
   const items = resolvedItems.map((item, idx) => {
@@ -1149,7 +1152,7 @@ export async function handleInstagramResolve(req: any, res: any) {
     });
     const ext = isVid ? 'mp4' : 'jpg';
     const mime = isVid ? 'video/mp4' : 'image/jpeg';
-    const rawFilename = item.filename || `insta1000gram_${detectedType}_${idx + 1}.${ext}`;
+    const rawFilename = item.filename || `1kgram_${detectedType}_${idx + 1}.${ext}`;
     const safeFilename = rawFilename.replace(/\.[a-zA-Z0-9]+$/, `.${ext}`);
     const itemProxyUrl = item.snapUrl || directUrl;
     const dlUrl = `/api/download/proxy?url=${encodeURIComponent(itemProxyUrl)}&filename=${encodeURIComponent(safeFilename)}&type=${isVid ? 'video' : 'photo'}`;
@@ -1216,13 +1219,13 @@ export async function handleInstagramResolve(req: any, res: any) {
       resolution: '320 kbps Original Track',
       extension: 'mp3',
       size: 'Original Audio',
-      downloadUrl: `/api/download/proxy?url=${encodeURIComponent(directVideoUrl)}&filename=${encodeURIComponent(`insta1000gram_audio_${shortcode}.mp3`)}&type=audio&quality=audio`,
+      downloadUrl: `/api/download/proxy?url=${encodeURIComponent(directVideoUrl)}&filename=${encodeURIComponent(`1kgram_audio_${shortcode}.mp3`)}&type=audio&quality=audio`,
       directUrl: directVideoUrl,
       isAudio: true,
     });
   } else if (selectedItem) {
     const directPhotoUrl = selectedItem.directUrl || selectedItem.url;
-    const photoFilename = selectedItem.filename || `insta1000gram_photo_${shortcode}.jpg`;
+    const photoFilename = selectedItem.filename || `1kgram_photo_${shortcode}.jpg`;
     formats.push({
       id: 'fmt-photo-max',
       quality: 'Original Master HD (JPG)',
@@ -1236,7 +1239,7 @@ export async function handleInstagramResolve(req: any, res: any) {
 
   // If there are multiple items (carousel or highlight), add ZIP download format
   if (items.length > 1) {
-    const zipFilename = `insta1000gram_${detectedType}_${shortcode}_all.zip`;
+    const zipFilename = `1kgram_${detectedType}_${shortcode}_all.zip`;
     formats.push({
       id: 'fmt-zip-all',
       quality: `Download All ${items.length} Items (.ZIP Archive)`,
@@ -1359,7 +1362,7 @@ export function streamDownloadFromUrl(
 
       if (options.isAttachment) {
         const isPhoto = options.type === 'photo' || options.type === 'image';
-        const defaultFilename = isPhoto ? 'insta1000gram_photo.jpg' : 'insta1000gram_video.mp4';
+        const defaultFilename = isPhoto ? '1kgram_photo.jpg' : '1kgram_video.mp4';
         const rawFilename = options.filename || defaultFilename;
         const safeFilename = rawFilename.replace(/[^a-zA-Z0-9._-]/g, '_');
         const ext = safeFilename.split('.').pop()?.toLowerCase() || (isPhoto ? 'jpg' : 'mp4');
@@ -1445,7 +1448,7 @@ export function handleDownloadStream(req: any, res: any) {
 export async function handleDownloadProxy(req: any, res: any) {
   if (req.method === 'OPTIONS') return sendNoContent(res);
   let targetUrl = (req.query?.url || req.body?.url) as string;
-  const filename = (req.query?.filename || req.body?.filename || 'insta1000gram_download') as string;
+  const filename = (req.query?.filename || req.body?.filename || '1kgram_download') as string;
   const type = (req.query?.type || req.body?.type || 'video') as string;
 
   if (!targetUrl) {
@@ -1476,7 +1479,7 @@ export async function handleDownloadZip(req: any, res: any) {
 
   if (req.method === 'POST') {
     const body = await parseRequestBody(req);
-    const { urls = [], filenames = [], zipName = 'insta1000gram_album.zip' } = body || {};
+    const { urls = [], filenames = [], zipName = '1kgram_album.zip' } = body || {};
     if (!Array.isArray(urls) || urls.length === 0) {
       return sendJsonResponse(res, 400, { error: 'No media URLs provided for ZIP archive' });
     }
@@ -1527,7 +1530,7 @@ export async function handleDownloadZip(req: any, res: any) {
   }
 
   const targetUrl = req.query?.url as string;
-  const zipName = (req.query?.name as string) || 'insta1000gram_album.zip';
+  const zipName = (req.query?.name as string) || '1kgram_album.zip';
   if (!targetUrl) {
     return sendJsonResponse(res, 400, { error: 'Instagram URL required' });
   }
@@ -1701,7 +1704,7 @@ export async function handleQrShorten(req: any, res: any) {
             ext = finalExt;
             filename =
               chosen.filename?.replace(/\.[a-zA-Z0-9]+$/, `.${finalExt}`) ||
-              `insta1000gram_media_${slideIdx + 1}.${finalExt}`;
+              `1kgram_media_${slideIdx + 1}.${finalExt}`;
           }
         }
       } catch (e: any) {
@@ -1739,7 +1742,7 @@ export async function handleQrShorten(req: any, res: any) {
       ext = isVid ? 'mp4' : 'jpg';
     }
     if (!filename) {
-      filename = `insta1000gram_media.${ext}`;
+      filename = `1kgram_media.${ext}`;
     }
 
     const mediaType =
@@ -1776,7 +1779,7 @@ export async function handleQrShorten(req: any, res: any) {
 
   const shortId = Math.random().toString(36).substring(2, 7);
   let igPath = extractCompactInstagramPath(sourceUrl || '');
-  if (!igPath && rawMediaUrl.includes('instagram.com')) {
+  if (!igPath && (rawMediaUrl.includes('instagram.com') || rawMediaUrl.includes('1kgram.com'))) {
     igPath = extractCompactInstagramPath(rawMediaUrl);
   }
 
@@ -1790,7 +1793,7 @@ export async function handleQrShorten(req: any, res: any) {
   const record: ShortLinkRecord = {
     code,
     targetUrl: rawMediaUrl || targetUrl,
-    filename: filename || `insta1000gram_media.${ext}`,
+    filename: filename || `1kgram_media.${ext}`,
     quality: quality || '1080p Ultra HD',
     thumbnail,
     author,
@@ -1800,8 +1803,8 @@ export async function handleQrShorten(req: any, res: any) {
   shortLinkMap.set(code, record);
   shortLinkMap.set(shortId, record);
 
-  // Always resolve to the PUBLIC production domain (never a Vercel SSO-protected preview URL like *-mohamedsire99-4700.vercel.app)
-  const rawHost = String(req.headers?.['x-forwarded-host'] || req.headers?.host || 'inst1000gramv-v6.vercel.app')
+  // Always resolve to the PUBLIC production domain (e.g. 1kgram.com or inst1000gramv-v6.vercel.app; never a Vercel SSO-protected preview URL)
+  const rawHost = String(req.headers?.['x-forwarded-host'] || req.headers?.host || 'www.1kgram.com')
     .split(',')[0]
     .trim();
   let publicHost = process.env.VERCEL_PROJECT_PRODUCTION_URL || rawHost;
