@@ -739,17 +739,14 @@ function injectLocalizedServerMeta(rawHtml: string, urlPath: string): string {
 
   // Match /:locale/:slug or /:locale
   const match = cleanPath.match(/^\/([a-zA-Z]{2}(?:-[a-zA-Z]+)?)(?:\/([a-zA-Z0-9\-]+))?$/);
-  if (!match) {
-    return rawHtml;
-  }
 
-  const rawLocale = (match[1].includes('-') ? match[1] : match[1].toLowerCase());
-  const rawSlug = match[2]?.toLowerCase();
+  const rawLocale = match ? (match[1].includes('-') ? match[1] : match[1].toLowerCase()) : 'en';
+  const rawSlug = match ? match[2]?.toLowerCase() : undefined;
   const canonicalSlug = rawSlug ? CANONICAL_SLUG_MAP[rawSlug] : undefined;
 
   const isRtl = rawLocale === 'ar' || rawLocale === 'fa';
-  let title = 'sssclips - Fast Instagram Downloader & pSEO Engine';
-  let desc = 'Download Instagram Reels, Videos, Photos, Stories, and IGTV in HD with instant sssclips.com URL shortcut redirection.';
+  let title = 'sssclips – Fast Instagram Downloader in 1080p Full HD';
+  let desc = 'Download Instagram Reels, Videos, Stories, Photos & IGTV in original 1080p Full HD without watermark. Free, anonymous, and instant URL shortcut downloader.';
 
   if (canonicalSlug) {
     const langData = LOCALIZED_DOWNLOADER_TITLES[rawLocale] || LOCALIZED_DOWNLOADER_TITLES.en;
@@ -758,11 +755,11 @@ function injectLocalizedServerMeta(rawHtml: string, urlPath: string): string {
       title = entry.title;
       desc = entry.desc;
     }
-  } else if (!rawSlug) {
+  } else if (!rawSlug && match) {
     // Localized Homepage
     if (rawLocale === 'ar') {
       title = 'sssclips – تحميل ريلز وفيديو وصور انستقرام بجودة 1080p Full HD';
-      desc = 'أسرع موقع لتحميل مقاطع ريلز انستقرام وفيديوهات وقصص ستوري وهايلايت بدون علامة مائية وبأعلى جودة.';
+      desc = 'أسرع موقع لتحميل مقاطع ريلز انستقرام وفيديوهات وقصص ستوري وهايلايت بدون علامة مائية وبأعلى جودة عبر اختصار sssclips.com.';
     } else if (rawLocale === 'fr') {
       title = 'sssclips – Télécharger Reels, Vidéos et Photos Instagram en 1080p HD';
       desc = 'Téléchargeur gratuit et ultra-rapide pour Instagram Reels, Vidéos, Photos et Stories en Full HD sans filigrane.';
@@ -785,12 +782,38 @@ function injectLocalizedServerMeta(rawHtml: string, urlPath: string): string {
   // Replace <title>
   html = html.replace(/<title>.*?<\/title>/i, `<title>${title}</title>`);
 
+  // Canonical URL & OG URL
+  const canonicalUrl = `https://${SITE_DOMAIN}${cleanPath === '/' ? '/' : cleanPath + '/'}`;
+  if (html.includes('rel="canonical"')) {
+    html = html.replace(/<link\s+rel="canonical"\s+href=".*?"\s*\/?>/i, `<link rel="canonical" href="${canonicalUrl}" />`);
+  } else {
+    html = html.replace(/<\/head>/i, `  <link rel="canonical" href="${canonicalUrl}" />\n</head>`);
+  }
+
+  if (html.includes('property="og:url"')) {
+    html = html.replace(/<meta\s+property="og:url"\s+content=".*?"\s*\/?>/i, `<meta property="og:url" content="${canonicalUrl}" />`);
+  } else {
+    html = html.replace(/<\/head>/i, `  <meta property="og:url" content="${canonicalUrl}" />\n</head>`);
+  }
+
   // Replace Meta Description
   html = html.replace(/<meta\s+name="description"\s+content=".*?"\s*\/?>/i, `<meta name="description" content="${desc}" />`);
   html = html.replace(/<meta\s+property="og:title"\s+content=".*?"\s*\/?>/i, `<meta property="og:title" content="${title}" />`);
   html = html.replace(/<meta\s+property="og:description"\s+content=".*?"\s*\/?>/i, `<meta property="og:description" content="${desc}" />`);
   html = html.replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/?>/i, `<meta name="twitter:title" content="${title}" />`);
   html = html.replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/?>/i, `<meta name="twitter:description" content="${desc}" />`);
+
+  // If Arabic, personalize the semantic fallback H1 and paragraphs
+  if (rawLocale === 'ar') {
+    html = html.replace(
+      /<h1[^>]*>[\s\S]*?<\/h1>/i,
+      `<h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight text-center mb-6 font-arabic">تحميل ريلز وفيديوهات وقصص انستقرام بدقة 1080p HD</h1>`
+    );
+    html = html.replace(
+      /<p class="text-lg text-slate-600 text-center max-w-2xl mx-auto mb-10 leading-relaxed">[\s\S]*?<\/p>/i,
+      `<p class="text-lg text-slate-600 text-center max-w-2xl mx-auto mb-10 leading-relaxed font-arabic">احفظ مقاطع ريلز، الفيديوهات، الستوري، الصور والهايلايت من انستقرام مباشرة على هاتفك أو حاسوبك باستخدام اختصار sssclips.com الذكي. مجاني 100%، مجهول وبدون علامات مائية وبأعلى سرعة ممكنة.</p>`
+    );
+  }
 
   return html;
 }
