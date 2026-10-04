@@ -745,8 +745,8 @@ function injectLocalizedServerMeta(rawHtml: string, urlPath: string): string {
   const canonicalSlug = rawSlug ? CANONICAL_SLUG_MAP[rawSlug] : undefined;
 
   const isRtl = rawLocale === 'ar' || rawLocale === 'fa';
-  let title = 'sssclips – Fast Instagram Downloader in 1080p Full HD';
-  let desc = 'Download Instagram Reels, Videos, Stories, and Photos in 1080p Full HD. Fast, free, and anonymous online downloader.';
+  let title = 'Instagram Video Downloader – Download Reels, Stories & Photos 1080p | SSSClips';
+  let desc = 'Fast, free Instagram Downloader: Save Instagram Reels, Videos, Stories, and Photos in 1080p Full HD MP4 without watermark. 100% anonymous, no login needed.';
 
   if (canonicalSlug) {
     const langData = LOCALIZED_DOWNLOADER_TITLES[rawLocale] || LOCALIZED_DOWNLOADER_TITLES.en;
