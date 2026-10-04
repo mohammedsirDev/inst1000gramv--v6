@@ -122,7 +122,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 // /robots.txt
 app.get('/robots.txt', (req: Request, res: Response) => {
-  res.type('text/plain');
+  res.header('Content-Type', 'text/plain; charset=utf-8');
   const lines = [
     'User-agent: *',
     'Allow: /',
@@ -166,7 +166,7 @@ app.get('/sitemap.xml', (req: Request, res: Response) => {
 
   xml += `</sitemapindex>`;
 
-  res.header('Content-Type', 'application/xml');
+  res.header('Content-Type', 'application/xml; charset=utf-8');
   res.send(xml);
 });
 
@@ -746,7 +746,7 @@ function injectLocalizedServerMeta(rawHtml: string, urlPath: string): string {
 
   const isRtl = rawLocale === 'ar' || rawLocale === 'fa';
   let title = 'sssclips – Fast Instagram Downloader in 1080p Full HD';
-  let desc = 'Download Instagram Reels, Videos, Stories, Photos & IGTV in original 1080p Full HD without watermark. Free, anonymous, and instant URL shortcut downloader.';
+  let desc = 'Download Instagram Reels, Videos, Stories, and Photos in 1080p Full HD. Fast, free, and anonymous online downloader.';
 
   if (canonicalSlug) {
     const langData = LOCALIZED_DOWNLOADER_TITLES[rawLocale] || LOCALIZED_DOWNLOADER_TITLES.en;

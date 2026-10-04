@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /reels/
+Disallow: /reel/
+Disallow: /p/
+Disallow: /stories/
+Disallow: /tv/
+Disallow: /m/
+
+Sitemap: https://www.sssclips.com/sitemap.xml

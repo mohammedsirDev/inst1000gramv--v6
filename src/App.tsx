@@ -261,14 +261,16 @@ function MainApp() {
     existingAlts.forEach((el) => el.remove());
 
     if (currentRoute.type === 'home') {
-      const targetLocale = currentRoute.locale || currentLang;
-      canonical.setAttribute('href', `https://www.sssclips.com/${targetLocale}/`);
+      const isRootHome = !currentRoute.locale || (typeof window !== 'undefined' && (window.location.pathname === '/' || window.location.pathname === ''));
+      const canonicalHref = isRootHome ? 'https://www.sssclips.com/' : `https://www.sssclips.com/${currentRoute.locale}/`;
+      canonical.setAttribute('href', canonicalHref);
 
       // Add hreflang for all 29 languages + x-default
       ALL_SUPPORTED_LANGUAGES.forEach((l) => {
         const link = document.createElement('link');
         link.setAttribute('rel', 'alternate');
-        link.setAttribute('hreflang', l);
+        const hreflangCode = l === 'zh-Hans' ? 'zh-CN' : l;
+        link.setAttribute('hreflang', hreflangCode);
         link.setAttribute('href', `https://www.sssclips.com/${l}/`);
         link.setAttribute('data-dynamic-hreflang', 'true');
         document.head.appendChild(link);
@@ -277,20 +279,21 @@ function MainApp() {
       const xDefault = document.createElement('link');
       xDefault.setAttribute('rel', 'alternate');
       xDefault.setAttribute('hreflang', 'x-default');
-      xDefault.setAttribute('href', 'https://www.sssclips.com/en/');
+      xDefault.setAttribute('href', 'https://www.sssclips.com/');
       xDefault.setAttribute('data-dynamic-hreflang', 'true');
       document.head.appendChild(xDefault);
     } else if (currentRoute.type === 'downloader') {
       canonical.setAttribute(
         'href',
-        `https://www.sssclips.com/${currentRoute.locale}/${currentRoute.slug}`
+        `https://www.sssclips.com/${currentRoute.locale}/${currentRoute.slug}/`
       );
 
       ALL_SUPPORTED_LANGUAGES.forEach((l) => {
         const link = document.createElement('link');
         link.setAttribute('rel', 'alternate');
-        link.setAttribute('hreflang', l);
-        link.setAttribute('href', `https://www.sssclips.com/${l}/${currentRoute.slug}`);
+        const hreflangCode = l === 'zh-Hans' ? 'zh-CN' : l;
+        link.setAttribute('hreflang', hreflangCode);
+        link.setAttribute('href', `https://www.sssclips.com/${l}/${currentRoute.slug}/`);
         link.setAttribute('data-dynamic-hreflang', 'true');
         document.head.appendChild(link);
       });
@@ -298,7 +301,7 @@ function MainApp() {
       const xDefault = document.createElement('link');
       xDefault.setAttribute('rel', 'alternate');
       xDefault.setAttribute('hreflang', 'x-default');
-      xDefault.setAttribute('href', `https://www.sssclips.com/en/${currentRoute.slug}`);
+      xDefault.setAttribute('href', `https://www.sssclips.com/en/${currentRoute.slug}/`);
       xDefault.setAttribute('data-dynamic-hreflang', 'true');
       document.head.appendChild(xDefault);
     }
