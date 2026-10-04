@@ -262,7 +262,7 @@ function MainApp() {
 
     if (currentRoute.type === 'home') {
       const targetLocale = currentRoute.locale || currentLang;
-      canonical.setAttribute('href', `https://www.1kgram.com/${targetLocale}/`);
+      canonical.setAttribute('href', `https://www.sssclips.com/${targetLocale}/`);
 
       // Add hreflang for all 29 languages + x-default
       ALL_SUPPORTED_LANGUAGES.forEach((l) => {

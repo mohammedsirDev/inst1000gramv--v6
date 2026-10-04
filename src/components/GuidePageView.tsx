@@ -150,25 +150,25 @@ export const GuidePageView: React.FC<GuidePageViewProps> = ({
                 <p className="text-slate-600 text-sm sm:text-base mt-1.5 leading-relaxed">
                   {isAr ? (
                     <>
-                      انتقل إلى موقع <strong>1kgram.com</strong> في متصفحك (سفاري أو كروم أو فايرفوكس). الصق رابط انستقرام المنسوخ في مربع البحث أعلاه واضغط على <strong>جلب وتحميل</strong>.
+                      انتقل إلى موقع <strong>sssclips.com</strong> في متصفحك (سفاري أو كروم أو فايرفوكس). الصق رابط انستقرام المنسوخ في مربع البحث أعلاه واضغط على <strong>جلب وتحميل</strong>.
                     </>
                   ) : (
                     <>
-                      Navigate to <strong>1kgram.com</strong> in your browser (Safari, Chrome, Firefox, or Edge). Paste the copied Instagram link into the search box above and press <strong>Fetch &amp; Download</strong>.
+                      Navigate to <strong>sssclips.com</strong> in your browser (Safari, Chrome, Firefox, or Edge). Paste the copied Instagram link into the search box above and press <strong>Fetch &amp; Download</strong>.
                     </>
                   )}
                 </p>
                 <div className="mt-3 p-3 bg-pink-50 rounded-xl border border-pink-200/80 text-xs sm:text-sm text-pink-900">
                   {isAr ? (
                     <>
-                      💡 <strong>اختصار احترافي:</strong> يمكنك أيضاً استبدال كلمة{' '}
-                      <code className="font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-pink-200">insta</code> بـ{' '}
-                      <code className="font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-pink-200">1k</code> في رابط انستقرام مباشرة (مثال:{' '}
-                      <code className="font-mono" dir="ltr">1kgram.com/reels/...</code>) والضغط على إدخال!
+                      💡 <strong>اختصار احترافي:</strong> يمكنك أيضاً استبدال{' '}
+                      <code className="font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-pink-200">instagram.com</code> بـ{' '}
+                      <code className="font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-pink-200">sssclips.com</code> في رابط انستقرام مباشرة (مثال:{' '}
+                      <code className="font-mono" dir="ltr">sssclips.com/reel/...</code>) والضغط على إدخال!
                     </>
                   ) : (
                     <>
-                      💡 <strong>Pro Shortcut:</strong> You can also just replace <code className="font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-pink-200">insta</code> with <code className="font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-pink-200">1k</code> in the Instagram URL (e.g. <code className="font-mono">1kgram.com/reels/...</code>) and hit Enter!
+                      💡 <strong>Pro Shortcut:</strong> You can also just replace <code className="font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-pink-200">instagram.com</code> with <code className="font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-pink-200">sssclips.com</code> in the Instagram URL (e.g. <code className="font-mono">sssclips.com/reel/...</code>) and hit Enter!
                     </>
                   )}
                 </div>

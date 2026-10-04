@@ -158,7 +158,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
         resolution: currentSlide.resolution || '1080x1920 Full HD',
         extension: 'mp4',
         size: 'High Definition',
-        downloadUrl: currentSlide.downloadUrl || `/api/download/proxy?url=${encodeURIComponent(directUrl)}&filename=${encodeURIComponent(`insta1000gram_${prefix}_${slideNum}.mp4`)}&type=video`,
+        downloadUrl: currentSlide.downloadUrl || `/api/download/proxy?url=${encodeURIComponent(directUrl)}&filename=${encodeURIComponent(`sssclips_${prefix}_${slideNum}.mp4`)}&type=video`,
         directUrl,
       });
       dynamicList.push({
@@ -167,7 +167,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
         resolution: '720x1280 HD',
         extension: 'mp4',
         size: 'Standard HD',
-        downloadUrl: currentSlide.downloadUrl || `/api/download/proxy?url=${encodeURIComponent(directUrl)}&filename=${encodeURIComponent(`insta1000gram_${prefix}_${slideNum}_720p.mp4`)}&type=video`,
+        downloadUrl: currentSlide.downloadUrl || `/api/download/proxy?url=${encodeURIComponent(directUrl)}&filename=${encodeURIComponent(`sssclips_${prefix}_${slideNum}_720p.mp4`)}&type=video`,
         directUrl,
       });
       dynamicList.push({
@@ -176,7 +176,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
         resolution: '320 kbps Original Track',
         extension: 'mp3',
         size: 'Original Audio',
-        downloadUrl: `/api/download/proxy?url=${encodeURIComponent(directUrl)}&filename=${encodeURIComponent(`insta1000gram_${prefix}_${slideNum}_audio.mp3`)}&type=audio&quality=audio`,
+        downloadUrl: `/api/download/proxy?url=${encodeURIComponent(directUrl)}&filename=${encodeURIComponent(`sssclips_${prefix}_${slideNum}_audio.mp3`)}&type=audio&quality=audio`,
         directUrl,
         isAudio: true,
       });
@@ -187,7 +187,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
         resolution: currentSlide.resolution || 'Original Full HD',
         extension: 'jpg',
         size: 'Lossless Original',
-        downloadUrl: currentSlide.downloadUrl || `/api/download/proxy?url=${encodeURIComponent(directUrl)}&filename=${encodeURIComponent(`insta1000gram_${prefix}_${slideNum}.jpg`)}&type=photo&quality=original`,
+        downloadUrl: currentSlide.downloadUrl || `/api/download/proxy?url=${encodeURIComponent(directUrl)}&filename=${encodeURIComponent(`sssclips_${prefix}_${slideNum}.jpg`)}&type=photo&quality=original`,
         directUrl,
       });
     }
@@ -241,7 +241,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
 
     const targetMediaUrl = fullQrTargetUrl;
     const ext = activeFormatForQr?.extension || (isSlideVideo ? 'mp4' : 'jpg');
-    const targetFilename = `insta1000gram_${result.type}_${(
+    const targetFilename = `sssclips_${result.type}_${(
       activeFormatForQr?.quality || '1080p'
     ).replace(/[^a-zA-Z0-9]/g, '_')}.${ext}`;
 
@@ -259,14 +259,20 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
         quality: activeFormatForQr?.quality || '1080p Ultra HD',
         thumbnail: activeThumbnail,
         author: result.author.username,
+        clientOrigin: typeof window !== 'undefined' ? window.location.origin : undefined,
       }),
     })
       .then((res) => res.json())
       .then(async (data) => {
         if (!isMounted) return;
-        const mobileUrl =
+        let mobileUrl =
           data.shortUrl ||
           (typeof window !== 'undefined' ? `${window.location.origin}${data.path}` : data.path);
+        if (mobileUrl.includes('1kgram.com') || mobileUrl.includes('inst1000gram')) {
+          mobileUrl = mobileUrl
+            .replace(/1kgram\.com/gi, 'sssclips.com')
+            .replace(/inst(a)?1000gram[a-z0-9-]*(\.vercel\.app)?/gi, 'sssclips.com');
+        }
         setQrShortUrl(mobileUrl);
         const dataUrl = await QRCode.toDataURL(mobileUrl, {
           width: 280,
@@ -280,7 +286,12 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
       })
       .catch(async () => {
         if (!isMounted) return;
-        const fallbackDlUrl = fullProxyUrl || targetMediaUrl;
+        let fallbackDlUrl = fullProxyUrl || targetMediaUrl;
+        if (fallbackDlUrl.includes('1kgram.com') || fallbackDlUrl.includes('inst1000gram')) {
+          fallbackDlUrl = fallbackDlUrl
+            .replace(/1kgram\.com/gi, 'sssclips.com')
+            .replace(/inst(a)?1000gram[a-z0-9-]*(\.vercel\.app)?/gi, 'sssclips.com');
+        }
         setQrShortUrl(fallbackDlUrl);
         try {
           const dataUrl = await QRCode.toDataURL(fallbackDlUrl, {
@@ -840,8 +851,8 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                 {isAr
                   ? (result.caption || '')
                       .replace(
-                        /Original high-definition media fetched via (1kgram|insta1000gram)\./i,
-                        'وسائط أصلية فائقة الوضوح تم استخراجها عبر 1kgram.'
+                        /Original high-definition media fetched via (1kgram|insta1000gram|sssclips)\./i,
+                        'وسائط أصلية فائقة الوضوح تم استخراجها عبر sssclips.'
                       )
                   : result.caption}
               </p>
