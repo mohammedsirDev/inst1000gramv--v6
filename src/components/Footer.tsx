@@ -16,7 +16,7 @@ const ARABIC_GUIDE_TITLES: Record<string, string> = {
   'how-to-download-instagram-reels-on-android': 'كيفية تحميل ريلز انستقرام على هواتف أندرويد',
   'how-to-download-instagram-stories-anonymously': 'كيفية مشاهدة وتحميل ستوري انستقرام بشكل مجهول',
   'how-to-save-instagram-photos-in-hd': 'كيفية حفظ صور وألبومات انستقرام بأعلى جودة HD',
-  'how-to-use-insta1000gram-url-shortcut': 'كيفية استخدام اختصار الرابط 1kgram.com للتحميل الفوري',
+  'how-to-use-insta1000gram-url-shortcut': 'كيفية استخدام اختصار الرابط sssclips.com للتحميل الفوري',
 };
 
 export const Footer: React.FC<FooterProps> = ({
@@ -36,11 +36,11 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Col 1: Brand */}
           <div className="md:col-span-1 space-y-3">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600 flex items-center justify-center text-white font-black text-sm shadow-md">
-                1k
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600 flex items-center justify-center text-white font-black text-xs shadow-md">
+                sss
               </div>
               <span className="text-xl font-black text-white tracking-tight">
-                <span className="text-pink-500">1k</span>gram
+                <span className="text-pink-500">sss</span>clips
               </span>
             </div>
             <p className="text-slate-400 text-xs leading-relaxed">
@@ -93,16 +93,16 @@ export const Footer: React.FC<FooterProps> = ({
             </ul>
           </div>
 
-          {/* Col 4: 1k Trick */}
+          {/* Col 4: sssclips Trick */}
           <div>
             <h4 className="font-bold text-white text-sm uppercase tracking-wider mb-3">
-              ⚡ {translations.secretShortcutBadge || (isAr ? 'اختصار 1k السريع' : '1k Quick Trick')}
+              ⚡ {translations.secretShortcutBadge || (isAr ? 'اختصار sssclips السريع' : 'sssclips Quick Trick')}
             </h4>
             <p className="text-xs text-slate-400 leading-relaxed">
               {translations.secretShortcutDesc}
             </p>
             <div className="mt-3 p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/60 font-mono text-[11px] text-slate-300 break-all" dir="ltr">
-              https://www.<span className="text-pink-400 font-bold">1k</span>gram.com/reels/...
+              https://www.<span className="text-pink-400 font-bold">sssclips</span>.com/reel/...
             </div>
           </div>
         </div>

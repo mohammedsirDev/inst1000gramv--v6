@@ -35,7 +35,7 @@ export const DownloaderBox: React.FC<DownloaderBoxProps> = ({
       label: isAr
         ? '🎬 ريلز تجريبي (1080p)'
         : `🎬 ${translations.navReels || 'Verified Reel'} (1080p)`,
-      url: 'https://www.instagram.com/reel/DdmbSgYx2k6/?stkn=Y3AzZmQ5N3Jwa2d0',
+      url: 'https://www.instagram.com/reel/DdclRxYT4UJ/?stkn=cTdwcjg3Njl6amw2',
       type: 'reel',
     },
     {
@@ -62,7 +62,7 @@ export const DownloaderBox: React.FC<DownloaderBoxProps> = ({
         setError(null);
       }
     } catch {
-      setUrl('https://www.instagram.com/reel/DdmbSgYx2k6/?stkn=Y3AzZmQ5N3Jwa2d0');
+      setUrl('https://www.instagram.com/reel/DdclRxYT4UJ/?stkn=cTdwcjg3Njl6amw2');
       setError(null);
     }
   };
@@ -74,16 +74,25 @@ export const DownloaderBox: React.FC<DownloaderBoxProps> = ({
       return;
     }
 
-    // Auto-normalize if user typed or pasted 1kgram.com, insta1000gram.com, or inst1000gram.com URL
+    // Auto-normalize if user typed or pasted sssclips.com, sssclips, 1kgram.com, or insta1000gram.com URL
     if (
+      targetUrl.includes('sssclips.com') ||
+      targetUrl.includes('sssclips') ||
       targetUrl.includes('1kgram.com') ||
       targetUrl.includes('insta1000gram.com') ||
       targetUrl.includes('inst1000gram.com')
     ) {
       targetUrl = targetUrl
+        .replace(/^(https?:\/\/)?(www\.)?sssclips\.com/i, 'https://www.instagram.com')
+        .replace(/^(https?:\/\/)?(www\.)?sssclips/i, 'https://www.instagram.com')
         .replace(/^(https?:\/\/)?(www\.)?1kgram\.com/i, 'https://www.instagram.com')
         .replace(/^(https?:\/\/)?(www\.)?insta(1000)?gram\.com/i, 'https://www.instagram.com')
         .replace(/^(https?:\/\/)?(www\.)?inst(1000)?gram\.com/i, 'https://www.instagram.com');
+      setUrl(targetUrl);
+    }
+
+    if (targetUrl.startsWith('/')) {
+      targetUrl = 'https://www.instagram.com' + targetUrl;
       setUrl(targetUrl);
     }
 

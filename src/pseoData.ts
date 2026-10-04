@@ -2,9 +2,9 @@ import type { PseoPage, PseoTemplateConfig, SupportedLanguage, MediaType } from 
 
 export const INITIAL_PSEO_CONFIG: PseoTemplateConfig = {
   titlePattern: 'Download Instagram {type} {quality} in {country} - Free Fast {device}',
-  metaDescriptionPattern: 'Save Instagram {type} in original {quality} resolution. Anonymous, zero compression, and 100% free on {device}. 1kgram high-speed server.',
+  metaDescriptionPattern: 'Save Instagram {type} in original {quality} resolution. Anonymous, zero compression, and 100% free on {device}. sssclips high-speed server.',
   h1Pattern: 'Best Instagram {type} Downloader ({quality})',
-  introPattern: 'Looking to save Instagram {type} directly to your {device}? 1kgram gives you instantaneous access to original high-bitrate media files with zero watermark and complete privacy.',
+  introPattern: 'Looking to save Instagram {type} directly to your {device}? sssclips gives you instantaneous access to original high-bitrate media files with zero watermark and complete privacy.',
   chunkSize: 1000,
   totalGeneratedCount: 3000,
   keywords: [
@@ -33,10 +33,10 @@ export const SEED_PSEO_PAGES: PseoPage[] = [
     targetKeyword: 'download instagram reels in 1080p hd',
     country: 'USA',
     device: 'iPhone & iOS',
-    title: 'Download Instagram Reels in 1080p HD - Free & Fast | 1kgram',
+    title: 'Download Instagram Reels in 1080p HD - Free & Fast | sssclips',
     metaDescription: 'Download Instagram Reels in full 1080p 60fps HD without watermark. Works effortlessly on iPhone, Android, and PC. Fast, anonymous, and no sign-up.',
     h1: 'Instagram Reels Downloader (1080p Full HD)',
-    intro: 'Save viral Instagram Reels in pristine 1080p high definition directly to your camera roll. 1kgram extracts original video files without compression or annoying logos.',
+    intro: 'Save viral Instagram Reels in pristine 1080p high definition directly to your camera roll. sssclips extracts original video files without compression or annoying logos.',
     features: [
       'Original 60fps High Bitrate Video Stream',
       'Lossless MP4 Format Compatible With All Players',
@@ -46,11 +46,11 @@ export const SEED_PSEO_PAGES: PseoPage[] = [
     faqs: [
       {
         q: 'How do I download Instagram Reels in 1080p on iPhone?',
-        a: 'Copy the Reel link from the Instagram app, paste it into 1kgram in Safari, tap Fetch, and click "Download 1080p MP4". The video will automatically save to your Files or Photos.',
+        a: 'Copy the Reel link from the Instagram app, paste it into sssclips in Safari, tap Fetch, and click "Download 1080p MP4". The video will automatically save to your Files or Photos.',
       },
       {
-        q: 'Does 1kgram add a watermark to saved Reels?',
-        a: 'No. 1kgram fetches the original uncompressed broadcast stream directly from Instagram CDN, leaving zero watermarks.',
+        q: 'Does sssclips add a watermark to saved Reels?',
+        a: 'No. sssclips fetches the original uncompressed broadcast stream directly from Instagram CDN, leaving zero watermarks.',
       },
     ],
     chunkId: 1,
@@ -66,7 +66,7 @@ export const SEED_PSEO_PAGES: PseoPage[] = [
     targetKeyword: 'save instagram stories anonymously',
     country: 'USA',
     device: 'Android Phone',
-    title: 'Download Instagram Stories Anonymously | 1kgram',
+    title: 'Download Instagram Stories Anonymously | sssclips',
     metaDescription: 'Watch and download Instagram Stories and Highlights without leaving a trace. 100% anonymous, no account required, works on all devices.',
     h1: 'Anonymous Instagram Story Viewer & Downloader',
     intro: 'Browse and download Instagram stories discreetly. The account owner will never know you viewed or saved their story.',
@@ -79,7 +79,7 @@ export const SEED_PSEO_PAGES: PseoPage[] = [
     faqs: [
       {
         q: 'Can the person see that I watched their Instagram story?',
-        a: 'Never. 1kgram queries public story data through independent proxy servers, so your identity or account is never sent to Instagram.',
+        a: 'Never. sssclips queries public story data through independent proxy servers, so your identity or account is never sent to Instagram.',
       },
     ],
     chunkId: 1,
@@ -95,7 +95,7 @@ export const SEED_PSEO_PAGES: PseoPage[] = [
     targetKeyword: 'تحميل ريلز انستقرام بدون علامة مائية',
     country: 'Saudi Arabia',
     device: 'iPhone & iOS',
-    title: 'تحميل ريلز انستقرام بجودة Full HD 1080p بدون علامة مائية | 1kgram',
+    title: 'تحميل ريلز انستقرام بجودة Full HD 1080p بدون علامة مائية | sssclips',
     metaDescription: 'أسرع موقع لتحميل مقاطع ريلز انستقرام بجودة عالية 1080p بدون لوجو أو علامة مائية. مجاني بالكامل ويدعم هواتف آيفون وأندرويد.',
     h1: 'تحميل ريلز انستقرام بدون علامة مائية وبأعلى جودة',
     intro: 'احفظ مقاطع ريلز انستقرام المفضلة لديك بنقاوة فائقة 1080p وبدون أي شعار على الفيديو. يعمل الموقع مباشرة عبر المتصفح دون الحاجة لتثبيت برامج.',
@@ -108,7 +108,7 @@ export const SEED_PSEO_PAGES: PseoPage[] = [
     faqs: [
       {
         q: 'كيف يمكنني تحميل ريلز انستقرام على الآيفون؟',
-        a: 'انسخ رابط المقطع من تطبيق انستقرام، ثم الصقه في مستطيل البحث في موقع 1kgram واضغط على "جلب وتحميل"، ثم اختر جودة 1080p ليتم حفظه فوراً في الاستوديو.',
+        a: 'انسخ رابط المقطع من تطبيق انستقرام، ثم الصقه في مستطيل البحث في موقع sssclips واضغط على "جلب وتحميل"، ثم اختر جودة 1080p ليتم حفظه فوراً في الاستوديو.',
       },
       {
         q: 'هل الخدمة مجانية تماماً؟',
@@ -128,7 +128,7 @@ export const SEED_PSEO_PAGES: PseoPage[] = [
     targetKeyword: 'descargar historias de instagram gratis',
     country: 'Spain',
     device: 'Android Phone',
-    title: 'Descargar Historias de Instagram Anónimamente | 1kgram',
+    title: 'Descargar Historias de Instagram Anónimamente | sssclips',
     metaDescription: 'Guarda Stories y destacados de Instagram de forma 100% anónima en tu móvil o PC. Máxima resolución sin registro.',
     h1: 'Descargador Anónimo de Historias de Instagram',
     intro: 'Mira y descarga historias de Instagram de cualquier cuenta pública sin dejar rastro alguno. La persona nunca sabrá que viste su historia.',
@@ -157,7 +157,7 @@ export const SEED_PSEO_PAGES: PseoPage[] = [
     targetKeyword: 'instagram igtv video downloader mp4',
     country: 'USA',
     device: 'PC Windows',
-    title: 'Instagram IGTV Video Downloader - Save Long Videos in MP4 | 1kgram',
+    title: 'Instagram IGTV Video Downloader - Save Long Videos in MP4 | sssclips',
     metaDescription: 'Download long-form IGTV videos from Instagram in 1080p MP4. High speed chunked streaming download for videos up to 60 minutes long.',
     h1: 'Instagram IGTV Video Downloader in MP4 HD',
     intro: 'Download lengthy IGTV shows, interviews, and broadcasts with accelerated multi-threaded transfer speeds. No length limits.',
@@ -170,7 +170,7 @@ export const SEED_PSEO_PAGES: PseoPage[] = [
     faqs: [
       {
         q: 'Can I download long 30-minute IGTV videos?',
-        a: 'Yes, 1kgram is built with multi-chunk streaming that reliably downloads full-length IGTV videos without timing out.',
+        a: 'Yes, sssclips is built with multi-chunk streaming that reliably downloads full-length IGTV videos without timing out.',
       },
     ],
     chunkId: 2,
@@ -186,7 +186,7 @@ export const SEED_PSEO_PAGES: PseoPage[] = [
     targetKeyword: 'save instagram photo original quality',
     country: 'USA',
     device: 'Macbook & Safari',
-    title: 'Download Instagram Photos in Original HD Resolution | 1kgram',
+    title: 'Download Instagram Photos in Original HD Resolution | sssclips',
     metaDescription: 'Download high-resolution Instagram photos, carousel multi-posts, and profile pictures in maximum resolution JPG.',
     h1: 'Instagram Photo & Carousel Downloader',
     intro: 'Save original uncompressed photos from Instagram posts and albums. Easily download single photos or all slides from a carousel simultaneously.',
@@ -199,7 +199,7 @@ export const SEED_PSEO_PAGES: PseoPage[] = [
     faqs: [
       {
         q: 'Can I download all photos from a multiple-photo post?',
-        a: 'Yes! When you paste an Instagram carousel link, 1kgram displays all images with individual download buttons or a "Download All" option.',
+        a: 'Yes! When you paste an Instagram carousel link, sssclips displays all images with individual download buttons or a "Download All" option.',
       },
     ],
     chunkId: 2,
@@ -251,27 +251,27 @@ export function generatePseoPages(count: number, template: PseoTemplateConfig): 
       };
       const arTypeStr = arTypes[mediaType] || 'محتوى انستقرام';
       slug = `ar/tahmeel-${mediaType}-instagram-${currentId}`;
-      title = `تحميل ${arTypeStr} بجودة ${quality} في ${country} | 1kgram`;
+      title = `تحميل ${arTypeStr} بجودة ${quality} في ${country} | sssclips`;
       h1 = `أسرع موقع لتحميل ${arTypeStr} (${quality})`;
       intro = `احفظ وحمّل ${arTypeStr} على أجهزة ${device} بأعلى دقة متوفرة مع الحفاظ التام على نقاوة الألوان ودون أي علامات مائية.`;
     } else if (lang === 'es') {
       slug = `es/descargar-${mediaType}-instagram-${currentId}`;
-      title = `Descargar ${mediaType.toUpperCase()} de Instagram en ${quality} - ${country} | 1kgram`;
+      title = `Descargar ${mediaType.toUpperCase()} de Instagram en ${quality} - ${country} | sssclips`;
       h1 = `Descarga ${mediaType.toUpperCase()} de Instagram Gratis (${quality})`;
-      intro = `Guarda ${mediaType} de Instagram en tu ${device} con la mejor velocidad y sin marcas de agua con 1kgram.`;
+      intro = `Guarda ${mediaType} de Instagram en tu ${device} con la mejor velocidad y sin marcas de agua con sssclips.`;
     } else if (lang === 'fr') {
       slug = `fr/telecharger-${mediaType}-instagram-${currentId}`;
-      title = `Télécharger ${mediaType.toUpperCase()} Instagram en ${quality} - ${country} | 1kgram`;
+      title = `Télécharger ${mediaType.toUpperCase()} Instagram en ${quality} - ${country} | sssclips`;
       h1 = `Téléchargement ${mediaType.toUpperCase()} Instagram en Ligne`;
       intro = `Enregistrez rapidement les ${mediaType} Instagram sur votre ${device} en résolution originale sans perte de qualité.`;
     } else if (lang === 'pt') {
       slug = `pt/baixar-${mediaType}-instagram-${currentId}`;
-      title = `Baixar ${mediaType.toUpperCase()} do Instagram em ${quality} - ${country} | 1kgram`;
+      title = `Baixar ${mediaType.toUpperCase()} do Instagram em ${quality} - ${country} | sssclips`;
       h1 = `Baixar ${mediaType.toUpperCase()} do Instagram Sem Marca d'Água`;
       intro = `Salve ${mediaType} do Instagram no seu ${device} com máxima velocidade e privacidade garantida.`;
     } else {
       slug = `download-${mediaType}-instagram-${quality.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${currentId}`;
-      title = `Download Instagram ${mediaType.toUpperCase()} in ${quality} for ${device} | 1kgram`;
+      title = `Download Instagram ${mediaType.toUpperCase()} in ${quality} for ${device} | sssclips`;
       h1 = `Instagram ${mediaType.toUpperCase()} Downloader (${quality})`;
       intro = `Instantly save any Instagram ${mediaType} to your ${device} in ${country}. Supercharged multi-stream download engine.`;
     }
@@ -285,7 +285,7 @@ export function generatePseoPages(count: number, template: PseoTemplateConfig): 
       country,
       device,
       title,
-      metaDescription: `Save Instagram ${mediaType} in ${quality} resolution on ${device}. Zero watermark, anonymous, fast edge CDN download on 1kgram.`,
+      metaDescription: `Save Instagram ${mediaType} in ${quality} resolution on ${device}. Zero watermark, anonymous, fast edge CDN download on sssclips.`,
       h1,
       intro,
       features: [
@@ -297,7 +297,7 @@ export function generatePseoPages(count: number, template: PseoTemplateConfig): 
       faqs: [
         {
           q: `Is downloading Instagram ${mediaType} safe on ${device}?`,
-          a: `Yes, 1kgram processes public Instagram URLs through encrypted edge relays with zero storage of your personal data.`,
+          a: `Yes, sssclips processes public Instagram URLs through encrypted edge relays with zero storage of your personal data.`,
         },
       ],
       chunkId,

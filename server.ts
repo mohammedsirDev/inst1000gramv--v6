@@ -26,7 +26,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 3000;
-const SITE_DOMAIN = process.env.SITE_DOMAIN || 'www.insta1000gram.com';
+const SITE_DOMAIN = process.env.SITE_DOMAIN || 'www.sssclips.com';
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Insta1000Admin2026!SecureKey';
 const ADMIN_SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || 'insta1000gram_jwt_secret_token_key_998877';
@@ -581,6 +581,9 @@ function buildProjectZip(): string {
     fs.mkdirSync(publicDir, { recursive: true });
   }
   const zipPath = path.resolve(publicDir, 'insta1000gram-full-source.zip');
+  if (fs.existsSync(zipPath)) {
+    return zipPath;
+  }
   try {
     const pyCode = `
 import zipfile, os
@@ -620,89 +623,89 @@ app.get(['/api/export/project-zip', '/download-source', '/insta1000gram.zip', '/
 const LOCALIZED_DOWNLOADER_TITLES: Record<string, Record<string, { title: string; desc: string }>> = {
   ar: {
     'reels-downloader': {
-      title: 'تحميل ريلز انستقرام – 1080p Full HD | Insta1000gram',
-      desc: 'تحميل ريلز انستقرام بجودة 1080p Full HD بدون علامة مائية. مجاني وسريع ومجهول الهوية بالكامل مع اختصار 1000 المباشر.',
+      title: 'تحميل ريلز انستقرام – 1080p Full HD | SSSClips',
+      desc: 'تحميل ريلز انستقرام بجودة 1080p Full HD بدون علامة مائية. مجاني وسريع ومجهول الهوية بالكامل مع اختصار sssclips.com المباشر.',
     },
     'video-downloader': {
-      title: 'تحميل فيديو انستقرام – 1080p MP4 | Insta1000gram',
+      title: 'تحميل فيديو انستقرام – 1080p MP4 | SSSClips',
       desc: 'تحميل مقاطع فيديو انستقرام وIGTV بأعلى دقة وضوح أصلية بصيغة MP4 وبدون تسجيل دخول.',
     },
     'photo-downloader': {
-      title: 'تحميل صور انستقرام – أعلى دقة JPG | Insta1000gram',
+      title: 'تحميل صور انستقرام – أعلى دقة JPG | SSSClips',
       desc: 'تحميل صور وألبومات انستقرام بأعلى دقة وضوح أصلية بصيغة JPG بدون ضغط أو فقدان للجودة.',
     },
     'story-downloader': {
-      title: 'تحميل ستوري انستقرام – بدون تسجيل وبشكل مجهول | Insta1000gram',
+      title: 'تحميل ستوري انستقرام – بدون تسجيل وبشكل مجهول | SSSClips',
       desc: 'مشاهدة وتحميل ستوري انستقرام بجودة عالية HD بشكل مجهول تماماً بدون حساب أو كشف للهوية.',
     },
     'highlights-downloader': {
-      title: 'تحميل هايلايت انستقرام – ألبومات كاملة | Insta1000gram',
+      title: 'تحميل هايلايت انستقرام – ألبومات كاملة | SSSClips',
       desc: 'تحميل مقاطع وقصص الهايلايت المحفوظة في انستقرام بجودة 1080p HD مع الصوت بنقرة واحدة.',
     },
   },
   fr: {
     'reels-downloader': {
-      title: 'Télécharger Reels Instagram – 1080p Full HD | Insta1000gram',
+      title: 'Télécharger Reels Instagram – 1080p Full HD | SSSClips',
       desc: 'Télécharger Reels Instagram en qualité 1080p Full HD sans filigrane ni inscription. Rapide, gratuit et anonyme.',
     },
     'video-downloader': {
-      title: 'Télécharger Vidéos Instagram – 1080p MP4 | Insta1000gram',
+      title: 'Télécharger Vidéos Instagram – 1080p MP4 | SSSClips',
       desc: 'Téléchargez les vidéos Instagram et IGTV en qualité MP4 haute définition sans filigrane.',
     },
     'photo-downloader': {
-      title: 'Télécharger Photos Instagram – Haute Résolution JPG | Insta1000gram',
+      title: 'Télécharger Photos Instagram – Haute Résolution JPG | SSSClips',
       desc: "Téléchargez des photos et carrousels Instagram dans leur résolution d'origine JPG gratuitement.",
     },
     'story-downloader': {
-      title: 'Télécharger Stories Instagram – Anonyme et Gratuit | Insta1000gram',
+      title: 'Télécharger Stories Instagram – Anonyme et Gratuit | SSSClips',
       desc: 'Téléchargez et regardez des stories Instagram anonymement sans connexion ni compte requis.',
     },
     'highlights-downloader': {
-      title: 'Télécharger Highlights Instagram – En Haute Définition | Insta1000gram',
+      title: 'Télécharger Highlights Instagram – En Haute Définition | SSSClips',
       desc: "Enregistrez les highlights et stories à la une d'Instagram en Full HD avec le son original.",
     },
   },
   es: {
     'reels-downloader': {
-      title: 'Descargar Reels de Instagram – 1080p Full HD | Insta1000gram',
+      title: 'Descargar Reels de Instagram – 1080p Full HD | SSSClips',
       desc: 'Descargar Reels de Instagram en Full HD 1080p sin marca de agua ni inicio de sesión. Rápido, gratuito y anónimo.',
     },
     'video-downloader': {
-      title: 'Descargar Videos de Instagram – 1080p MP4 | Insta1000gram',
+      title: 'Descargar Videos de Instagram – 1080p MP4 | SSSClips',
       desc: 'Descarga videos e IGTV de Instagram en formato MP4 de alta resolución original sin perder calidad.',
     },
     'photo-downloader': {
-      title: 'Descargar Fotos de Instagram – Máxima Calidad JPG | Insta1000gram',
+      title: 'Descargar Fotos de Instagram – Máxima Calidad JPG | SSSClips',
       desc: 'Descarga fotos y galerías de Instagram en su máxima calidad JPG original sin marca de agua.',
     },
     'story-downloader': {
-      title: 'Descargar Stories de Instagram – Anónimo y Seguro | Insta1000gram',
+      title: 'Descargar Stories de Instagram – Anónimo y Seguro | SSSClips',
       desc: 'Guarda Stories de Instagram de forma totalmente anónima sin necesidad de iniciar sesión.',
     },
     'highlights-downloader': {
-      title: 'Descargar Highlights de Instagram – Historias Destacadas | Insta1000gram',
+      title: 'Descargar Highlights de Instagram – Historias Destacadas | SSSClips',
       desc: 'Descarga historias destacadas de Instagram en calidad 1080p HD con audio incluido.',
     },
   },
   en: {
     'reels-downloader': {
-      title: 'Instagram Reels Downloader – 1080p Full HD | Insta1000gram',
+      title: 'Instagram Reels Downloader – 1080p Full HD | SSSClips',
       desc: 'Download Instagram Reels in original 1080p Full HD without watermark or login. Fast, free, and anonymous.',
     },
     'video-downloader': {
-      title: 'Instagram Video Downloader – 1080p MP4 | Insta1000gram',
+      title: 'Instagram Video Downloader – 1080p MP4 | SSSClips',
       desc: 'Download Instagram Videos & IGTV in original master MP4 quality without watermark or login.',
     },
     'photo-downloader': {
-      title: 'Instagram Photo Downloader – Lossless JPG | Insta1000gram',
+      title: 'Instagram Photo Downloader – Lossless JPG | SSSClips',
       desc: 'Save Instagram photos and carousel albums in ultra-crisp original resolution without compression.',
     },
     'story-downloader': {
-      title: 'Instagram Story Downloader – Anonymous Story Saver | Insta1000gram',
+      title: 'Instagram Story Downloader – Anonymous Story Saver | SSSClips',
       desc: 'Watch and download Instagram Stories anonymously without account login or leaving a trace.',
     },
     'highlights-downloader': {
-      title: 'Instagram Highlights Downloader – HD Quality | Insta1000gram',
+      title: 'Instagram Highlights Downloader – HD Quality | SSSClips',
       desc: 'Download complete Instagram Story Highlights in full 1080p HD with sound in one click.',
     },
   },
@@ -745,8 +748,8 @@ function injectLocalizedServerMeta(rawHtml: string, urlPath: string): string {
   const canonicalSlug = rawSlug ? CANONICAL_SLUG_MAP[rawSlug] : undefined;
 
   const isRtl = rawLocale === 'ar' || rawLocale === 'fa';
-  let title = 'insta1000gram - Fast Instagram Downloader & pSEO Engine';
-  let desc = 'Download Instagram Reels, Videos, Photos, Stories, and IGTV in HD with instant URL shortcut redirection.';
+  let title = 'sssclips - Fast Instagram Downloader & pSEO Engine';
+  let desc = 'Download Instagram Reels, Videos, Photos, Stories, and IGTV in HD with instant sssclips.com URL shortcut redirection.';
 
   if (canonicalSlug) {
     const langData = LOCALIZED_DOWNLOADER_TITLES[rawLocale] || LOCALIZED_DOWNLOADER_TITLES.en;
@@ -758,13 +761,13 @@ function injectLocalizedServerMeta(rawHtml: string, urlPath: string): string {
   } else if (!rawSlug) {
     // Localized Homepage
     if (rawLocale === 'ar') {
-      title = 'insta1000gram – تحميل ريلز وفيديو وصور انستقرام بجودة 1080p Full HD';
+      title = 'sssclips – تحميل ريلز وفيديو وصور انستقرام بجودة 1080p Full HD';
       desc = 'أسرع موقع لتحميل مقاطع ريلز انستقرام وفيديوهات وقصص ستوري وهايلايت بدون علامة مائية وبأعلى جودة.';
     } else if (rawLocale === 'fr') {
-      title = 'insta1000gram – Télécharger Reels, Vidéos et Photos Instagram en 1080p HD';
+      title = 'sssclips – Télécharger Reels, Vidéos et Photos Instagram en 1080p HD';
       desc = 'Téléchargeur gratuit et ultra-rapide pour Instagram Reels, Vidéos, Photos et Stories en Full HD sans filigrane.';
     } else if (rawLocale === 'es') {
-      title = 'insta1000gram – Descargar Reels, Videos y Fotos de Instagram en 1080p HD';
+      title = 'sssclips – Descargar Reels, Videos y Fotos de Instagram en 1080p HD';
       desc = 'Descargador gratuito para Reels, Videos, Fotos y Stories de Instagram en calidad 1080p HD sin marcas de agua.';
     }
   }
@@ -798,7 +801,7 @@ async function startServer() {
   if (!isProd) {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: { middlewareMode: true, allowedHosts: true },
       appType: 'custom',
     });
 

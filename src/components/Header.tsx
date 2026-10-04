@@ -71,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({
               className="flex items-center gap-2.5 text-left rtl:text-right focus:outline-none group"
             >
               <div className="relative w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-pink-500/20 group-hover:scale-105 transition-transform">
-                <span className="font-extrabold text-lg tracking-tight">1k</span>
+                <span className="font-extrabold text-sm tracking-tight">sss</span>
                 <span className="absolute -top-1 -right-1 flex h-3 w-3">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-pink-500"></span>
@@ -79,7 +79,7 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
               <div>
                 <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 group-hover:text-pink-600 transition-colors">
-                  <span className="bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">1k</span>gram
+                  <span className="bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">sss</span>clips
                 </span>
                 <p className="text-[10px] sm:text-xs text-slate-600 font-medium hidden sm:block">
                   {translations.brandTagline}
