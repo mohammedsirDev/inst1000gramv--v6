@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import QRCode from 'qrcode';
 import { useLanguage } from '../context/LanguageContext';
@@ -117,6 +117,17 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
   const [qrShortUrl, setQrShortUrl] = useState<string>('');
   const [isGeneratingQr, setIsGeneratingQr] = useState<boolean>(false);
 
+  const thumbnailScrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollThumbnails = (direction: 'left' | 'right') => {
+    if (!thumbnailScrollRef.current) return;
+    const scrollAmount = 180;
+    thumbnailScrollRef.current.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth',
+    });
+  };
+
   useEffect(() => {
     if (typeof result?.selectedIndex === 'number') {
       setActiveSlideIndex(result.selectedIndex);
@@ -124,6 +135,18 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
       setActiveSlideIndex(0);
     }
   }, [result?.selectedIndex, result?.id]);
+
+  useEffect(() => {
+    if (!thumbnailScrollRef.current) return;
+    const activeChild = thumbnailScrollRef.current.children[activeSlideIndex] as HTMLElement;
+    if (activeChild) {
+      activeChild.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
+    }
+  }, [activeSlideIndex]);
 
   const authorUsername = result?.author?.username || 'instagram_user';
   const fallbackAvatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(authorUsername)}&background=E1306C&color=fff&size=160&bold=true`;
@@ -769,15 +792,43 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
 
               {/* Slide Counter Overlay for Carousel / Highlights */}
               {result.slides && result.slides.length > 1 && (
-                <div className="absolute top-3 left-3 bg-black/75 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
-                  <span>
-                    #{activeSlideIndex + 1} / {result.slides.length}
-                  </span>
-                </div>
+                <>
+                  <div className="absolute top-3 left-3 bg-black/75 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 z-10 shadow-md">
+                    <span>
+                      #{activeSlideIndex + 1} / {result.slides.length}
+                    </span>
+                  </div>
+
+                  {/* Previous Slide Chevron Button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveSlideIndex((prev) => (prev > 0 ? prev - 1 : result.slides!.length - 1));
+                    }}
+                    aria-label="Previous Slide"
+                    className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/65 hover:bg-black/90 text-white flex items-center justify-center backdrop-blur-xs transition-all opacity-85 hover:opacity-100 hover:scale-110 shadow-lg z-10 cursor-pointer"
+                  >
+                    <ChevronLeft className="w-5 h-5 rtl:rotate-180" />
+                  </button>
+
+                  {/* Next Slide Chevron Button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveSlideIndex((prev) => (prev < result.slides!.length - 1 ? prev + 1 : 0));
+                    }}
+                    aria-label="Next Slide"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/65 hover:bg-black/90 text-white flex items-center justify-center backdrop-blur-xs transition-all opacity-85 hover:opacity-100 hover:scale-110 shadow-lg z-10 cursor-pointer"
+                  >
+                    <ChevronRight className="w-5 h-5 rtl:rotate-180" />
+                  </button>
+                </>
               )}
 
               {/* HD Badge Overlay */}
-              <div className="absolute bottom-3 right-3 bg-black/75 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+              <div className="absolute bottom-3 right-3 bg-black/75 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 z-10 shadow-md">
                 <Sparkles className="w-3 h-3 text-pink-400" />
                 <span>{translations.readyInHD || '1080p Ultra HD'}</span>
               </div>
@@ -793,42 +844,75 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       : result.type === 'highlight'
                       ? (translations.highlightItems || 'Highlight Items')
                       : (translations.carouselSlides || 'Carousel Slides')}{' '}
-                    ({result.slides.length} {isAr ? 'عنصر' : 'items'}):
+                    <span className="text-pink-600 font-extrabold">({result.slides.length} {isAr ? 'عنصر' : 'items'})</span>:
                   </p>
-                  <span className="text-[11px] text-pink-600 font-semibold">
-                    #{activeSlideIndex + 1} ({currentSlide?.type === 'video' ? (translations.videoLabel || 'Video') : (translations.photoLabel || 'Photo')})
+                  <span className="text-[11px] text-pink-600 font-semibold bg-pink-50 px-2 py-0.5 rounded-full border border-pink-100">
+                    #{activeSlideIndex + 1} / {result.slides.length} ({currentSlide?.type === 'video' ? (translations.videoLabel || 'Video') : (translations.photoLabel || 'Photo')})
                   </span>
                 </div>
-                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-                  {result.slides.map((slide, idx) => (
+
+                <div className="relative flex items-center gap-1">
+                  {result.slides.length > 4 && (
                     <button
-                      key={slide.id || idx}
-                      onClick={() => setActiveSlideIndex(idx)}
-                      className={`relative w-14 h-14 rounded-xl overflow-hidden shrink-0 border-2 transition-all ${
-                        activeSlideIndex === idx
-                          ? 'border-pink-600 scale-105 shadow-md ring-2 ring-pink-400/50'
-                          : 'border-slate-200 opacity-70 hover:opacity-100'
-                      }`}
-                      title={`Select Item #${idx + 1}`}
+                      type="button"
+                      onClick={() => scrollThumbnails('left')}
+                      aria-label="Previous thumbnails"
+                      className="w-7 h-14 rounded-lg bg-slate-100 hover:bg-pink-100 text-slate-700 hover:text-pink-600 flex items-center justify-center shrink-0 transition-colors cursor-pointer border border-slate-200"
                     >
-                      <img
-                        src={slide.thumbnail}
-                        alt={`Item ${idx + 1}`}
-                        loading="eager"
-                        referrerPolicy="no-referrer"
-                        crossOrigin="anonymous"
-                        className="w-full h-full object-cover"
-                      />
-                      <span className="absolute bottom-0 right-0 bg-black/75 text-white text-[9px] px-1 font-bold">
-                        #{idx + 1}
-                      </span>
-                      {slide.type === 'video' && (
-                        <div className="absolute top-1 left-1 bg-black/60 rounded-full p-0.5">
-                          <Play className="w-2.5 h-2.5 text-white fill-white" />
-                        </div>
-                      )}
+                      <ChevronLeft className="w-4 h-4 rtl:rotate-180" />
                     </button>
-                  ))}
+                  )}
+
+                  <div
+                    ref={thumbnailScrollRef}
+                    className="flex gap-2 overflow-x-auto py-1 scroll-smooth scrollbar-thin scrollbar-thumb-pink-300 w-full"
+                  >
+                    {result.slides.map((slide, idx) => (
+                      <button
+                        key={slide.id || idx}
+                        onClick={() => setActiveSlideIndex(idx)}
+                        className={`relative w-14 h-14 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
+                          activeSlideIndex === idx
+                            ? 'border-pink-600 scale-105 shadow-md ring-2 ring-pink-400/50'
+                            : 'border-slate-200 opacity-70 hover:opacity-100'
+                        }`}
+                        title={`Select Item #${idx + 1}`}
+                      >
+                        <img
+                          src={slide.thumbnail}
+                          alt={`Item ${idx + 1}`}
+                          loading="eager"
+                          referrerPolicy="no-referrer"
+                          crossOrigin="anonymous"
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="absolute bottom-0 right-0 bg-black/75 text-white text-[9px] px-1 font-bold">
+                          #{idx + 1}
+                        </span>
+                        {slide.type === 'video' && (
+                          <div className="absolute top-1 left-1 bg-black/60 rounded-full p-0.5">
+                            <Play className="w-2.5 h-2.5 text-white fill-white" />
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+
+                  {result.slides.length > 4 && (
+                    <button
+                      type="button"
+                      onClick={() => scrollThumbnails('right')}
+                      aria-label="Next thumbnails"
+                      className="w-7 h-14 rounded-lg bg-slate-100 hover:bg-pink-100 text-slate-700 hover:text-pink-600 flex items-center justify-center shrink-0 transition-colors cursor-pointer border border-slate-200"
+                    >
+                      <ChevronRight className="w-4 h-4 rtl:rotate-180" />
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between text-[11px] text-slate-500 mt-1 px-1">
+                  <span>{isAr ? `عرض الصورة ${activeSlideIndex + 1} من ${result.slides.length}` : `Viewing item ${activeSlideIndex + 1} of ${result.slides.length}`}</span>
+                  <span className="text-slate-400">{isAr ? 'مرر لرؤية جميع الصور' : 'Swipe or use arrows to view all slides'}</span>
                 </div>
               </div>
             )}
@@ -1100,7 +1184,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                           : result.type === 'carousel'
                           ? 'carousel'
                           : 'story';
-                      const filename = `insta1000gram_${prefix}_${idx + 1}.${ext}`;
+                      const filename = `sssclips_${prefix}_${idx + 1}.${ext}`;
                       return (
                         <button
                           key={s.id || idx}
@@ -1109,12 +1193,22 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                             downloadViaBlob(s.downloadUrl || s.url, filename, `item-${idx}`)
                           }
                           disabled={isItemLoading}
-                          className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 hover:border-pink-300 hover:bg-pink-50/30 text-xs transition-colors cursor-pointer text-left rtl:text-right"
+                          className="flex items-center justify-between p-2 rounded-xl border border-slate-200 hover:border-pink-300 hover:bg-pink-50/40 text-xs transition-all cursor-pointer text-left rtl:text-right group"
                         >
                           <div className="flex items-center gap-2 min-w-0">
-                            <span className="w-5 h-5 rounded-full bg-slate-100 font-bold text-[10px] flex items-center justify-center text-slate-700 shrink-0">
-                              {idx + 1}
-                            </span>
+                            <div className="relative w-8 h-8 rounded-lg overflow-hidden shrink-0 border border-slate-200 bg-slate-100">
+                              <img
+                                src={s.thumbnail}
+                                alt={`Item ${idx + 1}`}
+                                loading="lazy"
+                                referrerPolicy="no-referrer"
+                                crossOrigin="anonymous"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                              />
+                              <span className="absolute bottom-0 right-0 bg-black/80 text-white text-[8px] px-1 font-bold">
+                                {idx + 1}
+                              </span>
+                            </div>
                             <span className="font-semibold text-slate-800 truncate">
                               {result.type === 'highlight'
                                 ? (translations.itemLabel || 'Item')
@@ -1127,7 +1221,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                           {isItemLoading ? (
                             <Loader2 className="w-3.5 h-3.5 text-pink-600 animate-spin shrink-0" />
                           ) : (
-                            <Download className="w-3.5 h-3.5 text-pink-600 shrink-0" />
+                            <Download className="w-3.5 h-3.5 text-pink-600 shrink-0 group-hover:translate-y-0.5 transition-transform" />
                           )}
                         </button>
                       );
