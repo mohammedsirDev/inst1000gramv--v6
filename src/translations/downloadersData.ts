@@ -352,10 +352,10 @@ export function getDownloaderDataForLocale(
   return {
     slug,
     type,
-    title: `${localizedName} – 1080p Full HD | Insta1000gram`,
+    title: `${localizedName} – 1080p Full HD | SSSClips`,
     description: `Free ${localizedName}. Download online in original 1080p MP4 / JPG master quality without login or watermark. Fast, anonymous, and mobile-friendly.`,
     h1: localizedName,
-    intro: `Save ${localizedName} directly to your device with our zero-compression accelerated download engine. Fast, 100% free, and anonymous with instant 1000 shortcut URL support.`,
+    intro: `Save ${localizedName} directly to your device with our zero-compression accelerated download engine. Fast, 100% free, and anonymous with instant sssclips shortcut URL support.`,
     howToSteps: [
       { step: 1, title: '1. Copy the Link', desc: 'Copy the Instagram URL from your phone app or computer browser.' },
       { step: 2, title: '2. Paste URL', desc: 'Paste the link into sssclips and press Fetch & Download.' },
@@ -381,8 +381,8 @@ export function getDownloaderDataForLocale(
         a: 'Yes, works seamlessly in Safari on iPhone/iPad and Google Chrome on Android.',
       },
       {
-        q: 'How does the 1000 URL shortcut work?',
-        a: 'Simply insert "1000" between "insta" and "gram" in any Instagram link (turning instagram.com into sssclips.com) to download instantly!',
+        q: 'How does the sssclips URL shortcut work?',
+        a: 'Simply replace "instagram.com" with "sssclips.com" in any Instagram link in your browser address bar to download instantly!',
       },
     ],
   };

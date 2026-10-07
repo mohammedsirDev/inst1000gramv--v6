@@ -12,7 +12,7 @@ const ARABIC_GUIDE_TITLES: Record<string, string> = {
   'how-to-download-instagram-reels-on-android': 'كيفية تحميل ريلز انستقرام على هواتف أندرويد',
   'how-to-download-instagram-stories-anonymously': 'كيفية مشاهدة وتحميل ستوري انستقرام بشكل مجهول',
   'how-to-save-instagram-photos-in-hd': 'كيفية حفظ صور وألبومات انستقرام بأعلى جودة HD',
-  'how-to-use-insta1000gram-url-shortcut': 'كيفية استخدام اختصار الرابط 1kgram.com للتحميل الفوري',
+  'how-to-use-insta1000gram-url-shortcut': 'كيفية استخدام اختصار الرابط sssclips.com للتحميل الفوري',
 };
 
 interface DownloaderPageViewProps {
@@ -60,7 +60,7 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
       canonical.setAttribute('rel', 'canonical');
       document.head.appendChild(canonical);
     }
-    const currentCanonicalUrl = `https://www.1kgram.com/${locale}/${meta.slug}`;
+    const currentCanonicalUrl = `https://www.sssclips.com/${locale}/${meta.slug}`;
     canonical.setAttribute('href', currentCanonicalUrl);
 
     // Dynamic JSON-LD injection
@@ -103,7 +103,7 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
               '@type': 'ListItem',
               position: 1,
               name: 'Home',
-              item: `https://www.1kgram.com/${locale}/`,
+              item: `https://www.sssclips.com/${locale}/`,
             },
             {
               '@type': 'ListItem',
@@ -288,7 +288,7 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
             ))}
           </div>
 
-          {/* Quick Tip for the 1k URL trick */}
+          {/* Quick Tip for the sssclips URL trick */}
           <div className="mt-10 p-5 sm:p-6 bg-linear-to-r from-purple-50 via-pink-50 to-amber-50 rounded-2xl border border-pink-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-pink-500 text-white flex items-center justify-center shrink-0">
@@ -296,18 +296,18 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
               </div>
               <div>
                 <h4 className="font-bold text-sm sm:text-base text-slate-900">
-                  {isAr ? '⚡ اختصار الرابط الذكي "1k"' : '⚡ The "1k" URL Shortcut'}
+                  {isAr ? '⚡ اختصار الرابط الذكي "sssclips"' : '⚡ The "sssclips" URL Shortcut'}
                 </h4>
                 <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
                   {isAr ? (
                     <>
                       غيّر <span className="font-mono font-semibold text-slate-900">instagram.com</span> إلى{' '}
-                      <span className="font-mono font-semibold text-pink-600">1kgram.com</span> في أي رابط للتحميل المباشر فوراً!
+                      <span className="font-mono font-semibold text-pink-600">sssclips.com</span> في أي رابط للتحميل المباشر فوراً!
                     </>
                   ) : (
                     <>
                       Change <span className="font-mono font-semibold text-slate-900">instagram.com</span> to{' '}
-                      <span className="font-mono font-semibold text-pink-600">1kgram.com</span> in any URL to download directly!
+                      <span className="font-mono font-semibold text-pink-600">sssclips.com</span> in any URL to download directly!
                     </>
                   )}
                 </p>
@@ -329,8 +329,8 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
             </h2>
             <p className="mt-2 text-sm sm:text-base text-slate-600">
               {isAr
-                ? 'لماذا يعتبر 1kgram أسرع وأفضل موقع لتحميل وسائط انستقرام.'
-                : 'Why 1kgram is the fastest and most reliable Instagram downloader online.'}
+                ? 'لماذا يعتبر sssclips أسرع وأفضل موقع لتحميل وسائط انستقرام.'
+                : 'Why sssclips is the fastest and most reliable Instagram downloader online.'}
             </p>
           </div>
 
@@ -383,8 +383,8 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
               </h3>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                 {isAr
-                  ? 'افتح متصفح Safari، الصق الرابط في 1kgram، اضغط تحميل ثم اختر "حفظ الفيديو" لحفظه مباشرة في تطبيق الصور.'
-                  : 'Open Safari, paste the link into 1kgram, click Download, and tap "Save Video" to save directly to your Photos camera roll.'}
+                  ? 'افتح متصفح Safari، الصق الرابط في sssclips، اضغط تحميل ثم اختر "حفظ الفيديو" لحفظه مباشرة في تطبيق الصور.'
+                  : 'Open Safari, paste the link into sssclips, click Download, and tap "Save Video" to save directly to your Photos camera roll.'}
               </p>
             </div>
 

@@ -19,7 +19,7 @@ const ARABIC_GUIDE_TITLES: Record<string, string> = {
   'how-to-download-instagram-reels-on-android': 'كيفية تحميل ريلز انستقرام على هواتف أندرويد',
   'how-to-download-instagram-stories-anonymously': 'كيفية مشاهدة وتحميل ستوري انستقرام بشكل مجهول',
   'how-to-save-instagram-photos-in-hd': 'كيفية حفظ صور وألبومات انستقرام بأعلى جودة HD',
-  'how-to-use-insta1000gram-url-shortcut': 'كيفية استخدام اختصار الرابط 1kgram.com للتحميل الفوري',
+  'how-to-use-insta1000gram-url-shortcut': 'كيفية استخدام اختصار الرابط sssclips.com للتحميل الفوري',
 };
 
 export const GuidePageView: React.FC<GuidePageViewProps> = ({
@@ -36,8 +36,8 @@ export const GuidePageView: React.FC<GuidePageViewProps> = ({
 
   useEffect(() => {
     document.title = isAr
-      ? `${displayTitle} | 1kgram`
-      : `${guide.title} (Step-by-Step Guide) | 1kgram`;
+      ? `${displayTitle} | SSSClips`
+      : `${guide.title} (Step-by-Step Guide) | SSSClips`;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [guide, isAr, displayTitle]);
 
@@ -145,7 +145,7 @@ export const GuidePageView: React.FC<GuidePageViewProps> = ({
               </div>
               <div>
                 <h3 className="font-bold text-lg text-slate-900">
-                  {isAr ? 'الصق الرابط في موقع 1kgram' : 'Paste the URL into 1kgram'}
+                  {isAr ? 'الصق الرابط في موقع sssclips' : 'Paste the URL into sssclips'}
                 </h3>
                 <p className="text-slate-600 text-sm sm:text-base mt-1.5 leading-relaxed">
                   {isAr ? (

@@ -166,12 +166,14 @@ export function parseCurrentRoute(pathname: string, search: string = ''): RouteT
   };
 }
 
-export function navigateTo(path: string) {
+export function navigateTo(path: string, options?: { scroll?: boolean }) {
   if (typeof window !== 'undefined') {
     if (window.location.pathname !== path) {
       window.history.pushState({}, '', path);
-      window.dispatchEvent(new PopStateEvent('popstate'));
     }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    if (options?.scroll !== false) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 }

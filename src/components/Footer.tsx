@@ -3,12 +3,14 @@ import { useLanguage } from '../context/LanguageContext';
 import { SupportedLanguage, DownloaderSlug } from '../types';
 import { DOWNLOADER_PAGES, GUIDE_PAGES } from '../config/downloaders';
 import { getDownloaderDataForLocale } from '../translations/downloadersData';
+import { navigateTo } from '../utils/router';
 
 interface FooterProps {
   onOpenAdmin: () => void;
   onNavigateHome: () => void;
   onNavigateTool?: (slug: DownloaderSlug) => void;
   onNavigateGuide?: (guideSlug: string) => void;
+  onLanguageChange?: (lang: SupportedLanguage) => void;
 }
 
 const ARABIC_GUIDE_TITLES: Record<string, string> = {
@@ -24,6 +26,7 @@ export const Footer: React.FC<FooterProps> = ({
   onNavigateHome,
   onNavigateTool,
   onNavigateGuide,
+  onLanguageChange,
 }) => {
   const { translations, availableLanguages, currentLang, setLanguage } = useLanguage();
   const isAr = currentLang === 'ar';
@@ -117,10 +120,20 @@ export const Footer: React.FC<FooterProps> = ({
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
             {availableLanguages.map((l) => (
-              <button
+              <a
                 key={l.code}
-                onClick={() => setLanguage(l.code as SupportedLanguage)}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors flex items-center gap-1.5 ${
+                href={`/${l.code}/`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const code = l.code as SupportedLanguage;
+                  setLanguage(code);
+                  if (onLanguageChange) {
+                    onLanguageChange(code);
+                  } else {
+                    navigateTo(`/${code}/`, { scroll: false });
+                  }
+                }}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors flex items-center gap-1.5 cursor-pointer ${
                   currentLang === l.code
                     ? 'bg-pink-600 text-white font-bold'
                     : 'bg-slate-800/80 text-slate-400 hover:bg-slate-700 hover:text-white'
@@ -129,7 +142,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <span>{l.flag}</span>
                 <span>{l.nativeName}</span>
                 {l.dir === 'rtl' && <span className="text-[9px] text-amber-400 font-mono">RTL</span>}
-              </button>
+              </a>
             ))}
           </div>
         </div>

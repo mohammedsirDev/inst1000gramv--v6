@@ -66,7 +66,7 @@ export const HowToGuide: React.FC = () => {
           ))}
         </div>
 
-        {/* Pro Secret Trick: The "1000" URL Shortcut */}
+        {/* Pro Secret Trick: The sssclips URL Shortcut */}
         <div className="mt-8 p-5 sm:p-7 lg:p-8 bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-3xl text-white shadow-xl border border-purple-800/40 relative overflow-hidden">
           <div className="absolute -right-10 -bottom-10 w-52 h-52 bg-pink-500/10 rounded-full blur-3xl pointer-events-none" />
           

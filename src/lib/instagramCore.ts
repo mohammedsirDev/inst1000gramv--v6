@@ -572,6 +572,8 @@ export async function extractFromSnapVideoPackage(targetUrl: string): Promise<{ 
       candidateList = rawRes;
     } else if (rawRes.data && Array.isArray(rawRes.data)) {
       candidateList = rawRes.data;
+    } else if (rawRes.media && Array.isArray(rawRes.media)) {
+      candidateList = rawRes.media;
     } else if (rawRes.result && Array.isArray(rawRes.result)) {
       candidateList = rawRes.result;
     } else if (rawRes.url || rawRes.video || rawRes.download) {
@@ -682,8 +684,30 @@ export async function extractFromJerryCoder(targetUrl: string): Promise<any[]> {
       list = rawRes;
     } else if (rawRes.data && Array.isArray(rawRes.data)) {
       list = rawRes.data;
-    } else if (rawRes.url) {
-      list = [rawRes];
+    } else if (rawRes.media && Array.isArray(rawRes.media)) {
+      list = rawRes.media;
+    } else if (typeof rawRes === 'object' && rawRes !== null) {
+      const mediaKeys = Object.keys(rawRes)
+        .filter((k) => /^media_url_\d+$/i.test(k))
+        .sort((a, b) => {
+          const numA = parseInt(a.replace(/\D/g, ''), 10) || 0;
+          const numB = parseInt(b.replace(/\D/g, ''), 10) || 0;
+          return numA - numB;
+        });
+
+      if (mediaKeys.length > 0) {
+        mediaKeys.forEach((key) => {
+          if (rawRes[key]) {
+            list.push({
+              url: rawRes[key],
+              thumbnail: rawRes.thumbnail,
+              type: rawRes.type,
+            });
+          }
+        });
+      } else if (rawRes.url) {
+        list = [rawRes];
+      }
     }
 
     const items: any[] = [];
@@ -946,8 +970,9 @@ export async function handleInstagramResolve(req: any, res: any) {
 
   if (cached && cached.expiry > Date.now() && cached.data?.items?.length > 0) {
     const isSinglePhotoCached = cached.data.items.length === 1 && (cached.data.type === 'photo' || cached.data.mediaType === 'photo');
-    // If only 1 item was cached for a post, verify it is not an incomplete carousel fallback
-    if (!isSinglePhotoCached || cached.data.isVerifiedSingle) {
+    const isHighlightWithSingleCached = (isSharedHighlight || cleanUrl.includes('/s/') || /highlights/i.test(normalizedUrl)) && cached.data.items.length === 1;
+    // If only 1 item was cached for a highlight or incomplete photo, bypass cache to fetch full reel
+    if ((!isSinglePhotoCached || cached.data.isVerifiedSingle) && !isHighlightWithSingleCached) {
       return sendJsonResponse(res, 200, {
         ...cached.data,
         networkLatencyMs: Date.now() - startTime + 5,
@@ -968,9 +993,10 @@ export async function handleInstagramResolve(req: any, res: any) {
 
   let isKnownPrivate = false;
 
-  // Primary URL to resolve: if we have a derived post URL from story_media_id, try it first
-  const primaryQueryUrl = canonicalDerivedUrl || normalizedUrl;
-  const fallbackQueryUrl = canonicalDerivedUrl ? normalizedUrl : '';
+  // Primary URL to resolve: for highlights, always prioritize the full highlight reel URL!
+  // If full highlight query yields no items, then fall back to single derived story/post URL
+  const primaryQueryUrl = isHighlight ? normalizedUrl : (canonicalDerivedUrl || normalizedUrl);
+  const fallbackQueryUrl = isHighlight ? (canonicalDerivedUrl || '') : (canonicalDerivedUrl ? normalizedUrl : '');
 
   // Run oEmbed and SnapVideo in parallel
   const [oembed, snapItems] = await Promise.all([

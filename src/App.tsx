@@ -322,16 +322,20 @@ function MainApp() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Handle header language changes smoothly
+  // Handle language changes smoothly and synchronously update route & URL
   const handleLanguageChange = (newLang: SupportedLanguage) => {
     setLanguage(newLang);
+    let targetPath = `/${newLang}/`;
     if (currentRoute.type === 'downloader') {
-      navigateTo(`/${newLang}/${currentRoute.slug}`);
+      targetPath = `/${newLang}/${currentRoute.slug}`;
+      setCurrentRoute({ type: 'downloader', locale: newLang, slug: currentRoute.slug });
     } else if (currentRoute.type === 'guide') {
-      navigateTo(`/${newLang}/guide/${currentRoute.guideSlug}`);
-    } else if (currentRoute.type === 'home') {
-      navigateTo(`/${newLang}/`);
+      targetPath = `/${newLang}/guide/${currentRoute.guideSlug}`;
+      setCurrentRoute({ type: 'guide', locale: newLang, guideSlug: currentRoute.guideSlug });
+    } else {
+      setCurrentRoute({ type: 'home', locale: newLang });
     }
+    navigateTo(targetPath, { scroll: false });
   };
 
   // 1. Render Localized Downloader Page (e.g. /en/reels-downloader, /ar/highlights-downloader)
@@ -367,6 +371,7 @@ function MainApp() {
           onNavigateHome={() => navigateTo(`/${currentRoute.locale}/`)}
           onNavigateTool={(slug) => navigateTo(`/${currentRoute.locale}/${slug}`)}
           onNavigateGuide={(gSlug) => navigateTo(`/${currentRoute.locale}/guide/${gSlug}`)}
+          onLanguageChange={handleLanguageChange}
         />
 
         <AdminModal
@@ -412,6 +417,7 @@ function MainApp() {
           onNavigateHome={() => navigateTo(`/${currentRoute.locale}/`)}
           onNavigateTool={(slug) => navigateTo(`/${currentRoute.locale}/${slug}`)}
           onNavigateGuide={(gSlug) => navigateTo(`/${currentRoute.locale}/guide/${gSlug}`)}
+          onLanguageChange={handleLanguageChange}
         />
 
         <AdminModal
@@ -458,6 +464,7 @@ function MainApp() {
             setLegacyPseoPage(null);
             navigateTo(`/${currentLang}/`);
           }}
+          onLanguageChange={handleLanguageChange}
         />
 
         <AdminModal
@@ -637,6 +644,7 @@ function MainApp() {
         }}
         onNavigateTool={(slug) => navigateTo(`/${currentLang}/${slug}`)}
         onNavigateGuide={(gSlug) => navigateTo(`/${currentLang}/guide/${gSlug}`)}
+        onLanguageChange={handleLanguageChange}
       />
 
       {/* Admin Panel Modal */}

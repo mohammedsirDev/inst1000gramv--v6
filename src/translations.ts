@@ -557,7 +557,7 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
       },
       {
         q: 'Come funziona la scorciatoia di sssclips?',
-        a: 'Aggiungi 1000 a instagram.com facendolo diventare sssclips.com nella barra del browser.',
+        a: 'Sostituisci semplicemente instagram.com con sssclips.com nella barra del browser.',
       },
     ],
     secretShortcutSub: 'Il modo più rapido per scaricare dalla barra degli indirizzi',
@@ -633,7 +633,7 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
       },
       {
         q: 'Como funciona o atalho do sssclips?',
-        a: 'Basta colocar 1000 no meio do link (sssclips.com) na barra de endereços.',
+        a: 'Basta substituir instagram.com por sssclips.com na barra de endereços.',
       },
     ],
     secretShortcutSub: 'A forma mais rápida de baixar direto pela barra de endereços',
@@ -709,7 +709,7 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
       },
       {
         q: 'sssclips kısayolu nasıl çalışır?',
-        a: 'Tarayıcınızdaki Instagram linkine 1000 ekleyip sssclips.com yaparak anında indirebilirsiniz.',
+        a: "Tarayıcınızdaki Instagram linkinde instagram.com'u sssclips.com yaparak anında indirebilirsiniz.",
       },
     ],
     secretShortcutSub: 'Adres çubuğundan doğrudan indirmenin en hızlı yolu',
@@ -861,7 +861,7 @@ const EXTENDED_TRANSLATIONS: Partial<Record<SupportedLanguage, ExtendedLanguageC
       },
       {
         q: 'Bagaimana cara menggunakan trik sssclips?',
-        a: 'Cukup tambahkan 1000 pada alamat link menjadi sssclips.com untuk mengunduh langsung.',
+        a: 'Cukup ubah instagram.com menjadi sssclips.com pada tautan browser untuk mengunduh langsung.',
       },
     ],
     secretShortcutSub: 'Cara tercepat mengunduh langsung dari bilah alamat browser',
