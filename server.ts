@@ -803,18 +803,6 @@ function injectLocalizedServerMeta(rawHtml: string, urlPath: string): string {
   html = html.replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/?>/i, `<meta name="twitter:title" content="${title}" />`);
   html = html.replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/?>/i, `<meta name="twitter:description" content="${desc}" />`);
 
-  // If Arabic, personalize the semantic fallback H1 and paragraphs
-  if (rawLocale === 'ar') {
-    html = html.replace(
-      /<h1[^>]*>[\s\S]*?<\/h1>/i,
-      `<h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight text-center mb-6 font-arabic">تحميل ريلز وفيديوهات وقصص انستقرام بدقة 1080p HD</h1>`
-    );
-    html = html.replace(
-      /<p class="text-lg text-slate-600 text-center max-w-2xl mx-auto mb-10 leading-relaxed">[\s\S]*?<\/p>/i,
-      `<p class="text-lg text-slate-600 text-center max-w-2xl mx-auto mb-10 leading-relaxed font-arabic">احفظ مقاطع ريلز، الفيديوهات، الستوري، الصور والهايلايت من انستقرام مباشرة على هاتفك أو حاسوبك باستخدام اختصار sssclips.com الذكي. مجاني 100%، مجهول وبدون علامات مائية وبأعلى سرعة ممكنة.</p>`
-    );
-  }
-
   return html;
 }
 

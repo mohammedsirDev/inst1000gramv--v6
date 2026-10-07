@@ -88,6 +88,26 @@ export function sendNoContent(res: any) {
   return res.end();
 }
 
+// Convert numeric Instagram media/story ID to canonical shortcode
+const INSTAGRAM_SHORTCODE_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+
+export function instagramIdToShortcode(mediaIdStr: string): string {
+  try {
+    const cleanId = String(mediaIdStr || '').split('_')[0].trim();
+    if (!/^\d+$/.test(cleanId)) return '';
+    let bigId = BigInt(cleanId);
+    let shortcode = '';
+    while (bigId > 0n) {
+      const remainder = Number(bigId % 64n);
+      bigId = bigId / 64n;
+      shortcode = INSTAGRAM_SHORTCODE_ALPHABET[remainder] + shortcode;
+    }
+    return shortcode;
+  } catch {
+    return '';
+  }
+}
+
 // Helper: Fetch Instagram official oEmbed metadata
 export async function fetchInstagramOEmbed(url: string): Promise<any> {
   return new Promise((resolve) => {
@@ -897,9 +917,12 @@ export async function handleInstagramResolve(req: any, res: any) {
   const imgIndexMatch = cleanUrl.match(/[?&]img_index=(\d+)/i);
   const requestedImgIndex = imgIndexMatch ? parseInt(imgIndexMatch[1], 10) : null;
 
-  // Extract story_media_id if user requested a specific highlight item
-  const storyMediaIdMatch = cleanUrl.match(/[?&]story_media_id=([0-9_]+)/i);
-  const targetStoryMediaId = storyMediaIdMatch ? storyMediaIdMatch[1] : null;
+  // Extract story_media_id if user requested a specific highlight item or story
+  const storyMediaIdMatch = cleanUrl.match(/[?&]story_media_id=([0-9_]+)/i) || normalizedUrl.match(/[?&]story_media_id=([0-9_]+)/i);
+  const storyPathMatch = cleanUrl.match(/\/stories\/[^/?#]+\/(\d{15,})/i) || normalizedUrl.match(/\/stories\/[^/?#]+\/(\d{15,})/i);
+  const targetStoryMediaId = storyMediaIdMatch ? storyMediaIdMatch[1] : (storyPathMatch ? storyPathMatch[1] : null);
+  const derivedStoryShortcode = targetStoryMediaId ? instagramIdToShortcode(targetStoryMediaId) : '';
+  const canonicalDerivedUrl = derivedStoryShortcode ? `https://www.instagram.com/p/${derivedStoryShortcode}/` : '';
 
   // Clean tracking query parameters while strictly preserving critical media keys:
   // img_index, story_media_id, stkn, utm_source, igsh
@@ -918,7 +941,8 @@ export async function handleInstagramResolve(req: any, res: any) {
   // Check cache first (only return if valid and contains items)
   const cacheKey = normalizedUrl.toLowerCase();
   const rawCacheKey = cleanUrl.toLowerCase();
-  const cached = resolvedMediaCache.get(cacheKey) || resolvedMediaCache.get(rawCacheKey);
+  const derivedCacheKey = canonicalDerivedUrl ? canonicalDerivedUrl.toLowerCase() : '';
+  const cached = resolvedMediaCache.get(cacheKey) || resolvedMediaCache.get(rawCacheKey) || (derivedCacheKey ? resolvedMediaCache.get(derivedCacheKey) : null);
 
   if (cached && cached.expiry > Date.now() && cached.data?.items?.length > 0) {
     const isSinglePhotoCached = cached.data.items.length === 1 && (cached.data.type === 'photo' || cached.data.mediaType === 'photo');
@@ -934,9 +958,9 @@ export async function handleInstagramResolve(req: any, res: any) {
   // Extract shortcode or highlight ID
   const highlightMatch = normalizedUrl.match(/\/stories\/highlights\/([a-zA-Z0-9_\-]+)/i);
   const shortcodeMatch = normalizedUrl.match(/\/(?:p|reel|reels|tv|stories)(?:\/[^/]+)*\/([^/?#&]+)/i);
-  const shortcode = highlightMatch ? highlightMatch[1] : (shortcodeMatch ? shortcodeMatch[1] : `ig_${Date.now().toString(36)}`);
+  const shortcode = derivedStoryShortcode || (highlightMatch ? highlightMatch[1] : (shortcodeMatch ? shortcodeMatch[1] : `ig_${Date.now().toString(36)}`));
 
-  const isHighlight = isSharedHighlight || /highlights/i.test(normalizedUrl) || Boolean(highlightMatch);
+  const isHighlight = isSharedHighlight || /highlights/i.test(normalizedUrl) || Boolean(highlightMatch) || cleanUrl.includes('/s/');
   const isPost = /\/p\//i.test(normalizedUrl);
   const isReel = /\/(reel|reels)\//i.test(normalizedUrl);
   const isStory = /\/stories\//i.test(normalizedUrl) && !isHighlight;
@@ -944,10 +968,14 @@ export async function handleInstagramResolve(req: any, res: any) {
 
   let isKnownPrivate = false;
 
+  // Primary URL to resolve: if we have a derived post URL from story_media_id, try it first
+  const primaryQueryUrl = canonicalDerivedUrl || normalizedUrl;
+  const fallbackQueryUrl = canonicalDerivedUrl ? normalizedUrl : '';
+
   // Run oEmbed and SnapVideo in parallel
   const [oembed, snapItems] = await Promise.all([
-    fetchInstagramOEmbed(normalizedUrl),
-    fetchSnapVideoWithCookies(normalizedUrl),
+    fetchInstagramOEmbed(primaryQueryUrl),
+    fetchSnapVideoWithCookies(primaryQueryUrl),
   ]);
 
   let resolvedItems: any[] = snapItems;
@@ -955,8 +983,8 @@ export async function handleInstagramResolve(req: any, res: any) {
   // Engine 2: SnapVideo package
   if (!resolvedItems || resolvedItems.length === 0) {
     try {
-      const snapPkgRes = await extractFromSnapVideoPackage(normalizedUrl);
-      if (snapPkgRes.isPrivate) isKnownPrivate = true;
+      const snapPkgRes = await extractFromSnapVideoPackage(primaryQueryUrl);
+      if (snapPkgRes.isPrivate && !canonicalDerivedUrl) isKnownPrivate = true;
       if (snapPkgRes.items && snapPkgRes.items.length > 0) {
         resolvedItems = snapPkgRes.items;
       }
@@ -966,7 +994,7 @@ export async function handleInstagramResolve(req: any, res: any) {
   // Engine 3: SnapSave Web Unpacker
   if (!resolvedItems || resolvedItems.length === 0) {
     try {
-      const unpacked = await unpackSnapSave(normalizedUrl);
+      const unpacked = await unpackSnapSave(primaryQueryUrl);
       if (unpacked && unpacked.length > 0) {
         resolvedItems = unpacked;
       }
@@ -976,7 +1004,7 @@ export async function handleInstagramResolve(req: any, res: any) {
   // Engine 4: JerryCoder Instagram API
   if (!resolvedItems || resolvedItems.length === 0) {
     try {
-      const jerryItems = await extractFromJerryCoder(normalizedUrl);
+      const jerryItems = await extractFromJerryCoder(primaryQueryUrl);
       if (jerryItems && jerryItems.length > 0) {
         resolvedItems = jerryItems;
       }
@@ -986,9 +1014,24 @@ export async function handleInstagramResolve(req: any, res: any) {
   // Engine 5: Snapsave Media Downloader package
   if (!resolvedItems || resolvedItems.length === 0) {
     try {
-      const snapSaveItems = await extractFromSnapsavePackage(normalizedUrl);
+      const snapSaveItems = await extractFromSnapsavePackage(primaryQueryUrl);
       if (snapSaveItems && snapSaveItems.length > 0) {
         resolvedItems = snapSaveItems;
+      }
+    } catch {}
+  }
+
+  // Engine 6: If primary query had no items and we have fallbackQueryUrl, try fallback
+  if ((!resolvedItems || resolvedItems.length === 0) && fallbackQueryUrl) {
+    try {
+      const fbItems = await fetchSnapVideoWithCookies(fallbackQueryUrl);
+      if (fbItems && fbItems.length > 0) {
+        resolvedItems = fbItems;
+      } else {
+        const fbPkg = await extractFromSnapVideoPackage(fallbackQueryUrl);
+        if (fbPkg.items && fbPkg.items.length > 0) {
+          resolvedItems = fbPkg.items;
+        }
       }
     } catch {}
   }
