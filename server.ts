@@ -13,11 +13,13 @@ import { ALL_SUPPORTED_LANGUAGES } from './src/config/languages.ts';
 import { DOWNLOADER_PAGES, GUIDE_PAGES } from './src/config/downloaders.ts';
 import {
   handleInstagramResolve,
+  handleInstagramProfile,
   handleDownloadProxy,
   handleDownloadStream,
   handleDownloadZip,
   handleQrShorten,
   shortLinkMap,
+  createZipArchive,
 } from './src/lib/instagramCore.ts';
 
 dotenv.config();
@@ -49,6 +51,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // Early route interceptor: intercept any relative or nested API calls (e.g. /ar/api/instagram/resolve, /api/instagram/resolve, or serverless /instagram/resolve)
 app.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.path.includes('instagram/profile')) {
+    return handleInstagramProfile(req, res);
+  }
   if (req.path.includes('instagram/resolve')) {
     return handleInstagramResolve(req, res);
   }
@@ -529,6 +534,11 @@ app.options("/api/instagram/resolve/", (req: Request, res: Response) => res.send
 app.all("/api/instagram/resolve", handleInstagramResolve);
 app.all("/api/instagram/resolve/", handleInstagramResolve);
 
+app.options("/api/instagram/profile", (req: Request, res: Response) => res.sendStatus(204));
+app.options("/api/instagram/profile/", (req: Request, res: Response) => res.sendStatus(204));
+app.all("/api/instagram/profile", handleInstagramProfile);
+app.all("/api/instagram/profile/", handleInstagramProfile);
+
 app.options("/api/download/proxy", (req: Request, res: Response) => res.sendStatus(204));
 app.options("/api/download/proxy/", (req: Request, res: Response) => res.sendStatus(204));
 app.all("/api/download/proxy", handleDownloadProxy);
@@ -585,18 +595,15 @@ function buildProjectZip(): string {
     return zipPath;
   }
   try {
-    const pyCode = `
-import zipfile, os
-exclude = {'node_modules', 'dist', '.git', '.cache'}
-with zipfile.ZipFile('${zipPath}', 'w', zipfile.ZIP_DEFLATED) as z:
-    for root, dirs, files in os.walk('${__dirname}'):
-        dirs[:] = [d for d in dirs if d not in exclude]
-        for f in files:
-            if not f.endswith('.log') and f != 'insta1000gram-full-source.zip':
-                fp = os.path.join(root, f)
-                z.write(fp, os.path.relpath(fp, '${__dirname}'))
-`;
-    execSync(`python3 -c "${pyCode.replace(/"/g, '\\"')}"`, { stdio: 'pipe' });
+    const archive = createZipArchive();
+    const output = fs.createWriteStream(zipPath);
+    archive.pipe(output);
+    archive.glob('**/*', {
+      cwd: __dirname,
+      ignore: ['node_modules/**', 'dist/**', '.git/**', '.cache/**', 'public/insta1000gram-full-source.zip'],
+      dot: true,
+    });
+    archive.finalize();
   } catch (err: any) {
     if (!fs.existsSync(zipPath)) {
       throw err;
@@ -869,5 +876,5 @@ if (!process.env.VERCEL) {
   startServer();
 }
 
-export { app, handleInstagramResolve, handleDownloadProxy, handleDownloadStream, handleDownloadZip };
+export { app, handleInstagramResolve, handleInstagramProfile, handleDownloadProxy, handleDownloadStream, handleDownloadZip };
 export default app;

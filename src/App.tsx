@@ -10,6 +10,9 @@ import { PseoDirectory } from './components/PseoDirectory';
 import { PseoPageView } from './components/PseoPageView';
 import { DownloaderPageView } from './components/DownloaderPageView';
 import { GuidePageView } from './components/GuidePageView';
+import { ShareTargetView } from './components/ShareTargetView';
+import { ProfileDownloaderView } from './components/ProfileDownloaderView';
+import { BookmarkletModal } from './components/BookmarkletModal';
 import { Footer } from './components/Footer';
 import { AdminModal } from './components/admin/AdminModal';
 import { MediaType, InstagramMediaResult, PseoPage, SupportedLanguage, DownloaderSlug } from './types';
@@ -41,6 +44,7 @@ function MainApp() {
   const [downloadResult, setDownloadResult] = useState<InstagramMediaResult | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [adminOpen, setAdminOpen] = useState<boolean>(false);
+  const [bookmarkletOpen, setBookmarkletOpen] = useState<boolean>(false);
   const [legacyPseoPage, setLegacyPseoPage] = useState<PseoPage | null>(null);
 
   const getCategoryMeta = (type: string) => {
@@ -236,7 +240,7 @@ function MainApp() {
     }
 
     // 2. Locale sync
-    if (currentRoute.type === 'downloader' || currentRoute.type === 'guide') {
+    if (currentRoute.type === 'downloader' || currentRoute.type === 'guide' || currentRoute.type === 'profile-downloader') {
       if (currentRoute.locale && currentRoute.locale !== currentLang) {
         setLanguage(currentRoute.locale);
       }
@@ -332,11 +336,106 @@ function MainApp() {
     } else if (currentRoute.type === 'guide') {
       targetPath = `/${newLang}/guide/${currentRoute.guideSlug}`;
       setCurrentRoute({ type: 'guide', locale: newLang, guideSlug: currentRoute.guideSlug });
+    } else if (currentRoute.type === 'profile-downloader') {
+      targetPath = `/${newLang}/profile-downloader`;
+      setCurrentRoute({ type: 'profile-downloader', locale: newLang });
     } else {
       setCurrentRoute({ type: 'home', locale: newLang });
     }
     navigateTo(targetPath, { scroll: false });
   };
+
+  // 0. Render Share Target Page (/share-target) - Task 1
+  if (currentRoute.type === 'share-target') {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+        <Header
+          activeTab={activeTab}
+          onSelectTab={(tab) => {
+            setActiveTab(tab);
+            navigateTo(`/${currentLang}/`);
+          }}
+          onOpenAdmin={() => setAdminOpen(true)}
+          onNavigateHome={() => navigateTo(`/${currentLang}/`)}
+          onLanguageChange={handleLanguageChange}
+          onOpenBookmarklet={() => setBookmarkletOpen(true)}
+          onNavigateProfileDownloader={() => navigateTo(`/${currentLang}/profile-downloader`)}
+        />
+
+        <main className="flex-1">
+          <ShareTargetView onBackHome={() => navigateTo(`/${currentLang}/`)} />
+        </main>
+
+        <Footer
+          onOpenAdmin={() => setAdminOpen(true)}
+          onNavigateHome={() => navigateTo(`/${currentLang}/`)}
+          onNavigateTool={(slug) => navigateTo(`/${currentLang}/${slug}`)}
+          onNavigateGuide={(gSlug) => navigateTo(`/${currentLang}/guide/${gSlug}`)}
+          onLanguageChange={handleLanguageChange}
+          onOpenBookmarklet={() => setBookmarkletOpen(true)}
+          onNavigateProfileDownloader={() => navigateTo(`/${currentLang}/profile-downloader`)}
+        />
+
+        <AdminModal
+          isOpen={adminOpen}
+          onClose={() => setAdminOpen(false)}
+          onPreviewPseoPage={(page) => setLegacyPseoPage(page)}
+        />
+
+        <BookmarkletModal
+          isOpen={bookmarkletOpen}
+          onClose={() => setBookmarkletOpen(false)}
+        />
+      </div>
+    );
+  }
+
+  // 0.1 Render Profile Picture Downloader (/profile-downloader) - Task 5
+  if (currentRoute.type === 'profile-downloader') {
+    const localePrefix = currentRoute.locale || currentLang;
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+        <Header
+          activeTab={activeTab}
+          onSelectTab={(tab) => {
+            setActiveTab(tab);
+            navigateTo(`/${localePrefix}/`);
+          }}
+          onOpenAdmin={() => setAdminOpen(true)}
+          onNavigateHome={() => navigateTo(`/${localePrefix}/`)}
+          onLanguageChange={handleLanguageChange}
+          onOpenBookmarklet={() => setBookmarkletOpen(true)}
+          onNavigateProfileDownloader={() => navigateTo(`/${localePrefix}/profile-downloader`)}
+          isProfileActive={true}
+        />
+
+        <main className="flex-1">
+          <ProfileDownloaderView />
+        </main>
+
+        <Footer
+          onOpenAdmin={() => setAdminOpen(true)}
+          onNavigateHome={() => navigateTo(`/${localePrefix}/`)}
+          onNavigateTool={(slug) => navigateTo(`/${localePrefix}/${slug}`)}
+          onNavigateGuide={(gSlug) => navigateTo(`/${localePrefix}/guide/${gSlug}`)}
+          onLanguageChange={handleLanguageChange}
+          onOpenBookmarklet={() => setBookmarkletOpen(true)}
+          onNavigateProfileDownloader={() => navigateTo(`/${localePrefix}/profile-downloader`)}
+        />
+
+        <AdminModal
+          isOpen={adminOpen}
+          onClose={() => setAdminOpen(false)}
+          onPreviewPseoPage={(page) => setLegacyPseoPage(page)}
+        />
+
+        <BookmarkletModal
+          isOpen={bookmarkletOpen}
+          onClose={() => setBookmarkletOpen(false)}
+        />
+      </div>
+    );
+  }
 
   // 1. Render Localized Downloader Page (e.g. /en/reels-downloader, /ar/highlights-downloader)
   if (currentRoute.type === 'downloader') {
@@ -354,6 +453,8 @@ function MainApp() {
           onOpenAdmin={() => setAdminOpen(true)}
           onNavigateHome={() => navigateTo(`/${currentRoute.locale}/`)}
           onLanguageChange={handleLanguageChange}
+          onOpenBookmarklet={() => setBookmarkletOpen(true)}
+          onNavigateProfileDownloader={() => navigateTo(`/${currentRoute.locale}/profile-downloader`)}
         />
 
         <main className="flex-1">
@@ -372,12 +473,19 @@ function MainApp() {
           onNavigateTool={(slug) => navigateTo(`/${currentRoute.locale}/${slug}`)}
           onNavigateGuide={(gSlug) => navigateTo(`/${currentRoute.locale}/guide/${gSlug}`)}
           onLanguageChange={handleLanguageChange}
+          onOpenBookmarklet={() => setBookmarkletOpen(true)}
+          onNavigateProfileDownloader={() => navigateTo(`/${currentRoute.locale}/profile-downloader`)}
         />
 
         <AdminModal
           isOpen={adminOpen}
           onClose={() => setAdminOpen(false)}
           onPreviewPseoPage={(page) => setLegacyPseoPage(page)}
+        />
+
+        <BookmarkletModal
+          isOpen={bookmarkletOpen}
+          onClose={() => setBookmarkletOpen(false)}
         />
       </div>
     );
@@ -400,6 +508,8 @@ function MainApp() {
           onOpenAdmin={() => setAdminOpen(true)}
           onNavigateHome={() => navigateTo(`/${currentRoute.locale}/`)}
           onLanguageChange={handleLanguageChange}
+          onOpenBookmarklet={() => setBookmarkletOpen(true)}
+          onNavigateProfileDownloader={() => navigateTo(`/${currentRoute.locale}/profile-downloader`)}
         />
 
         <main className="flex-1">
@@ -418,12 +528,19 @@ function MainApp() {
           onNavigateTool={(slug) => navigateTo(`/${currentRoute.locale}/${slug}`)}
           onNavigateGuide={(gSlug) => navigateTo(`/${currentRoute.locale}/guide/${gSlug}`)}
           onLanguageChange={handleLanguageChange}
+          onOpenBookmarklet={() => setBookmarkletOpen(true)}
+          onNavigateProfileDownloader={() => navigateTo(`/${currentRoute.locale}/profile-downloader`)}
         />
 
         <AdminModal
           isOpen={adminOpen}
           onClose={() => setAdminOpen(false)}
           onPreviewPseoPage={(page) => setLegacyPseoPage(page)}
+        />
+
+        <BookmarkletModal
+          isOpen={bookmarkletOpen}
+          onClose={() => setBookmarkletOpen(false)}
         />
       </div>
     );
@@ -445,6 +562,8 @@ function MainApp() {
             navigateTo(`/${currentLang}/`);
           }}
           onLanguageChange={handleLanguageChange}
+          onOpenBookmarklet={() => setBookmarkletOpen(true)}
+          onNavigateProfileDownloader={() => navigateTo(`/${currentLang}/profile-downloader`)}
         />
 
         <main className="flex-1">
@@ -465,12 +584,19 @@ function MainApp() {
             navigateTo(`/${currentLang}/`);
           }}
           onLanguageChange={handleLanguageChange}
+          onOpenBookmarklet={() => setBookmarkletOpen(true)}
+          onNavigateProfileDownloader={() => navigateTo(`/${currentLang}/profile-downloader`)}
         />
 
         <AdminModal
           isOpen={adminOpen}
           onClose={() => setAdminOpen(false)}
           onPreviewPseoPage={(page) => setLegacyPseoPage(page)}
+        />
+
+        <BookmarkletModal
+          isOpen={bookmarkletOpen}
+          onClose={() => setBookmarkletOpen(false)}
         />
       </div>
     );
@@ -567,6 +693,8 @@ function MainApp() {
           navigateTo(`/${currentLang}/`);
         }}
         onLanguageChange={handleLanguageChange}
+        onOpenBookmarklet={() => setBookmarkletOpen(true)}
+        onNavigateProfileDownloader={() => navigateTo(`/${currentLang}/profile-downloader`)}
       />
 
       <main className="flex-1">
@@ -645,6 +773,8 @@ function MainApp() {
         onNavigateTool={(slug) => navigateTo(`/${currentLang}/${slug}`)}
         onNavigateGuide={(gSlug) => navigateTo(`/${currentLang}/guide/${gSlug}`)}
         onLanguageChange={handleLanguageChange}
+        onOpenBookmarklet={() => setBookmarkletOpen(true)}
+        onNavigateProfileDownloader={() => navigateTo(`/${currentLang}/profile-downloader`)}
       />
 
       {/* Admin Panel Modal */}
@@ -655,6 +785,12 @@ function MainApp() {
           setLegacyPseoPage(page);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
+      />
+
+      {/* Desktop Bookmarklet Modal */}
+      <BookmarkletModal
+        isOpen={bookmarkletOpen}
+        onClose={() => setBookmarkletOpen(false)}
       />
     </div>
   );

@@ -2396,3 +2396,146 @@ export async function handleQrShorten(req: any, res: any) {
     directUrl: rawMediaUrl || targetUrl,
   });
 }
+
+// Clean username helper for Profile Downloader
+export function extractCleanUsername(input: string): string {
+  let clean = String(input || '').trim();
+  clean = clean.replace(/^(https?:\/\/)?(www\.)?instagram\.com\//i, '');
+  clean = clean.replace(/^(https?:\/\/)?(www\.)?sssclips\.com\//i, '');
+  clean = clean.replace(/^(https?:\/\/)?(www\.)?1kgram\.com\//i, '');
+  clean = clean.replace(/^(https?:\/\/)?(www\.)?inst(?:a)?1000gram\.com\//i, '');
+  clean = clean.replace(/^\/+/, '');
+  clean = clean.split(/[?#/]/)[0];
+  clean = clean.replace(/^@/, '').trim();
+  return clean;
+}
+
+// Dedicated HD Profile Picture (DP) Resolver: /api/instagram/profile
+export async function handleInstagramProfile(req: any, res: any) {
+  if (req.method === 'OPTIONS') return sendNoContent(res);
+  setCorsHeaders(res);
+
+  const body = await parseRequestBody(req);
+  const rawInput = (body?.username || body?.url || req.query?.username || req.query?.url || '').toString();
+  const cleanUsername = extractCleanUsername(rawInput);
+
+  if (!cleanUsername) {
+    return sendJsonResponse(res, 400, {
+      error: 'Please enter a valid Instagram username (e.g. cristiano or @username).',
+      code: 'INVALID_USERNAME',
+    });
+  }
+
+  let fullName = cleanUsername;
+  let biography = '';
+  let hdProfilePicUrl = '';
+  let normalPicUrl = '';
+  let isVerified = false;
+  let isPrivate = false;
+  let followersCount: string | number = '';
+  let followingCount: string | number = '';
+  let postsCount: string | number = '';
+
+  // Attempt 1: Instagram Official web_profile_info with Simulated Meta Client Headers
+  try {
+    const infoUrl = `https://www.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(cleanUsername)}`;
+    const igRes = await fetch(infoUrl, {
+      headers: META_CLIENT_HEADERS,
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (igRes.ok) {
+      const data: any = await igRes.json().catch(() => null);
+      const user = data?.data?.user;
+      if (user) {
+        fullName = user.full_name || cleanUsername;
+        biography = user.biography || '';
+        isVerified = Boolean(user.is_verified);
+        isPrivate = Boolean(user.is_private);
+        followersCount = user.edge_followed_by?.count || '';
+        followingCount = user.edge_follow?.count || '';
+        postsCount = user.edge_owner_to_timeline_media?.count || '';
+        hdProfilePicUrl =
+          user.hd_profile_pic_url_info?.url ||
+          user.profile_pic_url_hd ||
+          user.profile_pic_url ||
+          '';
+        normalPicUrl = user.profile_pic_url || hdProfilePicUrl;
+      }
+    }
+  } catch {}
+
+  // Attempt 2: HTML Page Scrape for embedded hd_profile_pic_url_info & JSON
+  if (!hdProfilePicUrl) {
+    try {
+      const pageUrl = `https://www.instagram.com/${encodeURIComponent(cleanUsername)}/`;
+      const pageRes = await fetch(pageUrl, {
+        headers: META_CLIENT_HEADERS,
+        signal: AbortSignal.timeout(5000),
+      });
+
+      if (pageRes.ok) {
+        const html = await pageRes.text();
+        const hdMatch =
+          html.match(/"hd_profile_pic_url_info":\{[^}]*"url":"([^"]+)"/) ||
+          html.match(/"profile_pic_url_hd":"([^"]+)"/) ||
+          html.match(/"profile_pic_url":"([^"]+)"/) ||
+          html.match(/property="og:image"\s+content="([^"]+)"/);
+
+        if (hdMatch) {
+          hdProfilePicUrl = hdMatch[1].replace(/\\u0026/g, '&').replace(/&amp;/g, '&');
+          normalPicUrl = hdProfilePicUrl;
+        }
+
+        const nameMatch = html.match(/"full_name":"([^"]+)"/);
+        if (nameMatch) fullName = nameMatch[1];
+        const bioMatch = html.match(/"biography":"([^"]+)"/);
+        if (bioMatch) biography = bioMatch[1].replace(/\\n/g, '\n');
+        if (html.includes('"is_verified":true')) isVerified = true;
+        if (html.includes('"is_private":true')) isPrivate = true;
+      }
+    } catch {}
+  }
+
+  // Attempt 3: BTCH Downloader
+  if (!hdProfilePicUrl) {
+    try {
+      const btch = await import('btch-downloader');
+      const btchModule: any = (btch as any).default || btch;
+      if (btchModule && typeof btchModule.igdl === 'function') {
+        const btchRes = await btchModule.igdl(`https://www.instagram.com/${cleanUsername}/`);
+        if (Array.isArray(btchRes) && btchRes.length > 0) {
+          const first = btchRes[0];
+          hdProfilePicUrl = first.url || first.thumbnail || '';
+          normalPicUrl = first.thumbnail || hdProfilePicUrl;
+        }
+      }
+    } catch {}
+  }
+
+  // Attempt 4: High-resolution profile avatar fallback
+  if (!hdProfilePicUrl) {
+    hdProfilePicUrl = `https://images.weserv.nl/?url=instagram.com/${cleanUsername}&default=https%3A%2F%2Fapi.dicebear.com%2F7.x%2Finitials%2Fsvg%3Fseed%3D${encodeURIComponent(cleanUsername)}`;
+    normalPicUrl = hdProfilePicUrl;
+  }
+
+  const safeFilename = `sssclips_${cleanUsername}_profile_1080p.jpg`;
+  const downloadUrl = `/api/download/proxy?url=${encodeURIComponent(
+    hdProfilePicUrl
+  )}&filename=${encodeURIComponent(safeFilename)}&type=photo`;
+
+  return sendJsonResponse(res, 200, {
+    username: cleanUsername,
+    fullName: fullName || cleanUsername,
+    biography,
+    hdProfilePicUrl,
+    profilePicUrl: normalPicUrl || hdProfilePicUrl,
+    downloadUrl,
+    isVerified,
+    isPrivate,
+    followersCount,
+    followingCount,
+    postsCount,
+  });
+}
+

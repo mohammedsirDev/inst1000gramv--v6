@@ -7,8 +7,19 @@ export type RouteType =
   | { type: 'smart-media'; mediaType: MediaType; mediaId: string; instagramUrl: string }
   | { type: 'downloader'; locale: SupportedLanguage; slug: DownloaderSlug }
   | { type: 'guide'; locale: SupportedLanguage; guideSlug: string }
+  | { type: 'share-target'; url?: string; text?: string }
+  | { type: 'profile-downloader'; locale?: SupportedLanguage }
   | { type: 'pseo-legacy'; slug: string }
   | { type: 'not-found' };
+
+export function extractInstagramUrlFromShared(textOrUrl: string): string {
+  if (!textOrUrl) return '';
+  const match = textOrUrl.match(/https?:\/\/(?:www\.)?(?:instagram\.com|sssclips\.com|1kgram\.com|inst(?:a)?1000gram\.com)[^\s"'>]+/i);
+  if (match) return match[0];
+  const trimmed = textOrUrl.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+  return trimmed;
+}
 
 // Canonical slug mapping helper for downloader tools
 const SLUG_ALIASES: Record<string, DownloaderSlug> = {
@@ -63,6 +74,28 @@ export function detectMediaTypeFromUrl(inputUrl: string): NormalizedMediaType {
 
 export function parseCurrentRoute(pathname: string, search: string = ''): RouteType {
   const cleanPath = pathname.replace(/\/+$/, '') || '/';
+
+  // 0. Mobile Web Share Target: /share-target
+  if (cleanPath === '/share-target') {
+    const urlParams = new URLSearchParams(search);
+    const sharedUrl = urlParams.get('url') || '';
+    const sharedText = urlParams.get('text') || '';
+    return {
+      type: 'share-target',
+      url: sharedUrl,
+      text: sharedText,
+    };
+  }
+
+  // 0.1 Profile Picture Downloader: /profile-downloader or /{locale}/profile-downloader
+  const profileMatch = cleanPath.match(/^\/(?:([a-zA-Z]{2}(?:-[a-zA-Z]+)?)\/)?profile-downloader$/i);
+  if (profileMatch) {
+    const rawLocale = profileMatch[1] as SupportedLanguage | undefined;
+    return {
+      type: 'profile-downloader',
+      locale: rawLocale && ALL_SUPPORTED_LANGUAGES.includes(rawLocale) ? rawLocale : undefined,
+    };
+  }
 
   // 1. Smart Instagram URLs: /reels/ID, /reel/ID, /p/ID, /stories/highlights/ID, /stories/username/ID, /highlights/ID, /tv/ID, /s/BASE64
   const smartMatch = cleanPath.match(/^\/(reels|reel|p|stories\/highlights|highlights|stories|tv|s)\/([a-zA-Z0-9_\-\.\/=]+)/i);

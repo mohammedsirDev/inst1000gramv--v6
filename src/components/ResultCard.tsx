@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import QRCode from 'qrcode';
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
 import { useLanguage } from '../context/LanguageContext';
 import { InstagramMediaResult, MediaFormat } from '../types';
 import {
@@ -572,6 +574,10 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
 
   const handleTriggerDownload = (format: MediaFormat) => {
     const isZip = format.extension === 'zip';
+    if (isZip && result.slides && result.slides.length > 1) {
+      downloadEntireAlbumZipClientSide();
+      return;
+    }
     const filename = isZip
       ? `insta1000gram_${result.type || 'album'}_all.zip`
       : `insta1000gram_${result.type}_${format.quality.replace(/[^a-zA-Z0-9]/g, '_')}.${
@@ -598,6 +604,80 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
     }
     if (downloadTarget) {
       downloadViaBlob(downloadTarget, filename, format.id);
+    }
+  };
+
+  const [isZippingAlbum, setIsZippingAlbum] = useState<boolean>(false);
+  const [zipProgressText, setZipProgressText] = useState<string>('');
+
+  const downloadEntireAlbumZipClientSide = async () => {
+    const slides = result.slides;
+    if (!slides || slides.length === 0) return;
+
+    setIsZippingAlbum(true);
+    setDownloadError(null);
+    setZipProgressText(isAr ? `جاري تجهيز ${slides.length} عنصر...` : `Zipping 1 of ${slides.length}...`);
+
+    const safePostId = (result.shortcode || result.id || 'album').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const zipFilename = `${safePostId}.zip`;
+
+    try {
+      const zip = new JSZip();
+
+      for (let i = 0; i < slides.length; i++) {
+        const slide = slides[i];
+        setZipProgressText(
+          isAr
+            ? `جاري ضغط ${i + 1} من ${slides.length}...`
+            : `Zipping ${i + 1} of ${slides.length}...`
+        );
+
+        const ext = slide.type === 'video' ? 'mp4' : 'jpg';
+        const slideFilename = `slide_${String(i + 1).padStart(2, '0')}_${slide.id || i + 1}.${ext}`;
+        const sourceUrl = slide.downloadUrl || slide.url || slide.directUrl || '';
+
+        let fetchUrl = sourceUrl;
+        if (
+          !fetchUrl.startsWith('/api/download/proxy') &&
+          !fetchUrl.includes('/api/download/proxy')
+        ) {
+          fetchUrl = `/api/download/proxy?url=${encodeURIComponent(sourceUrl)}&filename=${encodeURIComponent(
+            slideFilename
+          )}&type=${slide.type === 'video' ? 'video' : 'photo'}`;
+        }
+
+        const res = await fetch(fetchUrl);
+        if (!res.ok) {
+          throw new Error(`Failed to download slide ${i + 1} (${res.status})`);
+        }
+        const blob = await res.blob();
+        zip.file(slideFilename, blob);
+      }
+
+      setZipProgressText(isAr ? 'جاري تجميع ملف ZIP...' : 'Packaging ZIP archive...');
+      const zipBlob = await zip.generateAsync({ type: 'blob' }, (metadata) => {
+        if (metadata.percent) {
+          setZipProgressText(
+            isAr
+              ? `إنشاء الأرشيف ${Math.round(metadata.percent)}%...`
+              : `Zipping ${Math.round(metadata.percent)}%...`
+          );
+        }
+      });
+
+      saveAs(zipBlob, zipFilename);
+
+      setDownloadSuccessMessage({
+        text: isAr
+          ? `تم تنزيل الألبوم كاملاً (${slides.length} عنصر) كملف ${zipFilename} بنجاح!`
+          : `Album ZIP saved: ${zipFilename} (${slides.length} items)!`,
+      });
+    } catch (err: any) {
+      console.error('Client-side ZIP failed:', err);
+      setDownloadError(err?.message || 'Client-side ZIP generation failed');
+    } finally {
+      setIsZippingAlbum(false);
+      setZipProgressText('');
     }
   };
 
@@ -1052,56 +1132,50 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                     )}
                   </button>
 
-                  {/* Dedicated Audio Download Button (MP3) - Requirement 2 */}
-                  {(isSlideVideo || result.hasAudio || result.audioUrl || result.videoUrl) && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const audioTarget = result.audioUrl || currentSlide?.directUrl || result.videoUrl || result.directUrl || '';
-                        const filename = `sssclips_audio_${result.shortcode || activeSlideIndex + 1}.mp3`;
-                        downloadViaBlob(audioTarget, filename, `audio-dl-${activeSlideIndex}`);
-                      }}
-                      disabled={downloadingFormatId === `audio-dl-${activeSlideIndex}`}
-                      className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-amber-500/50 text-white text-xs sm:text-sm font-bold shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-75"
-                    >
-                      {downloadingFormatId === `audio-dl-${activeSlideIndex}` ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin text-amber-400 shrink-0" />
-                          <span>{translations.downloading || 'Downloading...'}</span>
-                        </>
-                      ) : (
-                        <>
-                          <Music className="w-4 h-4 text-amber-400 shrink-0" />
-                          <span>{translations.downloadAudio || 'Download Audio (MP3)'}</span>
-                        </>
-                      )}
-                    </button>
-                  )}
+                  {/* Dedicated 1-Click Audio Download Button (MP3) - Task 3 */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const audioTarget = result.audioUrl || currentSlide?.directUrl || result.videoUrl || result.directUrl || (primaryFormat.isAudio ? primaryFormat.downloadUrl : primaryFormat.directUrl) || '';
+                      const filename = `sssclips_audio_${result.shortcode || activeSlideIndex + 1}.mp3`;
+                      downloadViaBlob(audioTarget, filename, `audio-dl-${activeSlideIndex}`);
+                    }}
+                    disabled={downloadingFormatId === `audio-dl-${activeSlideIndex}`}
+                    className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-amber-500/50 text-white text-xs sm:text-sm font-bold shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-75"
+                  >
+                    {downloadingFormatId === `audio-dl-${activeSlideIndex}` ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-amber-400 shrink-0" />
+                        <span>{translations.downloading || 'Downloading...'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Music className="w-4 h-4 text-amber-400 shrink-0" />
+                        <span>{translations.downloadAudio || 'Download Audio (MP3)'}</span>
+                      </>
+                    )}
+                  </button>
 
-                  {/* Dedicated Download All Slides Button (.ZIP) - Requirement 1 */}
+                  {/* Dedicated Client-Side Download Entire Album Button (.ZIP) - Task 2 */}
                   {result.slides && result.slides.length > 1 && (
                     <button
                       type="button"
-                      onClick={() => {
-                        const zipFormat = result.formats?.find((f) => f.extension === 'zip') || {
-                          downloadUrl: `/api/download/zip?url=${encodeURIComponent(result.sourceUrl)}&name=${encodeURIComponent(`sssclips_${result.type || 'album'}_all.zip`)}`,
-                        };
-                        const zipFilename = `sssclips_${result.type || 'carousel'}_${result.shortcode}_all.zip`;
-                        downloadViaBlob(zipFormat.downloadUrl, zipFilename, 'zip-all-dl');
-                      }}
-                      disabled={downloadingFormatId === 'zip-all-dl'}
-                      className="col-span-1 sm:col-span-2 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 text-white text-xs sm:text-sm font-bold shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-75"
+                      onClick={downloadEntireAlbumZipClientSide}
+                      disabled={isZippingAlbum}
+                      className="col-span-1 sm:col-span-2 flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-purple-700 via-indigo-600 to-purple-800 hover:from-purple-600 hover:to-indigo-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-purple-600/25 transition-all active:scale-[0.98] cursor-pointer disabled:opacity-75"
                     >
-                      {downloadingFormatId === 'zip-all-dl' ? (
+                      {isZippingAlbum ? (
                         <>
-                          <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-                          <span>{translations.downloading || 'Zipping & Downloading...'}</span>
+                          <Loader2 className="w-4 h-4 animate-spin shrink-0 text-purple-200" />
+                          <span className="font-mono">{zipProgressText || 'Zipping album...'}</span>
                         </>
                       ) : (
                         <>
-                          <Archive className="w-4 h-4 shrink-0" />
+                          <Archive className="w-4 h-4 shrink-0 text-purple-200" />
                           <span>
-                            {translations.downloadZip || `Download All ${result.slides.length} Items (.ZIP Archive)`}
+                            {isAr
+                              ? `تحميل الألبوم كاملاً (${result.slides.length} عنصر) كملف مضغوط (.ZIP)`
+                              : `Download Entire Album (${result.slides.length} items .ZIP)`}
                           </span>
                         </>
                       )}

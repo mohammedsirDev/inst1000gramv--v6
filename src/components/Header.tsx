@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { SupportedLanguage, MediaType } from '../types';
-import { Film, Video, Image, History, Sparkles, Globe, Search, Tv } from 'lucide-react';
+import { Film, Video, Image, History, Sparkles, Globe, Search, Tv, User, Bookmark } from 'lucide-react';
 
 interface HeaderProps {
   activeTab: MediaType;
@@ -9,6 +9,9 @@ interface HeaderProps {
   onOpenAdmin: () => void;
   onNavigateHome: () => void;
   onLanguageChange?: (lang: SupportedLanguage) => void;
+  onOpenBookmarklet?: () => void;
+  onNavigateProfileDownloader?: () => void;
+  isProfileActive?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -17,12 +20,16 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAdmin,
   onNavigateHome,
   onLanguageChange,
+  onOpenBookmarklet,
+  onNavigateProfileDownloader,
+  isProfileActive,
 }) => {
   const { currentLang, setLanguage, availableLanguages, translations, config } = useLanguage();
   const [langMenuOpen, setLangMenuOpen] = useState(false);
   const [langSearch, setLangSearch] = useState('');
 
   const isMatchingTab = (itemType: MediaType, currentTab: MediaType) => {
+    if (isProfileActive) return false;
     if (itemType === currentTab) return true;
     if ((itemType === 'reel' || itemType === 'reels') && (currentTab === 'reel' || currentTab === 'reels')) return true;
     if ((itemType === 'story' || itemType === 'stories') && (currentTab === 'story' || currentTab === 'stories')) return true;
@@ -107,10 +114,37 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
               );
             })}
+
+            {/* Task 5: Profile DP tab */}
+            {onNavigateProfileDownloader && (
+              <button
+                onClick={onNavigateProfileDownloader}
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+                  isProfileActive
+                    ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/70'
+                }`}
+              >
+                <User className="w-4 h-4" />
+                <span>{currentLang === 'ar' ? 'صورة الحساب (DP)' : 'Profile DP'}</span>
+              </button>
+            )}
           </nav>
 
           {/* Right Action Buttons */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Task 4: Desktop Bookmarklet Shortcut */}
+            {onOpenBookmarklet && (
+              <button
+                onClick={onOpenBookmarklet}
+                className="hidden lg:flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-pink-300 bg-pink-950/40 hover:bg-pink-900/60 border border-pink-700/50 rounded-xl transition-all cursor-pointer shadow-xs"
+                title={currentLang === 'ar' ? 'اختصار متصفح الكمبيوتر' : '1-Click Desktop Bookmarklet'}
+              >
+                <Bookmark className="w-3.5 h-3.5 text-pink-400" />
+                <span>{currentLang === 'ar' ? 'اختصار الكمبيوتر' : 'Desktop Shortcut'}</span>
+              </button>
+            )}
+
             {/* Language Switcher (29 Languages) */}
             <div className="relative">
               <button
@@ -217,6 +251,21 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             );
           })}
+
+          {/* Task 5: Mobile Profile DP tab */}
+          {onNavigateProfileDownloader && (
+            <button
+              onClick={onNavigateProfileDownloader}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
+                isProfileActive
+                  ? 'bg-pink-600 text-white'
+                  : 'text-slate-400 bg-slate-900 hover:bg-slate-800 border border-slate-800'
+              }`}
+            >
+              <User className="w-4 h-4" />
+              <span>{currentLang === 'ar' ? 'صورة الحساب' : 'Profile DP'}</span>
+            </button>
+          )}
         </div>
       </div>
     </header>

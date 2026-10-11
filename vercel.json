@@ -13,6 +13,10 @@
       "destination": "/api/instagram/resolve"
     },
     {
+      "source": "/api/instagram/profile/",
+      "destination": "/api/instagram/profile"
+    },
+    {
       "source": "/api/download/proxy/",
       "destination": "/api/download/proxy"
     },

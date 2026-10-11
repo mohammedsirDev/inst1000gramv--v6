@@ -11,6 +11,8 @@ interface FooterProps {
   onNavigateTool?: (slug: DownloaderSlug) => void;
   onNavigateGuide?: (guideSlug: string) => void;
   onLanguageChange?: (lang: SupportedLanguage) => void;
+  onOpenBookmarklet?: () => void;
+  onNavigateProfileDownloader?: () => void;
 }
 
 const ARABIC_GUIDE_TITLES: Record<string, string> = {
@@ -27,6 +29,8 @@ export const Footer: React.FC<FooterProps> = ({
   onNavigateTool,
   onNavigateGuide,
   onLanguageChange,
+  onOpenBookmarklet,
+  onNavigateProfileDownloader,
 }) => {
   const { translations, availableLanguages, currentLang, setLanguage } = useLanguage();
   const isAr = currentLang === 'ar';
@@ -74,6 +78,17 @@ export const Footer: React.FC<FooterProps> = ({
                   </li>
                 );
               })}
+              {onNavigateProfileDownloader && (
+                <li>
+                  <button
+                    onClick={onNavigateProfileDownloader}
+                    className="hover:text-pink-400 transition-colors text-xs text-left rtl:text-right text-pink-300 font-semibold flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <span>{isAr ? 'تحميل صورة البروفايل HD' : 'Profile Picture Downloader (HD)'}</span>
+                    <span className="text-[9px] px-1 py-0.5 bg-pink-950 text-pink-400 rounded-md font-mono">NEW</span>
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -107,6 +122,17 @@ export const Footer: React.FC<FooterProps> = ({
             <div className="mt-3 p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/60 font-mono text-[11px] text-slate-300 break-all" dir="ltr">
               https://www.<span className="text-pink-400 font-bold">sssclips</span>.com/reel/...
             </div>
+            {onOpenBookmarklet && (
+              <div className="mt-3">
+                <button
+                  onClick={onOpenBookmarklet}
+                  className="w-full py-2 px-3 rounded-xl bg-pink-950/40 hover:bg-pink-900/60 border border-pink-700/50 text-pink-300 hover:text-white transition-colors text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <span>⚡</span>
+                  <span>{isAr ? 'اختصار متصفح الكمبيوتر (Bookmarklet)' : 'Desktop 1-Click Bookmarklet'}</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
