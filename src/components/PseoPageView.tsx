@@ -95,29 +95,29 @@ export const PseoPageView: React.FC<PseoPageViewProps> = ({ page, onBack, onOpen
   const isAr = currentLang === 'ar';
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-slate-950 text-slate-100 pb-20">
       {/* Top Breadcrumb & Return Bar */}
-      <div className="bg-white border-b border-slate-200">
+      <div className="bg-slate-900/90 border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
             <button
               onClick={onBack}
-              className="flex items-center gap-1.5 text-slate-700 hover:text-pink-600 transition-colors"
+              className="flex items-center gap-1.5 text-slate-300 hover:text-pink-400 transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
               <span>{isAr ? 'العودة إلى الرئيسية sssclips' : 'Back to sssclips Home'}</span>
             </button>
             <span>/</span>
-            <span className="text-slate-400">pSEO</span>
+            <span className="text-slate-500">pSEO</span>
             <span>/</span>
-            <span className="text-pink-600 font-mono truncate max-w-xs">{page.slug}</span>
+            <span className="text-pink-400 font-mono truncate max-w-xs">{page.slug}</span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-[11px] px-2.5 py-1 rounded-full font-bold uppercase bg-slate-100 text-slate-700">
+            <span className="text-[11px] px-2.5 py-1 rounded-full font-bold uppercase bg-slate-800 text-slate-300 border border-slate-700">
               {isAr ? `المجموعة #${page.chunkId}` : `Page Group #${page.chunkId}`}
             </span>
-            <span className="text-[11px] px-2.5 py-1 rounded-full font-bold uppercase bg-pink-100 text-pink-700">
+            <span className="text-[11px] px-2.5 py-1 rounded-full font-bold uppercase bg-pink-950/70 text-pink-300 border border-pink-800/60">
               {page.lang}
             </span>
           </div>
@@ -126,16 +126,16 @@ export const PseoPageView: React.FC<PseoPageViewProps> = ({ page, onBack, onOpen
 
       {/* Hero Header for this programmatic landing page */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 pb-8 text-center">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold uppercase bg-gradient-to-r from-pink-100 to-purple-100 text-pink-700 mb-4 border border-pink-200/60">
-          <Sparkles className="w-3.5 h-3.5 text-pink-600" />
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold uppercase bg-pink-950/70 text-pink-300 mb-4 border border-pink-800/60">
+          <Sparkles className="w-3.5 h-3.5 text-pink-400" />
           <span>{page.targetKeyword}</span>
         </div>
 
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
           {page.h1}
         </h1>
 
-        <p className="mt-4 text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
+        <p className="mt-4 text-base sm:text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed">
           {page.intro}
         </p>
 
@@ -161,15 +161,15 @@ export const PseoPageView: React.FC<PseoPageViewProps> = ({ page, onBack, onOpen
       {/* Detailed Content & Features for this pSEO cluster */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 space-y-8">
         {/* Core Value Pillars */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm">
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4">
+        <div className="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl">
+          <h2 className="text-xl sm:text-2xl font-bold text-white mb-4">
             {isAr ? 'المميزات الرئيسية لموقع sssclips' : 'Key Advantages of sssclips'}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             {page.features.map((feat, i) => (
-              <div key={i} className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                <CheckCircle2 className="w-4 h-4 text-pink-600 shrink-0 mt-0.5" />
-                <span className="text-sm font-semibold text-slate-800">{feat}</span>
+              <div key={i} className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-950 border border-slate-800">
+                <CheckCircle2 className="w-4 h-4 text-pink-400 shrink-0 mt-0.5" />
+                <span className="text-sm font-semibold text-slate-200">{feat}</span>
               </div>
             ))}
           </div>
@@ -177,18 +177,18 @@ export const PseoPageView: React.FC<PseoPageViewProps> = ({ page, onBack, onOpen
 
         {/* Device Guide */}
         {page.device && (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm">
+          <div className="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-purple-950/70 text-purple-400 border border-purple-800/60 flex items-center justify-center">
                 <Smartphone className="w-5 h-5" />
               </div>
-              <h2 className="text-xl font-bold text-slate-900">
+              <h2 className="text-xl font-bold text-white">
                 {isAr
                   ? `دليل التحميل المخصص لأجهزة ${page.device} في ${page.country || 'جميع الدول'}`
                   : `Target Guide for ${page.device} in ${page.country || 'Global'}`}
               </h2>
             </div>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p className="text-sm text-slate-300 leading-relaxed">
               {isAr
                 ? `عند التحميل على جهاز ${page.device}، يقوم النظام تلقائياً بتهيئة الملف ليتم تشغيله بسلاسة تامة في مشغل الوسائط الافتراضي لديك دون الحاجة لأي تطبيقات خارجية.`
                 : `When downloading on your ${page.device}, our system automatically formats the file for seamless playback in your native media player without needing third-party converter applications.`}
@@ -198,10 +198,10 @@ export const PseoPageView: React.FC<PseoPageViewProps> = ({ page, onBack, onOpen
 
         {/* Tailored FAQs for this search intent */}
         {page.faqs && page.faqs.length > 0 && (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm">
+          <div className="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl">
             <div className="flex items-center gap-2 mb-4">
-              <HelpCircle className="w-5 h-5 text-pink-600" />
-              <h2 className="text-xl font-bold text-slate-900">
+              <HelpCircle className="w-5 h-5 text-pink-400" />
+              <h2 className="text-xl font-bold text-white">
                 {isAr
                   ? `الأسئلة الشائعة حول ${page.targetKeyword}`
                   : `Frequently Asked Questions about ${page.targetKeyword}`}
@@ -209,11 +209,11 @@ export const PseoPageView: React.FC<PseoPageViewProps> = ({ page, onBack, onOpen
             </div>
             <div className="space-y-4">
               {page.faqs.map((faq, i) => (
-                <div key={i} className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                  <h3 className="font-bold text-sm sm:text-base text-slate-900">
+                <div key={i} className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
+                  <h3 className="font-bold text-sm sm:text-base text-white">
                     {faq.q}
                   </h3>
-                  <p className="mt-1.5 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  <p className="mt-1.5 text-xs sm:text-sm text-slate-300 leading-relaxed">
                     {faq.a}
                   </p>
                 </div>

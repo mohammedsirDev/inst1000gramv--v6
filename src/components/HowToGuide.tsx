@@ -27,16 +27,16 @@ export const HowToGuide: React.FC = () => {
   ];
 
   return (
-    <section className="py-14 sm:py-20 bg-white">
+    <section className="py-14 sm:py-20 bg-slate-950 border-b border-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <span className="text-xs font-black tracking-widest text-purple-600 uppercase bg-purple-100/70 px-3 py-1 rounded-full">
+          <span className="text-xs font-black tracking-widest text-purple-400 uppercase bg-purple-950/60 border border-purple-800/50 px-3 py-1 rounded-full">
             {translations.quickTutorialBadge || 'Quick Tutorial'}
           </span>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 mt-3 tracking-tight">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white mt-3 tracking-tight">
             {translations.howToTitle}
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-slate-600 font-medium">
+          <p className="mt-3 text-sm sm:text-base text-slate-400 font-medium">
             {translations.howToSubtitle}
           </p>
         </div>
@@ -46,20 +46,20 @@ export const HowToGuide: React.FC = () => {
           {steps.map((s, idx) => (
             <div
               key={idx}
-              className="bg-slate-50 rounded-2xl p-6 sm:p-8 border border-slate-200 relative transition-transform hover:-translate-y-1 shadow-xs"
+              className="bg-slate-900/90 rounded-2xl p-6 sm:p-8 border border-slate-800 relative transition-transform hover:-translate-y-1 shadow-lg"
             >
               <div className="flex items-center justify-between mb-5">
-                <span className="text-3xl font-black text-slate-300 font-mono">
+                <span className="text-3xl font-black text-slate-700 font-mono">
                   {s.num}
                 </span>
-                <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-2xs">
+                <div className="w-10 h-10 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center shadow-inner">
                   {s.icon}
                 </div>
               </div>
-              <h3 className="font-extrabold text-slate-900 text-lg mb-2">
+              <h3 className="font-extrabold text-white text-lg mb-2">
                 {s.title}
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed font-normal">
                 {s.desc}
               </p>
             </div>

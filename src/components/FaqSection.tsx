@@ -9,16 +9,16 @@ export const FaqSection: React.FC = () => {
   const faqs = translations.faqs || [];
 
   return (
-    <section className="py-14 sm:py-20 bg-slate-50 border-t border-slate-200/80">
+    <section className="py-14 sm:py-20 bg-slate-950 border-t border-slate-900">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <span className="text-xs font-black tracking-widest text-emerald-600 uppercase bg-emerald-100/70 px-3 py-1 rounded-full">
+          <span className="text-xs font-black tracking-widest text-emerald-400 uppercase bg-emerald-950/60 border border-emerald-800/50 px-3 py-1 rounded-full">
             {translations.faqTitle || 'FAQ'}
           </span>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 mt-3 tracking-tight">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white mt-3 tracking-tight">
             {translations.faqTitle}
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-slate-600 font-medium">
+          <p className="mt-3 text-sm sm:text-base text-slate-400 font-medium">
             {translations.faqSubtitle}
           </p>
         </div>
@@ -29,25 +29,25 @@ export const FaqSection: React.FC = () => {
             return (
               <div
                 key={idx}
-                className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs transition-all"
+                className="bg-slate-900/90 rounded-2xl border border-slate-800 overflow-hidden shadow-lg transition-all"
               >
                 <button
                   onClick={() => setOpenIndex(isOpen ? null : idx)}
-                  className="w-full p-4 sm:p-5 text-left rtl:text-right flex items-center justify-between gap-4 font-bold text-slate-900 text-sm sm:text-base hover:bg-slate-50 transition-colors"
+                  className="w-full p-4 sm:p-5 text-left rtl:text-right flex items-center justify-between gap-4 font-bold text-white text-sm sm:text-base hover:bg-slate-800/60 transition-colors cursor-pointer"
                 >
                   <span className="flex items-center gap-2.5">
-                    <HelpCircle className="w-4 h-4 text-pink-500 shrink-0" />
+                    <HelpCircle className="w-4 h-4 text-pink-400 shrink-0" />
                     <span>{faq.q}</span>
                   </span>
                   <ChevronDown
                     className={`w-4 h-4 text-slate-400 transition-transform shrink-0 ${
-                      isOpen ? 'rotate-180 text-pink-500' : ''
+                      isOpen ? 'rotate-180 text-pink-400' : ''
                     }`}
                   />
                 </button>
 
                 {isOpen && (
-                  <div className="px-4 sm:px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 font-normal">
+                  <div className="px-4 sm:px-5 pb-5 pt-1 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/80 font-normal">
                     {faq.a}
                   </div>
                 )}

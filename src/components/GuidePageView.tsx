@@ -46,26 +46,26 @@ export const GuidePageView: React.FC<GuidePageViewProps> = ({
   const localizedMatchingTool = getDownloaderDataForLocale(locale, matchingTool.slug);
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20">
+    <div className="min-h-screen bg-slate-950 text-slate-100 pb-20">
       {/* Top breadcrumb */}
-      <nav className="bg-white border-b border-slate-200/80">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between text-xs sm:text-sm font-medium text-slate-500">
+      <nav className="bg-slate-900/90 border-b border-slate-800">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between text-xs sm:text-sm font-medium text-slate-400">
           <div className="flex items-center gap-2">
             <button
               onClick={onBack}
-              className="flex items-center gap-1 text-slate-700 hover:text-pink-600 font-semibold transition-colors"
+              className="flex items-center gap-1 text-slate-300 hover:text-pink-400 font-semibold transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
               <span>{isAr ? 'رجوع' : 'Back'}</span>
             </button>
             <span>/</span>
-            <button onClick={onNavigateHome} className="hover:text-pink-600 transition-colors">
+            <button onClick={onNavigateHome} className="hover:text-pink-400 transition-colors cursor-pointer">
               {isAr ? 'الرئيسية' : 'Home'}
             </button>
             <span>/</span>
-            <span className="text-pink-600 font-bold truncate max-w-xs">{displayTitle}</span>
+            <span className="text-pink-400 font-bold truncate max-w-xs">{displayTitle}</span>
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-slate-500">
+          <div className="flex items-center gap-1.5 text-xs text-slate-400">
             <Clock className="w-3.5 h-3.5" />
             <span>{isAr ? 'دقيقتان للقراءة' : guide.readTime}</span>
           </div>
@@ -74,17 +74,17 @@ export const GuidePageView: React.FC<GuidePageViewProps> = ({
 
       {/* Guide Content Header */}
       <article className="max-w-4xl mx-auto px-4 sm:px-6 pt-10 sm:pt-14">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase bg-pink-100 text-pink-700 mb-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase bg-pink-950/70 text-pink-300 border border-pink-800/60 mb-4">
           <span>{isAr ? 'دليل الاستخدام' : 'Tutorial'}</span>
           <span>•</span>
           <span className="uppercase">{guide.category}</span>
         </div>
 
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
           {displayTitle}
         </h1>
 
-        <p className="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
+        <p className="mt-4 text-base sm:text-lg text-slate-300 leading-relaxed">
           {isAr
             ? 'تعرف على كيفية حفظ مقاطع ريلز وفيديوهات وصور وستوري انستقرام بسهولة على هاتفك أو جهاز الكمبيوتر بجودة 1080p الأصلية بدون علامة مائية أو تثبيت أي تطبيقات خارجية.'
             : 'Learn how to save Instagram content effortlessly to your phone or computer in original 1080p high definition without watermarks or installing untrusted third-party apps.'}
@@ -111,8 +111,8 @@ export const GuidePageView: React.FC<GuidePageViewProps> = ({
         )}
 
         {/* Step-by-Step Walkthrough */}
-        <div className="space-y-8 bg-white p-6 sm:p-10 rounded-3xl border border-slate-200 shadow-sm mt-10">
-          <h2 className="text-2xl font-bold text-slate-900 border-b border-slate-100 pb-4">
+        <div className="space-y-8 bg-slate-900/90 p-6 sm:p-10 rounded-3xl border border-slate-800 shadow-xl mt-10">
+          <h2 className="text-2xl font-bold text-white border-b border-slate-800 pb-4">
             {isAr ? 'خطوات التحميل التفصيلية' : 'Step-by-Step Instructions'}
           </h2>
 
@@ -122,10 +122,10 @@ export const GuidePageView: React.FC<GuidePageViewProps> = ({
                 1
               </div>
               <div>
-                <h3 className="font-bold text-lg text-slate-900">
+                <h3 className="font-bold text-lg text-white">
                   {isAr ? 'افتح انستقرام وانسخ رابط المنشور' : 'Open Instagram & Copy the Share Link'}
                 </h3>
-                <p className="text-slate-600 text-sm sm:text-base mt-1.5 leading-relaxed">
+                <p className="text-slate-300 text-sm sm:text-base mt-1.5 leading-relaxed">
                   {isAr ? (
                     <>
                       افتح تطبيق انستقرام على هاتفك الآيفون أو أندرويد (أو موقع instagram.com على الكمبيوتر). انتقل إلى مقطع الريلز أو الفيديو أو الصورة أو الستوري التي ترغب بحفظها، ثم اضغط على أيقونة <strong>المشاركة</strong> أو <strong>النقاط الثلاث (...)</strong> واختر <strong>نسخ الرابط (Copy Link)</strong>.
@@ -144,10 +144,10 @@ export const GuidePageView: React.FC<GuidePageViewProps> = ({
                 2
               </div>
               <div>
-                <h3 className="font-bold text-lg text-slate-900">
+                <h3 className="font-bold text-lg text-white">
                   {isAr ? 'الصق الرابط في موقع sssclips' : 'Paste the URL into sssclips'}
                 </h3>
-                <p className="text-slate-600 text-sm sm:text-base mt-1.5 leading-relaxed">
+                <p className="text-slate-300 text-sm sm:text-base mt-1.5 leading-relaxed">
                   {isAr ? (
                     <>
                       انتقل إلى موقع <strong>sssclips.com</strong> في متصفحك (سفاري أو كروم أو فايرفوكس). الصق رابط انستقرام المنسوخ في مربع البحث أعلاه واضغط على <strong>جلب وتحميل</strong>.
@@ -158,17 +158,17 @@ export const GuidePageView: React.FC<GuidePageViewProps> = ({
                     </>
                   )}
                 </p>
-                <div className="mt-3 p-3 bg-pink-50 rounded-xl border border-pink-200/80 text-xs sm:text-sm text-pink-900">
+                <div className="mt-3 p-3 bg-pink-950/40 rounded-xl border border-pink-500/30 text-xs sm:text-sm text-pink-200">
                   {isAr ? (
                     <>
                       💡 <strong>اختصار احترافي:</strong> يمكنك أيضاً استبدال{' '}
-                      <code className="font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-pink-200">instagram.com</code> بـ{' '}
-                      <code className="font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-pink-200">sssclips.com</code> في رابط انستقرام مباشرة (مثال:{' '}
+                      <code className="font-mono font-bold bg-slate-900 px-1.5 py-0.5 rounded border border-pink-500/40">instagram.com</code> بـ{' '}
+                      <code className="font-mono font-bold bg-slate-900 px-1.5 py-0.5 rounded border border-pink-500/40">sssclips.com</code> في رابط انستقرام مباشرة (مثال:{' '}
                       <code className="font-mono" dir="ltr">sssclips.com/reel/...</code>) والضغط على إدخال!
                     </>
                   ) : (
                     <>
-                      💡 <strong>Pro Shortcut:</strong> You can also just replace <code className="font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-pink-200">instagram.com</code> with <code className="font-mono font-bold bg-white px-1.5 py-0.5 rounded border border-pink-200">sssclips.com</code> in the Instagram URL (e.g. <code className="font-mono">sssclips.com/reel/...</code>) and hit Enter!
+                      💡 <strong>Pro Shortcut:</strong> You can also just replace <code className="font-mono font-bold bg-slate-900 px-1.5 py-0.5 rounded border border-pink-500/40">instagram.com</code> with <code className="font-mono font-bold bg-slate-900 px-1.5 py-0.5 rounded border border-pink-500/40">sssclips.com</code> in the Instagram URL (e.g. <code className="font-mono">sssclips.com/reel/...</code>) and hit Enter!
                     </>
                   )}
                 </div>
@@ -180,10 +180,10 @@ export const GuidePageView: React.FC<GuidePageViewProps> = ({
                 3
               </div>
               <div>
-                <h3 className="font-bold text-lg text-slate-900">
+                <h3 className="font-bold text-lg text-white">
                   {isAr ? 'احفظ الفيديو 1080p MP4 أو الصورة في ألبوم الكاميرا' : 'Save 1080p MP4 or JPG to Your Camera Roll'}
                 </h3>
-                <p className="text-slate-600 text-sm sm:text-base mt-1.5 leading-relaxed">
+                <p className="text-slate-300 text-sm sm:text-base mt-1.5 leading-relaxed">
                   {isAr ? (
                     <>
                       سيقوم النظام باستخراج الفيديو بأعلى دقة 1080p 60fps أو الصورة الأصلية JPG. اضغط على زر <strong>تحميل</strong> لحفظ الملف مباشرة في تطبيق الصور على الآيفون أو معرض أندرويد أو مجلد التنزيلات على الكمبيوتر.
@@ -201,16 +201,16 @@ export const GuidePageView: React.FC<GuidePageViewProps> = ({
 
         {/* Device-Specific Tips */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+          <div className="bg-slate-900/90 p-6 rounded-3xl border border-slate-800 shadow-lg">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-pink-100 text-pink-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-pink-950/70 text-pink-400 border border-pink-800/60 flex items-center justify-center">
                 <Smartphone className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-lg text-slate-900">
+              <h3 className="font-bold text-lg text-white">
                 {isAr ? 'نصيحة لمستخدمي آيفون وآيباد (iOS)' : 'iOS (iPhone & iPad) Tip'}
               </h3>
             </div>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p className="text-sm text-slate-300 leading-relaxed">
               {isAr ? (
                 <>
                   استخدم متصفح Safari للحصول على أفضل تجربة على نظام iOS. عند الضغط على تحميل، وافق على تنزيل الملف ثم اضغط على سهم التنزيلات الأزرق في شريط Safari واختر <strong>حفظ الفيديو (Save Video)</strong> لنقله إلى ألبوم الصور.
@@ -223,16 +223,16 @@ export const GuidePageView: React.FC<GuidePageViewProps> = ({
             </p>
           </div>
 
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+          <div className="bg-slate-900/90 p-6 rounded-3xl border border-slate-800 shadow-lg">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-purple-950/70 text-purple-400 border border-purple-800/60 flex items-center justify-center">
                 <Monitor className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-lg text-slate-900">
+              <h3 className="font-bold text-lg text-white">
                 {isAr ? 'نصيحة لمستخدمي أندرويد والكمبيوتر' : 'Android & PC Tip'}
               </h3>
             </div>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p className="text-sm text-slate-300 leading-relaxed">
               {isAr
                 ? 'على هواتف أندرويد، يقوم متصفح Google Chrome بحفظ الفيديو والصور تلقائياً في ذاكرة الهاتف وتظهر فوراً في تطبيق المعرض (Gallery) وصور جوجل دون الحاجة لأي صلاحيات إضافية.'
                 : 'On Android, Google Chrome will automatically save the video to your internal storage and make it immediately visible in Google Photos, Samsung Gallery, or VLC Player without needing extra permissions.'}
@@ -241,7 +241,7 @@ export const GuidePageView: React.FC<GuidePageViewProps> = ({
         </div>
 
         {/* Related Tool CTA */}
-        <div className="mt-10 p-8 rounded-3xl bg-linear-to-r from-slate-900 to-purple-950 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
+        <div className="mt-10 p-8 rounded-3xl bg-linear-to-r from-slate-900 via-purple-950 to-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl border border-purple-800/40">
           <div>
             <span className="text-xs uppercase tracking-wider font-bold text-pink-400">
               {isAr ? 'جاهز للتحميل الآن؟' : 'Ready to Download?'}
@@ -257,7 +257,7 @@ export const GuidePageView: React.FC<GuidePageViewProps> = ({
           </div>
           <button
             onClick={() => onNavigateTool(matchingTool.slug)}
-            className="px-6 py-3 bg-pink-600 hover:bg-pink-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-pink-600/30 transition-all shrink-0"
+            className="px-6 py-3 bg-pink-600 hover:bg-pink-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-pink-600/30 transition-all shrink-0 cursor-pointer"
           >
             {isAr ? `افتح ${localizedMatchingTool.h1}` : `Open ${matchingTool.shortName} Downloader`}
           </button>

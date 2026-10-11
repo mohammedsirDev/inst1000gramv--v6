@@ -342,7 +342,7 @@ function MainApp() {
   if (currentRoute.type === 'downloader') {
     const meta = getDownloaderDataForLocale(currentRoute.locale, currentRoute.slug);
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
         <Header
           activeTab={meta.type}
           onSelectTab={(tab) => {
@@ -388,7 +388,7 @@ function MainApp() {
     const guide =
       GUIDE_PAGES.find((g) => g.slug === currentRoute.guideSlug) || GUIDE_PAGES[0];
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
         <Header
           activeTab={guide.category}
           onSelectTab={(tab) => {
@@ -432,7 +432,7 @@ function MainApp() {
   // 3. Render Legacy pSEO Landing Page if explicitly active
   if (legacyPseoPage) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
         <Header
           activeTab={activeTab}
           onSelectTab={(tab) => {
@@ -480,7 +480,7 @@ function MainApp() {
   const isSmartRoute = currentRoute.type === 'smart-media';
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-pink-500 selection:text-white">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-pink-500 selection:text-white">
       {/* Top Banner Notice */}
       <div className="bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 text-white text-[11px] sm:text-xs font-semibold py-1.5 px-4 text-center tracking-wide flex items-center justify-center gap-2">
         <span className="flex h-2 w-2 relative">
@@ -544,7 +544,7 @@ function MainApp() {
             </div>
             <button
               onClick={() => navigateTo(`/${currentLang}/`)}
-              className="text-xs text-slate-400 hover:text-white underline shrink-0"
+              className="text-xs text-slate-400 hover:text-white underline shrink-0 cursor-pointer"
             >
               {currentLang === 'ar' ? 'مسح' : 'Clear'}
             </button>
@@ -571,21 +571,21 @@ function MainApp() {
 
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative pt-12 pb-16 sm:pt-20 sm:pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden bg-radial from-pink-500/5 via-slate-50 to-slate-50">
+        <section className="relative pt-12 pb-16 sm:pt-20 sm:pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden bg-radial from-pink-950/20 via-slate-950 to-slate-950 border-b border-slate-900">
           <div className="max-w-5xl mx-auto text-center relative z-10">
             {/* Category Pill Tag */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-white border border-slate-200 shadow-2xs mb-6 text-slate-800">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-900/90 border border-slate-800 shadow-sm mb-6 text-slate-200">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span data-testid="active-category-pill">{categoryLabels[activeTab]?.badge || translations.heroHighlight}</span>
             </div>
 
             {/* Main Category Title */}
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.15]">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.15]">
               <span data-testid="active-category-title">{categoryLabels[activeTab]?.title || translations.heroTitle}</span>
             </h1>
 
             {/* Category Subtitle */}
-            <p className="mt-4 sm:mt-6 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed font-normal">
+            <p className="mt-4 sm:mt-6 text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed font-normal">
               <span data-testid="active-category-desc">{categoryLabels[activeTab]?.desc || translations.heroSubtitle}</span>
             </p>
 

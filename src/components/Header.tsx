@@ -61,14 +61,14 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 transition-colors shadow-xs">
+    <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/90 transition-colors shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Brand Logo */}
           <div className="flex items-center gap-3">
             <button
               onClick={onNavigateHome}
-              className="flex items-center gap-2.5 text-left rtl:text-right focus:outline-none group"
+              className="flex items-center gap-2.5 text-left rtl:text-right focus:outline-none group cursor-pointer"
             >
               <div className="relative w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-pink-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-pink-500/20 group-hover:scale-105 transition-transform">
                 <span className="font-extrabold text-sm tracking-tight">sss</span>
@@ -78,10 +78,10 @@ export const Header: React.FC<HeaderProps> = ({
                 </span>
               </div>
               <div>
-                <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 group-hover:text-pink-600 transition-colors">
-                  <span className="bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">sss</span>clips
+                <span className="text-xl sm:text-2xl font-black tracking-tight text-white group-hover:text-pink-400 transition-colors">
+                  <span className="bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">sss</span>clips
                 </span>
-                <p className="text-[10px] sm:text-xs text-slate-600 font-medium hidden sm:block">
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium hidden sm:block">
                   {translations.brandTagline}
                 </p>
               </div>
@@ -89,17 +89,17 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Center Navigation - Desktop */}
-          <nav className="hidden md:flex items-center gap-1 bg-slate-100/80 p-1.5 rounded-xl border border-slate-200">
+          <nav className="hidden md:flex items-center gap-1 bg-slate-900/90 p-1.5 rounded-xl border border-slate-800">
             {navItems.map((item) => {
               const isActive = isMatchingTab(item.type, activeTab);
               return (
                 <button
                   key={item.type}
                   onClick={() => onSelectTab(item.type)}
-                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-white text-pink-600 shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+                      ? 'bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-sm'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-800/70'
                   }`}
                 >
                   {item.icon}
@@ -115,10 +115,10 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative">
               <button
                 onClick={() => setLangMenuOpen(!langMenuOpen)}
-                className="flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-all"
+                className="flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-200 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl transition-all cursor-pointer"
                 aria-label="Select Language"
               >
-                <Globe className="w-4 h-4 text-slate-500" />
+                <Globe className="w-4 h-4 text-pink-400" />
                 <span className="text-base">{config.flag}</span>
                 <span className="hidden sm:inline font-bold uppercase">{config.code}</span>
               </button>
@@ -132,8 +132,8 @@ export const Header: React.FC<HeaderProps> = ({
                       setLangSearch('');
                     }}
                   />
-                  <div className="absolute right-0 rtl:right-auto rtl:left-0 mt-2 w-64 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 overflow-hidden">
-                    <div className="p-2 border-b border-slate-100">
+                  <div className="absolute right-0 rtl:right-auto rtl:left-0 mt-2 w-64 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                    <div className="p-2 border-b border-slate-800">
                       <div className="relative">
                         <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 rtl:left-auto rtl:right-2.5" />
                         <input
@@ -155,22 +155,22 @@ export const Header: React.FC<HeaderProps> = ({
                               ? 'Поиск среди 29 языков...'
                               : 'Search 29 languages...'
                           }
-                          className="w-full text-xs pl-8 pr-3 rtl:pr-8 rtl:pl-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-pink-500"
+                          className="w-full text-xs pl-8 pr-3 rtl:pr-8 rtl:pl-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-white focus:outline-none focus:border-pink-500"
                         />
                       </div>
                     </div>
 
-                    <div className="max-h-72 overflow-y-auto py-1 scrollbar-thin">
+                    <div className="max-h-72 overflow-y-auto py-1 scrollbar-thin scrollbar-thumb-slate-700">
                       {filteredLanguages.map((lang) => {
                         const isSelected = currentLang === lang.code;
                         return (
                           <button
                             key={lang.code}
                             onClick={() => handleSelectLanguage(lang.code as SupportedLanguage)}
-                            className={`w-full text-left rtl:text-right px-3.5 py-2 text-xs sm:text-sm flex items-center justify-between hover:bg-slate-50 transition-colors ${
+                            className={`w-full text-left rtl:text-right px-3.5 py-2 text-xs sm:text-sm flex items-center justify-between hover:bg-slate-800/80 transition-colors cursor-pointer ${
                               isSelected
-                                ? 'text-pink-600 font-bold bg-pink-50/60'
-                                : 'text-slate-700'
+                                ? 'text-pink-400 font-bold bg-pink-950/40'
+                                : 'text-slate-300'
                             }`}
                           >
                             <span className="flex items-center gap-2.5">
@@ -183,7 +183,7 @@ export const Header: React.FC<HeaderProps> = ({
                               </span>
                             </span>
                             {lang.dir === 'rtl' && (
-                              <span className="text-[9px] px-1.5 py-0.5 bg-amber-50 text-amber-800 rounded font-mono font-bold border border-amber-200/60">
+                              <span className="text-[9px] px-1.5 py-0.5 bg-amber-950/70 text-amber-300 rounded font-mono font-bold border border-amber-800/60">
                                 RTL
                               </span>
                             )}
@@ -199,17 +199,17 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Mobile Horizontal Tabs */}
-        <div className="md:hidden flex items-center justify-between overflow-x-auto py-2 border-t border-slate-100 scrollbar-none gap-2">
+        <div className="md:hidden flex items-center justify-between overflow-x-auto py-2 border-t border-slate-850 scrollbar-none gap-2">
           {navItems.map((item) => {
             const isActive = isMatchingTab(item.type, activeTab);
             return (
               <button
                 key={item.type}
                 onClick={() => onSelectTab(item.type)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-colors ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-colors cursor-pointer ${
                   isActive
                     ? 'bg-pink-600 text-white'
-                    : 'text-slate-600 bg-slate-100 hover:bg-slate-200'
+                    : 'text-slate-400 bg-slate-900 hover:bg-slate-800 border border-slate-800'
                 }`}
               >
                 {item.icon}

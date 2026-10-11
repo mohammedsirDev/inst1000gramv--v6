@@ -193,16 +193,6 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
         downloadUrl: currentSlide.downloadUrl || `/api/download/proxy?url=${encodeURIComponent(directUrl)}&filename=${encodeURIComponent(`sssclips_${prefix}_${slideNum}_720p.mp4`)}&type=video`,
         directUrl,
       });
-      dynamicList.push({
-        id: `slide-fmt-audio-${activeSlideIndex}`,
-        quality: translations.downloadAudio || 'Audio Only (MP3)',
-        resolution: '320 kbps Original Track',
-        extension: 'mp3',
-        size: 'Original Audio',
-        downloadUrl: `/api/download/proxy?url=${encodeURIComponent(directUrl)}&filename=${encodeURIComponent(`sssclips_${prefix}_${slideNum}_audio.mp3`)}&type=audio&quality=audio`,
-        directUrl,
-        isAudio: true,
-      });
     } else {
       dynamicList.push({
         id: `slide-fmt-photo-${activeSlideIndex}`,
@@ -215,9 +205,31 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
       });
     }
 
-    // Preserve the ZIP download format if present in the main result
-    const zipFormat = result.formats?.find((f) => f.extension === 'zip');
-    if (zipFormat) {
+    // Dedicated Audio Format (MP3) for Reels, Videos, or any media with audio track
+    const audioTarget = result.audioUrl || (isVid ? directUrl : result.videoUrl || directUrl);
+    if (isVid || result.hasAudio || result.videoUrl) {
+      dynamicList.push({
+        id: `slide-fmt-audio-${activeSlideIndex}`,
+        quality: translations.downloadAudio || 'Download Audio (MP3)',
+        resolution: '320 kbps Original Audio Track',
+        extension: 'mp3',
+        size: 'Original Audio',
+        downloadUrl: `/api/download/proxy?url=${encodeURIComponent(audioTarget)}&filename=${encodeURIComponent(`sssclips_audio_${result.shortcode || slideNum}.mp3`)}&type=audio&quality=audio`,
+        directUrl: audioTarget,
+        isAudio: true,
+      });
+    }
+
+    // Preserve or generate ZIP download format if multi-item carousel or album
+    if (result.slides && result.slides.length > 1) {
+      const zipFormat = result.formats?.find((f) => f.extension === 'zip') || {
+        id: 'fmt-zip-all',
+        quality: `Download All ${result.slides.length} Items (.ZIP Archive)`,
+        resolution: `${result.slides.length} Media Files (Full Quality)`,
+        extension: 'zip' as const,
+        size: `${result.slides.length} Files`,
+        downloadUrl: `/api/download/zip?url=${encodeURIComponent(result.sourceUrl)}&name=${encodeURIComponent(`sssclips_${result.type || 'album'}_${result.shortcode}_all.zip`)}`,
+      };
       dynamicList.push(zipFormat);
     }
 
@@ -363,6 +375,25 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
       downloadProxyUrl = `/api/download/proxy?url=${encodeURIComponent(
         targetUrl
       )}&filename=${encodeURIComponent(safeFilename)}&type=${type}`;
+    }
+
+    // Forced mobile download: on iOS Safari & Chrome Android, trigger native save prompt directly
+    const isMobileDevice = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobileDevice) {
+      const anchor = document.createElement('a');
+      anchor.href = downloadProxyUrl;
+      anchor.download = safeFilename;
+      anchor.target = '_self';
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+
+      setDownloadSuccessMessage({
+        text: `${translations.downloading || 'Downloading'} ${safeFilename} (${translations.savingToDevice || 'saving to device'})...`,
+        url: downloadProxyUrl,
+      });
+      setDownloadingFormatId(null);
+      return;
     }
 
     setDownloadProgress({
@@ -572,28 +603,28 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 my-6 sm:my-8 animate-in fade-in duration-300">
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden relative">
+      <div className="bg-slate-900 rounded-3xl border border-slate-800 shadow-2xl shadow-black/50 overflow-hidden relative text-slate-100">
         {/* Top Badges Bar */}
-        <div className="bg-slate-50 px-5 sm:px-8 py-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="bg-slate-950/80 px-5 sm:px-8 py-3.5 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-extrabold bg-gradient-to-r from-pink-500 to-rose-600 text-white shadow-2xs">
               <Sparkles className="w-3.5 h-3.5" />
               {localizeMediaBadge(result.type)}
             </span>
-            <span className="hidden sm:inline-flex items-center gap-1 font-semibold text-slate-500">
-              <Zap className="w-3.5 h-3.5 text-amber-500" />
+            <span className="hidden sm:inline-flex items-center gap-1 font-semibold text-slate-400">
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
               {isAr ? `سرعة الاستجابة ${safeNetworkLatencyMs}ms` : `${safeNetworkLatencyMs}ms CDN Stream`}
             </span>
           </div>
 
-          <div className="flex items-center gap-2 text-slate-500 font-medium">
-            <span className="inline-flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md font-semibold">
+          <div className="flex items-center gap-2 text-slate-400 font-medium">
+            <span className="inline-flex items-center gap-1 text-emerald-400 bg-emerald-950/50 border border-emerald-800/60 px-2 py-0.5 rounded-md font-semibold">
               <ShieldCheck className="w-3.5 h-3.5" />
               {translations.anonymousBadge || (isAr ? 'تصفح مجهول نشط' : 'Anonymous Active')}
             </span>
             <button
               onClick={onClear}
-              className="p-1 hover:bg-slate-200 rounded-lg text-slate-400 hover:text-slate-600 transition-colors"
+              className="p-1 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
               title={translations.close || (isAr ? 'إغلاق' : 'Close')}
             >
               <X className="w-4 h-4" />
@@ -606,30 +637,30 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
           <div
             className={`mx-4 sm:mx-6 mt-4 p-4 rounded-2xl border transition-all ${
               downloadProgress.status === 'completed'
-                ? 'bg-emerald-50/70 border-emerald-300'
+                ? 'bg-emerald-950/40 border-emerald-700/60 text-emerald-200'
                 : downloadProgress.status === 'error'
-                ? 'bg-rose-50 border-rose-300'
-                : 'bg-gradient-to-r from-pink-50/80 via-purple-50/50 to-indigo-50/80 border-pink-200 shadow-sm'
+                ? 'bg-rose-950/40 border-rose-700/60 text-rose-200'
+                : 'bg-slate-950/80 border-slate-800 shadow-sm text-slate-200'
             }`}
           >
             <div className="flex items-center justify-between gap-3 mb-2">
               <div className="flex items-center gap-2.5 min-w-0">
                 {downloadProgress.status === 'completed' ? (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
                 ) : downloadProgress.status === 'error' ? (
-                  <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+                  <AlertCircle className="w-5 h-5 text-rose-400 shrink-0" />
                 ) : (
-                  <Loader2 className="w-5 h-5 text-pink-600 animate-spin shrink-0" />
+                  <Loader2 className="w-5 h-5 text-pink-500 animate-spin shrink-0" />
                 )}
                 <div className="min-w-0">
-                  <p className="text-xs sm:text-sm font-extrabold text-slate-900 truncate">
+                  <p className="text-xs sm:text-sm font-extrabold text-white truncate">
                     {downloadProgress.status === 'completed'
                       ? (translations.downloadComplete || 'Download Complete!')
                       : downloadProgress.status === 'error'
                       ? (translations.downloadNotice || 'Download Notice')
                       : (translations.downloading || 'Downloading...')}
                   </p>
-                  <p className="text-[11px] text-slate-500 font-mono truncate">
+                  <p className="text-[11px] text-slate-400 font-mono truncate">
                     {downloadProgress.filename}
                   </p>
                 </div>
@@ -637,16 +668,16 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
 
               <div className="text-right shrink-0">
                 {downloadProgress.status === 'completed' ? (
-                  <span className="text-xs sm:text-sm font-bold text-emerald-600 flex items-center gap-1">
+                  <span className="text-xs sm:text-sm font-bold text-emerald-400 flex items-center gap-1">
                     <CheckCircle2 className="w-4 h-4" />
                     <span>{translations.downloadComplete || 'Download complete'}</span>
                   </span>
                 ) : downloadProgress.percent >= 0 ? (
-                  <span className="text-sm sm:text-base font-black text-pink-600 font-mono">
+                  <span className="text-sm sm:text-base font-black text-pink-400 font-mono">
                     {downloadProgress.percent}%
                   </span>
                 ) : (
-                  <span className="text-xs sm:text-sm font-bold text-pink-600 font-mono">
+                  <span className="text-xs sm:text-sm font-bold text-pink-400 font-mono">
                     {(downloadProgress.loadedBytes / (1024 * 1024)).toFixed(1)} MB
                   </span>
                 )}
@@ -654,7 +685,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
             </div>
 
             {/* Visual Animated Progress Bar Track */}
-            <div className="w-full bg-slate-200/80 rounded-full h-3 overflow-hidden p-0.5 border border-slate-300/60 shadow-inner">
+            <div className="w-full bg-slate-800 rounded-full h-3 overflow-hidden p-0.5 border border-slate-700/80 shadow-inner">
               <div
                 className={`h-full rounded-full transition-all duration-150 ${
                   downloadProgress.status === 'completed'
@@ -677,14 +708,14 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
             </div>
 
             {/* Bottom info stats and immediate browser download fallback */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-2.5 text-[11px] text-slate-600 font-medium">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-2.5 text-[11px] text-slate-400 font-medium">
               <div>
                 {downloadProgress.status === 'completed' ? (
-                  <span className="text-emerald-700 font-bold">
+                  <span className="text-emerald-300 font-bold">
                     ✓ {translations.downloadComplete || 'Download complete'} • {(downloadProgress.loadedBytes / (1024 * 1024)).toFixed(1)} MB
                   </span>
                 ) : downloadProgress.status === 'error' ? (
-                  <span className="text-rose-700">{downloadProgress.errorMessage}</span>
+                  <span className="text-rose-300">{downloadProgress.errorMessage}</span>
                 ) : (
                   <span>
                     {(downloadProgress.loadedBytes / (1024 * 1024)).toFixed(1)} MB
@@ -702,7 +733,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                     href={downloadProgress.downloadUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-pink-600 hover:text-pink-700 font-bold underline flex items-center gap-1"
+                    className="text-pink-400 hover:text-pink-300 font-bold underline flex items-center gap-1"
                   >
                     <span>{translations.browserDownloadFallback || 'Save directly in browser'}</span>
                     <ExternalLink className="w-3 h-3" />
@@ -728,19 +759,19 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       setAuthorAvatarSrc(fallbackAvatarUrl);
                     }
                   }}
-                  className="w-8 h-8 rounded-full border border-pink-200 object-cover shrink-0"
+                  className="w-8 h-8 rounded-full border border-pink-500/40 object-cover shrink-0"
                 />
                 <div className="min-w-0">
-                  <span className="font-extrabold text-xs sm:text-sm text-slate-800 block truncate">
+                  <span className="font-extrabold text-xs sm:text-sm text-white block truncate">
                     @{authorUsername}
                   </span>
-                  <span className="text-[10px] text-slate-600 font-medium">
+                  <span className="text-[10px] text-slate-400 font-medium">
                     {translations.creatorBadge || 'Instagram Creator'}
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 text-slate-600 text-xs font-semibold">
+              <div className="flex items-center gap-3 text-slate-400 text-xs font-semibold">
                 {safeLikesCount > 0 && (
                   <span className="flex items-center gap-1">
                     <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
@@ -751,7 +782,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                 )}
                 {safeCommentsCount > 0 && (
                   <span className="flex items-center gap-1">
-                    <MessageCircle className="w-3.5 h-3.5 text-blue-500" />
+                    <MessageCircle className="w-3.5 h-3.5 text-blue-400" />
                     {safeCommentsCount}
                   </span>
                 )}
@@ -759,7 +790,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
             </div>
 
             {/* Media Player or Thumbnail Box */}
-            <div className="relative w-full aspect-square max-w-[340px] rounded-2xl overflow-hidden bg-slate-900 border border-slate-200 shadow-md group">
+            <div className="relative w-full aspect-square max-w-[340px] rounded-2xl overflow-hidden bg-black border border-slate-800 shadow-xl group">
               {isSlideVideo && activeVideoUrl ? (
                 <video
                   key={activeVideoUrl}
@@ -793,7 +824,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
               {/* Slide Counter Overlay for Carousel / Highlights */}
               {result.slides && result.slides.length > 1 && (
                 <>
-                  <div className="absolute top-3 left-3 bg-black/75 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 z-10 shadow-md">
+                  <div className="absolute top-3 left-3 bg-black/80 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 z-10 shadow-md border border-white/10">
                     <span>
                       #{activeSlideIndex + 1} / {result.slides.length}
                     </span>
@@ -807,7 +838,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       setActiveSlideIndex((prev) => (prev > 0 ? prev - 1 : result.slides!.length - 1));
                     }}
                     aria-label="Previous Slide"
-                    className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/65 hover:bg-black/90 text-white flex items-center justify-center backdrop-blur-xs transition-all opacity-85 hover:opacity-100 hover:scale-110 shadow-lg z-10 cursor-pointer"
+                    className="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/75 hover:bg-black/95 text-white flex items-center justify-center backdrop-blur-md transition-all opacity-90 hover:opacity-100 hover:scale-110 shadow-lg z-10 cursor-pointer border border-white/10"
                   >
                     <ChevronLeft className="w-5 h-5 rtl:rotate-180" />
                   </button>
@@ -820,17 +851,25 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       setActiveSlideIndex((prev) => (prev < result.slides!.length - 1 ? prev + 1 : 0));
                     }}
                     aria-label="Next Slide"
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/65 hover:bg-black/90 text-white flex items-center justify-center backdrop-blur-xs transition-all opacity-85 hover:opacity-100 hover:scale-110 shadow-lg z-10 cursor-pointer"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/75 hover:bg-black/95 text-white flex items-center justify-center backdrop-blur-md transition-all opacity-90 hover:opacity-100 hover:scale-110 shadow-lg z-10 cursor-pointer border border-white/10"
                   >
                     <ChevronRight className="w-5 h-5 rtl:rotate-180" />
                   </button>
                 </>
               )}
 
+              {/* Duration Badge Overlay */}
+              {(result.duration || isSlideVideo) && (
+                <div className="absolute bottom-3 left-3 bg-black/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 z-10 shadow-md border border-white/10">
+                  <Play className="w-2.5 h-2.5 text-pink-400 fill-pink-400" />
+                  <span>{result.duration || '00:30'}</span>
+                </div>
+              )}
+
               {/* HD Badge Overlay */}
-              <div className="absolute bottom-3 right-3 bg-black/75 backdrop-blur-xs text-white text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 z-10 shadow-md">
+              <div className="absolute bottom-3 right-3 bg-black/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-0.5 rounded-md flex items-center gap-1 z-10 shadow-md border border-white/10">
                 <Sparkles className="w-3 h-3 text-pink-400" />
-                <span>{translations.readyInHD || '1080p Ultra HD'}</span>
+                <span>{currentSlide?.resolution || (translations.readyInHD || '1080p Ultra HD')}</span>
               </div>
             </div>
 
@@ -838,15 +877,15 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
             {result.slides && result.slides.length > 1 && (
               <div className="w-full mt-3">
                 <div className="flex items-center justify-between mb-1.5 px-1">
-                  <p className="text-xs font-bold text-slate-700">
+                  <p className="text-xs font-bold text-slate-300">
                     {result.type === 'stories' || result.type === 'story'
                       ? (translations.storiesList || 'Stories List')
                       : result.type === 'highlight'
                       ? (translations.highlightItems || 'Highlight Items')
                       : (translations.carouselSlides || 'Carousel Slides')}{' '}
-                    <span className="text-pink-600 font-extrabold">({result.slides.length} {isAr ? 'عنصر' : 'items'})</span>:
+                    <span className="text-pink-400 font-extrabold">({result.slides.length} {isAr ? 'عنصر' : 'items'})</span>:
                   </p>
-                  <span className="text-[11px] text-pink-600 font-semibold bg-pink-50 px-2 py-0.5 rounded-full border border-pink-100">
+                  <span className="text-[11px] text-pink-400 font-semibold bg-pink-950/40 px-2 py-0.5 rounded-full border border-pink-800/40">
                     #{activeSlideIndex + 1} / {result.slides.length} ({currentSlide?.type === 'video' ? (translations.videoLabel || 'Video') : (translations.photoLabel || 'Photo')})
                   </span>
                 </div>
@@ -857,7 +896,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       type="button"
                       onClick={() => scrollThumbnails('left')}
                       aria-label="Previous thumbnails"
-                      className="w-7 h-14 rounded-lg bg-slate-100 hover:bg-pink-100 text-slate-700 hover:text-pink-600 flex items-center justify-center shrink-0 transition-colors cursor-pointer border border-slate-200"
+                      className="w-7 h-14 rounded-lg bg-slate-800 hover:bg-pink-950/60 text-slate-300 hover:text-pink-400 flex items-center justify-center shrink-0 transition-colors cursor-pointer border border-slate-700"
                     >
                       <ChevronLeft className="w-4 h-4 rtl:rotate-180" />
                     </button>
@@ -865,7 +904,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
 
                   <div
                     ref={thumbnailScrollRef}
-                    className="flex gap-2 overflow-x-auto py-1 scroll-smooth scrollbar-thin scrollbar-thumb-pink-300 w-full"
+                    className="flex gap-2 overflow-x-auto py-1 scroll-smooth scrollbar-thin scrollbar-thumb-pink-600 w-full"
                   >
                     {result.slides.map((slide, idx) => (
                       <button
@@ -873,8 +912,8 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                         onClick={() => setActiveSlideIndex(idx)}
                         className={`relative w-14 h-14 rounded-xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${
                           activeSlideIndex === idx
-                            ? 'border-pink-600 scale-105 shadow-md ring-2 ring-pink-400/50'
-                            : 'border-slate-200 opacity-70 hover:opacity-100'
+                            ? 'border-pink-500 scale-105 shadow-md ring-2 ring-pink-500/50'
+                            : 'border-slate-800 opacity-70 hover:opacity-100'
                         }`}
                         title={`Select Item #${idx + 1}`}
                       >
@@ -886,11 +925,11 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                           crossOrigin="anonymous"
                           className="w-full h-full object-cover"
                         />
-                        <span className="absolute bottom-0 right-0 bg-black/75 text-white text-[9px] px-1 font-bold">
+                        <span className="absolute bottom-0 right-0 bg-black/85 text-white text-[9px] px-1 font-bold">
                           #{idx + 1}
                         </span>
                         {slide.type === 'video' && (
-                          <div className="absolute top-1 left-1 bg-black/60 rounded-full p-0.5">
+                          <div className="absolute top-1 left-1 bg-black/70 rounded-full p-0.5">
                             <Play className="w-2.5 h-2.5 text-white fill-white" />
                           </div>
                         )}
@@ -903,16 +942,16 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       type="button"
                       onClick={() => scrollThumbnails('right')}
                       aria-label="Next thumbnails"
-                      className="w-7 h-14 rounded-lg bg-slate-100 hover:bg-pink-100 text-slate-700 hover:text-pink-600 flex items-center justify-center shrink-0 transition-colors cursor-pointer border border-slate-200"
+                      className="w-7 h-14 rounded-lg bg-slate-800 hover:bg-pink-950/60 text-slate-300 hover:text-pink-400 flex items-center justify-center shrink-0 transition-colors cursor-pointer border border-slate-700"
                     >
                       <ChevronRight className="w-4 h-4 rtl:rotate-180" />
                     </button>
                   )}
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] text-slate-500 mt-1 px-1">
+                <div className="flex items-center justify-between text-[11px] text-slate-400 mt-1 px-1">
                   <span>{isAr ? `عرض الصورة ${activeSlideIndex + 1} من ${result.slides.length}` : `Viewing item ${activeSlideIndex + 1} of ${result.slides.length}`}</span>
-                  <span className="text-slate-400">{isAr ? 'مرر لرؤية جميع الصور' : 'Swipe or use arrows to view all slides'}</span>
+                  <span className="text-slate-500">{isAr ? 'مرر لرؤية جميع الصور' : 'Swipe or use arrows to view all slides'}</span>
                 </div>
               </div>
             )}
@@ -921,7 +960,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
           {/* Right Column: Title, Caption, Formats List */}
           <div className="md:col-span-7 flex flex-col justify-between">
             <div>
-              <h3 className="font-extrabold text-slate-900 text-base sm:text-lg leading-snug line-clamp-2">
+              <h3 className="font-extrabold text-white text-base sm:text-lg leading-snug line-clamp-2">
                 {isAr
                   ? (result.title || '')
                       .replace(/^Instagram Reels \/ Media Stream$/i, 'مقطع ريلز / وسائط انستقرام')
@@ -931,7 +970,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       .replace(/^Instagram Highlight by @/i, 'هايلايت انستقرام من حساب @')
                   : result.title}
               </h3>
-              <p className="mt-2 text-xs sm:text-sm text-slate-600 line-clamp-3 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <p className="mt-2 text-xs sm:text-sm text-slate-300 line-clamp-3 leading-relaxed bg-slate-950/60 p-3 rounded-xl border border-slate-800">
                 {isAr
                   ? (result.caption || '')
                       .replace(
@@ -943,9 +982,9 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
 
               {/* Download Success Notice with Direct Mirror Link */}
               {downloadSuccessMessage && (
-                <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs sm:text-sm font-semibold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 animate-in fade-in">
+                <div className="mt-3 p-3 bg-emerald-950/50 border border-emerald-700/60 text-emerald-200 rounded-xl text-xs sm:text-sm font-semibold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 animate-in fade-in">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                     <span>{downloadSuccessMessage.text}</span>
                   </div>
                   {downloadSuccessMessage.url && (
@@ -953,7 +992,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       href={downloadSuccessMessage.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-2.5 py-1 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 transition-colors whitespace-nowrap self-end sm:self-auto"
+                      className="px-2.5 py-1 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-500 transition-colors whitespace-nowrap self-end sm:self-auto cursor-pointer"
                     >
                       {translations.directLink || 'Mirror / Open File ↗'}
                     </a>
@@ -961,79 +1000,117 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                 </div>
               )}
 
-              {/* Active Slide / Story Download Action Box */}
-              {currentSlide && (
-                <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-pink-50 via-purple-50 to-indigo-50 border border-pink-200/80 shadow-xs">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-black uppercase text-pink-700 tracking-wide flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-pink-600" />
-                      {result.type === 'stories' || result.type === 'story'
-                        ? `${translations.downloadStory || 'Download Story'} #${activeSlideIndex + 1}`
-                        : result.type === 'highlight'
-                        ? `${translations.downloadHighlight || 'Download Highlight'} #${activeSlideIndex + 1}`
-                        : `${translations.downloadSlide || 'Download Slide'} #${activeSlideIndex + 1}`}
-                    </span>
-                    <span className="text-[11px] font-bold text-slate-500 uppercase">
-                      {currentSlide.type === 'video'
-                        ? (isAr ? 'فيديو MP4' : 'MP4 Video')
-                        : (isAr ? 'صورة JPG' : 'JPG Image')}
-                    </span>
-                  </div>
+              {/* Dedicated Download Buttons Panel (FastDL Style: Video MP4 + Audio MP3 + Download All ZIP) */}
+              <div className="mt-4 p-4 rounded-2xl bg-slate-950/80 border border-slate-800 shadow-md">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-black uppercase text-pink-400 tracking-wide flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-pink-500" />
+                    {currentSlide && (result.slides && result.slides.length > 1)
+                      ? `${translations.downloadSlide || 'Slide'} #${activeSlideIndex + 1}`
+                      : `${translations.downloadFileBtn || 'Instant Download'}`}
+                  </span>
+                  <span className="text-[11px] font-bold text-slate-400 uppercase">
+                    {currentSlide?.type === 'video'
+                      ? (isAr ? '1080p فيديو MP4' : '1080p MP4 Video')
+                      : (isAr ? 'أعلى دقة JPG' : 'Original JPG')}
+                  </span>
+                </div>
 
-                  <div className="flex items-center gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {/* Primary Video or Image Download Button */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const ext = currentSlide ? (currentSlide.type === 'video' ? 'mp4' : 'jpg') : (isSlideVideo ? 'mp4' : 'jpg');
+                      const prefix =
+                        result.type === 'highlight'
+                          ? 'highlight'
+                          : result.type === 'carousel'
+                          ? 'carousel'
+                          : result.type || 'media';
+                      const filename = `sssclips_${prefix}_${activeSlideIndex + 1}_1080p.${ext}`;
+                      const url = currentSlide?.downloadUrl || currentSlide?.url || primaryFormat.downloadUrl || primaryFormat.directUrl || '';
+                      downloadViaBlob(url, filename, `primary-dl-${activeSlideIndex}`);
+                    }}
+                    disabled={downloadingFormatId === `primary-dl-${activeSlideIndex}`}
+                    className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-pink-600/25 transition-all active:scale-[0.98] cursor-pointer disabled:opacity-75"
+                  >
+                    {downloadingFormatId === `primary-dl-${activeSlideIndex}` ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                        <span>{translations.downloading || 'Downloading...'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4 shrink-0" />
+                        <span>
+                          {currentSlide?.type === 'video' || isSlideVideo
+                            ? translations.downloadVideo || 'Download Video (MP4)'
+                            : translations.downloadPhoto || 'Download Image (JPG)'}
+                        </span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* Dedicated Audio Download Button (MP3) - Requirement 2 */}
+                  {(isSlideVideo || result.hasAudio || result.audioUrl || result.videoUrl) && (
                     <button
                       type="button"
                       onClick={() => {
-                        const ext = currentSlide.type === 'video' ? 'mp4' : 'jpg';
-                        const prefix =
-                          result.type === 'highlight'
-                            ? 'highlight'
-                            : result.type === 'carousel'
-                            ? 'carousel'
-                            : result.type || 'media';
-                        const filename = `insta1000gram_${prefix}_${activeSlideIndex + 1}.${ext}`;
-                        const url = currentSlide.downloadUrl || currentSlide.url;
-                        downloadViaBlob(url, filename, `slide-${activeSlideIndex}`);
+                        const audioTarget = result.audioUrl || currentSlide?.directUrl || result.videoUrl || result.directUrl || '';
+                        const filename = `sssclips_audio_${result.shortcode || activeSlideIndex + 1}.mp3`;
+                        downloadViaBlob(audioTarget, filename, `audio-dl-${activeSlideIndex}`);
                       }}
-                      disabled={downloadingFormatId === `slide-${activeSlideIndex}`}
-                      className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 text-white text-xs sm:text-sm font-bold shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-75"
+                      disabled={downloadingFormatId === `audio-dl-${activeSlideIndex}`}
+                      className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 hover:border-amber-500/50 text-white text-xs sm:text-sm font-bold shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-75"
                     >
-                      {downloadingFormatId === `slide-${activeSlideIndex}` ? (
+                      {downloadingFormatId === `audio-dl-${activeSlideIndex}` ? (
                         <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>
-                            {downloadProgress?.formatId === `slide-${activeSlideIndex}` &&
-                            downloadProgress.percent > 0
-                              ? `${translations.downloading || 'Downloading'} ${downloadProgress.percent}%`
-                              : translations.downloading || 'Downloading...'}
-                          </span>
+                          <Loader2 className="w-4 h-4 animate-spin text-amber-400 shrink-0" />
+                          <span>{translations.downloading || 'Downloading...'}</span>
                         </>
                       ) : (
                         <>
-                          <Download className="w-4 h-4" />
+                          <Music className="w-4 h-4 text-amber-400 shrink-0" />
+                          <span>{translations.downloadAudio || 'Download Audio (MP3)'}</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+
+                  {/* Dedicated Download All Slides Button (.ZIP) - Requirement 1 */}
+                  {result.slides && result.slides.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const zipFormat = result.formats?.find((f) => f.extension === 'zip') || {
+                          downloadUrl: `/api/download/zip?url=${encodeURIComponent(result.sourceUrl)}&name=${encodeURIComponent(`sssclips_${result.type || 'album'}_all.zip`)}`,
+                        };
+                        const zipFilename = `sssclips_${result.type || 'carousel'}_${result.shortcode}_all.zip`;
+                        downloadViaBlob(zipFormat.downloadUrl, zipFilename, 'zip-all-dl');
+                      }}
+                      disabled={downloadingFormatId === 'zip-all-dl'}
+                      className="col-span-1 sm:col-span-2 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-purple-700 to-indigo-700 hover:from-purple-600 hover:to-indigo-600 text-white text-xs sm:text-sm font-bold shadow-md transition-all active:scale-[0.98] cursor-pointer disabled:opacity-75"
+                    >
+                      {downloadingFormatId === 'zip-all-dl' ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                          <span>{translations.downloading || 'Zipping & Downloading...'}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Archive className="w-4 h-4 shrink-0" />
                           <span>
-                            {currentSlide.type === 'video'
-                              ? translations.downloadVideo || 'Download Video (MP4)'
-                              : translations.downloadPhoto || 'Download Image (JPG)'}
+                            {translations.downloadZip || `Download All ${result.slides.length} Items (.ZIP Archive)`}
                           </span>
                         </>
                       )}
                     </button>
-
-                    <a
-                      href={currentSlide.downloadUrl || currentSlide.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-2.5 rounded-xl bg-white border border-pink-200 text-pink-700 hover:bg-pink-100/50 transition-colors"
-                      title={translations.directLink || 'Direct Link in New Tab / Mirror'}
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  </div>
+                  )}
                 </div>
-              )}
+              </div>
 
-              {/* Available Formats Section */}
+              {/* Available Streams Section */}
               <div className="mt-5 space-y-2.5">
                 <div className="flex items-center justify-between pb-1">
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
@@ -1044,7 +1121,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                       setSelectedQrFormat(primaryFormat);
                       setIsQrModalOpen(true);
                     }}
-                    className="flex items-center gap-1 text-xs font-bold text-pink-600 hover:text-pink-700 transition-colors cursor-pointer"
+                    className="flex items-center gap-1 text-xs font-bold text-pink-400 hover:text-pink-300 transition-colors cursor-pointer"
                   >
                     <QrCode className="w-3.5 h-3.5" />
                     <span>{translations.scanQrCode || 'Scan with Phone'}</span>
@@ -1059,18 +1136,18 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                   return (
                     <div
                       key={fmt.id}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-3.5 rounded-2xl border border-slate-200 hover:border-pink-300 hover:bg-pink-50/20 bg-slate-50/50 transition-all gap-3"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-3.5 rounded-2xl border border-slate-800 hover:border-pink-500/50 hover:bg-slate-800/40 bg-slate-950/60 transition-all gap-3"
                     >
                       <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                         <div
                           className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
                             isZip
-                              ? 'bg-purple-100 text-purple-800'
+                              ? 'bg-purple-950/80 text-purple-300 border border-purple-800/60'
                               : isAudio
-                              ? 'bg-amber-100 text-amber-800'
+                              ? 'bg-amber-950/80 text-amber-300 border border-amber-800/60'
                               : fmt.quality.includes('1080p')
-                              ? 'bg-pink-100 text-pink-700'
-                              : 'bg-blue-100 text-blue-700'
+                              ? 'bg-pink-950/80 text-pink-300 border border-pink-800/60'
+                              : 'bg-blue-950/80 text-blue-300 border border-blue-800/60'
                           }`}
                         >
                           {isZip ? (
@@ -1083,7 +1160,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="font-bold text-slate-900 text-xs sm:text-sm truncate">
+                            <span className="font-bold text-white text-xs sm:text-sm truncate">
                               {localizeQualityLabel(fmt.quality)}
                             </span>
                             {fmt.quality.includes('1080p') && (
@@ -1092,7 +1169,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                               </span>
                             )}
                           </div>
-                          <span className="text-[11px] text-slate-500 font-medium block truncate">
+                          <span className="text-[11px] text-slate-400 font-medium block truncate">
                             {localizeResolutionLabel(fmt.resolution)} • {localizeSizeLabel(fmt.size)}
                           </span>
                         </div>
@@ -1106,20 +1183,16 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                           disabled={isCurrentLoading}
                           className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-2.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer disabled:opacity-75 ${
                             isZip
-                              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white'
+                              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white'
                               : fmt.quality.includes('1080p')
                               ? 'bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white'
-                              : 'bg-slate-900 hover:bg-slate-800 text-white'
+                              : 'bg-slate-800 hover:bg-slate-700 text-white border border-slate-700'
                           }`}
                         >
                           {isCurrentLoading ? (
                             <>
                               <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
-                              <span>
-                                {downloadProgress?.formatId === fmt.id && downloadProgress.percent > 0
-                                  ? `${translations.downloading || 'Downloading'} ${downloadProgress.percent}%`
-                                  : translations.downloading || 'Downloading...'}
-                              </span>
+                              <span>{translations.downloading || 'Downloading...'}</span>
                             </>
                           ) : (
                             <>
@@ -1127,6 +1200,8 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                               <span>
                                 {isZip
                                   ? translations.downloadZip || 'Download All (.ZIP)'
+                                  : isAudio
+                                  ? translations.downloadAudio || 'Download Audio (MP3)'
                                   : translations.downloadFileBtn}
                               </span>
                             </>
@@ -1140,7 +1215,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                               setSelectedQrFormat(fmt);
                               setIsQrModalOpen(true);
                             }}
-                            className="p-2.5 sm:p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-pink-600 hover:border-pink-300 transition-colors cursor-pointer shrink-0"
+                            className="p-2.5 sm:p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-pink-400 transition-colors cursor-pointer shrink-0"
                             title={`Scan QR code for ${fmt.quality} on phone`}
                           >
                             <QrCode className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
@@ -1152,7 +1227,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                           href={fmt.downloadUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-2.5 sm:p-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-pink-600 hover:border-pink-200 transition-colors shrink-0"
+                          className="p-2.5 sm:p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-pink-400 transition-colors shrink-0"
                           title="Open in New Tab / Mirror"
                         >
                           <ExternalLink className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
@@ -1163,17 +1238,23 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                 })}
               </div>
 
-              {/* All Items Quick Download List if Multi-Item */}
+              {/* Individual Carousel Slides Grid (Requirement 1) */}
               {result.slides && result.slides.length > 1 && (
-                <div className="mt-5 pt-4 border-t border-slate-100">
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2.5">
-                    {result.type === 'highlight'
-                      ? (translations.highlightItems || 'Highlight Items')
-                      : result.type === 'carousel'
-                      ? (translations.carouselSlides || 'Carousel Slides')
-                      : (translations.storiesList || 'Stories')}{' '}
-                    ({result.slides.length} {isAr ? 'متاح' : 'Available'})
-                  </span>
+                <div className="mt-5 pt-4 border-t border-slate-800">
+                  <div className="flex items-center justify-between mb-2.5">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+                      {result.type === 'highlight'
+                        ? (translations.highlightItems || 'Highlight Items')
+                        : result.type === 'carousel'
+                        ? (translations.carouselSlides || 'Carousel Slides')
+                        : (translations.storiesList || 'Stories')}{' '}
+                      ({result.slides.length} {isAr ? 'متاح' : 'Available'})
+                    </span>
+                    <span className="text-[11px] text-slate-500">
+                      {isAr ? 'تحميل كل صورة أو فيديو بمفرده' : 'Download each slide individually'}
+                    </span>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-80 overflow-y-auto pr-1">
                     {result.slides.map((s, idx) => {
                       const isItemLoading = downloadingFormatId === `item-${idx}`;
@@ -1184,46 +1265,68 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
                           : result.type === 'carousel'
                           ? 'carousel'
                           : 'story';
-                      const filename = `sssclips_${prefix}_${idx + 1}.${ext}`;
+                      const filename = `sssclips_${prefix}_slide_${idx + 1}.${ext}`;
                       return (
-                        <button
+                        <div
                           key={s.id || idx}
-                          type="button"
-                          onClick={() =>
-                            downloadViaBlob(s.downloadUrl || s.url, filename, `item-${idx}`)
-                          }
-                          disabled={isItemLoading}
-                          className="flex items-center justify-between p-2 rounded-xl border border-slate-200 hover:border-pink-300 hover:bg-pink-50/40 text-xs transition-all cursor-pointer text-left rtl:text-right group"
+                          className="flex items-center justify-between p-2 rounded-xl border border-slate-800 hover:border-pink-500/50 hover:bg-slate-800/40 bg-slate-950/60 text-xs transition-all"
                         >
                           <div className="flex items-center gap-2 min-w-0">
-                            <div className="relative w-8 h-8 rounded-lg overflow-hidden shrink-0 border border-slate-200 bg-slate-100">
+                            <div className="relative w-9 h-9 rounded-lg overflow-hidden shrink-0 border border-slate-700 bg-black">
                               <img
                                 src={s.thumbnail}
                                 alt={`Item ${idx + 1}`}
                                 loading="lazy"
                                 referrerPolicy="no-referrer"
                                 crossOrigin="anonymous"
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                className="w-full h-full object-cover"
                               />
-                              <span className="absolute bottom-0 right-0 bg-black/80 text-white text-[8px] px-1 font-bold">
-                                {idx + 1}
+                              <span className="absolute bottom-0 right-0 bg-black/85 text-white text-[8px] px-1 font-bold">
+                                #{idx + 1}
                               </span>
                             </div>
-                            <span className="font-semibold text-slate-800 truncate">
-                              {result.type === 'highlight'
-                                ? (translations.itemLabel || 'Item')
-                                : result.type === 'carousel'
-                                ? (translations.slideLabel || 'Slide')
-                                : (translations.storyLabel || 'Story')}{' '}
-                              #{idx + 1} ({s.type === 'video' ? 'MP4' : 'JPG'})
-                            </span>
+                            <div className="min-w-0">
+                              <span className="font-semibold text-white truncate block">
+                                {result.type === 'highlight'
+                                  ? (translations.itemLabel || 'Item')
+                                  : result.type === 'carousel'
+                                  ? (translations.slideLabel || 'Slide')
+                                  : (translations.storyLabel || 'Story')}{' '}
+                                #{idx + 1} ({s.type === 'video' ? 'MP4' : 'JPG'})
+                              </span>
+                              <span className="text-[10px] text-slate-400 block truncate">
+                                {s.resolution || (s.type === 'video' ? '1080p Full HD' : 'Original HD')}
+                              </span>
+                            </div>
                           </div>
-                          {isItemLoading ? (
-                            <Loader2 className="w-3.5 h-3.5 text-pink-600 animate-spin shrink-0" />
-                          ) : (
-                            <Download className="w-3.5 h-3.5 text-pink-600 shrink-0 group-hover:translate-y-0.5 transition-transform" />
-                          )}
-                        </button>
+
+                          <div className="flex items-center gap-1 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                downloadViaBlob(s.downloadUrl || s.url, filename, `item-${idx}`)
+                              }
+                              disabled={isItemLoading}
+                              className="p-1.5 rounded-lg bg-pink-600/90 hover:bg-pink-500 text-white transition-all cursor-pointer disabled:opacity-75"
+                              title={`Download Slide #${idx + 1}`}
+                            >
+                              {isItemLoading ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Download className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                            <a
+                              href={s.downloadUrl || s.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                              title="Mirror"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </div>
+                        </div>
                       );
                     })}
                   </div>
@@ -1232,12 +1335,12 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
             </div>
 
             {/* Bottom Actions */}
-            <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+            <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between">
               <a
                 href={result.sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-slate-500 hover:text-slate-800 flex items-center gap-1 font-medium transition-colors"
+                className="text-xs text-slate-400 hover:text-white flex items-center gap-1 font-medium transition-colors"
               >
                 <span>{translations.viewOriginalPost || 'View original post on Instagram'}</span>
                 <ExternalLink className="w-3 h-3" />
@@ -1245,7 +1348,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
 
               <button
                 onClick={onClear}
-                className="text-xs font-semibold text-slate-600 hover:text-slate-900 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                className="text-xs font-semibold text-slate-300 hover:text-white px-3 py-1.5 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 {translations.downloadAnother || 'Download Another Link'}
               </button>

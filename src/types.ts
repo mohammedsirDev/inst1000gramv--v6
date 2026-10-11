@@ -109,6 +109,7 @@ export interface MediaSlide {
   videoUrl?: string;
   downloadUrl?: string;
   resolution: string;
+  dimensions?: { width: number; height: number };
 }
 
 export interface InstagramMediaResult {
@@ -138,8 +139,12 @@ export interface InstagramMediaResult {
   formats: MediaFormat[];
   previewUrl?: string;
   videoUrl?: string;
+  audioUrl?: string;
+  hasAudio?: boolean;
+  audioTitle?: string;
   resolvedAt?: string;
   networkLatencyMs?: number;
+  isPrivate?: boolean;
 }
 
 export interface PseoPage {

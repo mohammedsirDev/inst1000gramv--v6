@@ -72,16 +72,16 @@ export const Features: React.FC = () => {
   ];
 
   return (
-    <section className="py-14 sm:py-20 bg-slate-50 border-y border-slate-200/80">
+    <section className="py-14 sm:py-20 bg-slate-950 border-y border-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <span className="text-xs font-black tracking-widest text-pink-600 uppercase bg-pink-100/70 px-3 py-1 rounded-full">
+          <span className="text-xs font-black tracking-widest text-pink-400 uppercase bg-pink-950/60 border border-pink-800/50 px-3 py-1 rounded-full">
             {translations.performanceBadge || 'Performance & Reliability'}
           </span>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 mt-3 tracking-tight">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white mt-3 tracking-tight">
             {translations.featuresTitle}
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-slate-600 font-medium">
+          <p className="mt-3 text-sm sm:text-base text-slate-400 font-medium">
             {translations.featuresSubtitle}
           </p>
         </div>
@@ -90,20 +90,20 @@ export const Features: React.FC = () => {
           {features.map((f, i) => (
             <div
               key={i}
-              className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs hover:shadow-md transition-shadow relative overflow-hidden group"
+              className="bg-slate-900/90 rounded-2xl p-6 border border-slate-800 shadow-lg relative overflow-hidden group hover:border-pink-500/40 transition-colors"
             >
               <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center group-hover:scale-110 transition-transform">
                   {f.icon}
                 </div>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700/60">
                   {f.badge}
                 </span>
               </div>
-              <h3 className="font-bold text-slate-900 text-base mb-2">
+              <h3 className="font-bold text-white text-base mb-2">
                 {f.title}
               </h3>
-              <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                 {f.desc}
               </p>
             </div>

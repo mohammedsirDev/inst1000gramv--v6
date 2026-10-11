@@ -166,53 +166,53 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-950 text-slate-100">
       {/* Breadcrumbs */}
-      <nav aria-label="Breadcrumb" className="bg-white border-b border-slate-200/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between text-xs sm:text-sm font-medium text-slate-500">
+      <nav aria-label="Breadcrumb" className="bg-slate-900/90 border-b border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between text-xs sm:text-sm font-medium text-slate-400">
           <ol className="flex items-center gap-2 flex-wrap">
             <li>
               <button
                 onClick={onNavigateHome}
-                className="hover:text-pink-600 transition-colors"
+                className="hover:text-pink-400 transition-colors cursor-pointer"
               >
                 {isAr ? 'الرئيسية' : 'Home'}
               </button>
             </li>
             <li>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-400 rtl:rotate-180" />
+              <ChevronRight className="w-3.5 h-3.5 text-slate-600 rtl:rotate-180" />
             </li>
             <li>
-              <span className="text-slate-400 uppercase font-semibold text-xs">{locale}</span>
+              <span className="text-slate-500 uppercase font-semibold text-xs">{locale}</span>
             </li>
             <li>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-400 rtl:rotate-180" />
+              <ChevronRight className="w-3.5 h-3.5 text-slate-600 rtl:rotate-180" />
             </li>
-            <li aria-current="page" className="text-pink-600 font-bold">
+            <li aria-current="page" className="text-pink-400 font-bold">
               {meta.h1}
             </li>
           </ol>
 
-          <div className="hidden sm:flex items-center gap-2 text-xs text-slate-500 font-medium">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <div className="hidden sm:flex items-center gap-2 text-xs text-slate-400 font-medium">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span>{isAr ? 'خوادم سريعة بدقة 1080p Full HD' : 'High Speed Server 1080p Stream'}</span>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-10 pb-12 sm:pt-16 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-radial from-pink-500/5 via-slate-50 to-slate-50">
+      <section className="relative pt-10 pb-12 sm:pt-16 sm:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden bg-radial from-pink-950/20 via-slate-950 to-slate-950 border-b border-slate-900">
         <div className="max-w-5xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-white border border-slate-200 shadow-2xs mb-5 text-slate-800">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-900/90 border border-slate-800 shadow-sm mb-5 text-slate-200">
             {getIcon(meta.type)}
             <span>{isAr ? 'جودة 1080p فائقة الوضوح • بدون علامة مائية' : '1080p Ultra HD • No Watermark'}</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.15]">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.15]">
             {meta.h1}
           </h1>
 
-          <p className="mt-4 sm:mt-5 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-4 sm:mt-5 text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed">
             {meta.intro}
           </p>
 
@@ -253,16 +253,16 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
       </section>
 
       {/* 3-Step How-To Section Tailored to This Media Type */}
-      <section className="py-14 sm:py-20 bg-white border-y border-slate-200/80">
+      <section className="py-14 sm:py-20 bg-slate-950 border-y border-slate-900">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="text-xs font-bold uppercase tracking-widest text-pink-600 bg-pink-50 px-3 py-1 rounded-full border border-pink-100">
+            <span className="text-xs font-bold uppercase tracking-widest text-pink-400 bg-pink-950/60 px-3 py-1 rounded-full border border-pink-800/50">
               {isAr ? 'دليل الاستخدام' : 'Tutorial'}
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-3">
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mt-3">
               {isAr ? `طريقة ${meta.h1}` : `How to Use ${meta.h1}`}
             </h2>
-            <p className="mt-2 text-sm sm:text-base text-slate-600">
+            <p className="mt-2 text-sm sm:text-base text-slate-400">
               {isAr
                 ? 'قم بتحميل أي فيديو أو صورة من انستقرام إلى هاتفك أو حاسوبك في 3 خطوات سريعة.'
                 : 'Download any Instagram media to your phone, tablet, or computer in 3 quick steps.'}
@@ -273,15 +273,15 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
             {meta.howToSteps.map((step) => (
               <div
                 key={step.step}
-                className="p-6 rounded-2xl bg-slate-50 border border-slate-200/90 hover:border-pink-300 transition-all hover:shadow-md relative overflow-hidden"
+                className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-pink-500/50 transition-all hover:shadow-lg relative overflow-hidden"
               >
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 text-white font-black text-lg flex items-center justify-center mb-4 shadow-sm">
                   {step.step}
                 </div>
-                <h3 className="font-bold text-base sm:text-lg text-slate-900 mb-2">
+                <h3 className="font-bold text-base sm:text-lg text-white mb-2">
                   {step.title}
                 </h3>
-                <p className="text-sm text-slate-600 leading-relaxed">
+                <p className="text-sm text-slate-400 leading-relaxed">
                   {step.desc}
                 </p>
               </div>
@@ -289,31 +289,31 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
           </div>
 
           {/* Quick Tip for the sssclips URL trick */}
-          <div className="mt-10 p-5 sm:p-6 bg-linear-to-r from-purple-50 via-pink-50 to-amber-50 rounded-2xl border border-pink-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="mt-10 p-5 sm:p-6 bg-slate-900/90 rounded-2xl border border-pink-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5">
               <div className="w-10 h-10 rounded-xl bg-pink-500 text-white flex items-center justify-center shrink-0">
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-bold text-sm sm:text-base text-slate-900">
+                <h4 className="font-bold text-sm sm:text-base text-white">
                   {isAr ? '⚡ اختصار الرابط الذكي "sssclips"' : '⚡ The "sssclips" URL Shortcut'}
                 </h4>
-                <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
+                <p className="text-xs sm:text-sm text-slate-300 mt-0.5">
                   {isAr ? (
                     <>
-                      غيّر <span className="font-mono font-semibold text-slate-900">instagram.com</span> إلى{' '}
-                      <span className="font-mono font-semibold text-pink-600">sssclips.com</span> في أي رابط للتحميل المباشر فوراً!
+                      غيّر <span className="font-mono font-semibold text-white">instagram.com</span> إلى{' '}
+                      <span className="font-mono font-semibold text-pink-400">sssclips.com</span> في أي رابط للتحميل المباشر فوراً!
                     </>
                   ) : (
                     <>
-                      Change <span className="font-mono font-semibold text-slate-900">instagram.com</span> to{' '}
-                      <span className="font-mono font-semibold text-pink-600">sssclips.com</span> in any URL to download directly!
+                      Change <span className="font-mono font-semibold text-white">instagram.com</span> to{' '}
+                      <span className="font-mono font-semibold text-pink-400">sssclips.com</span> in any URL to download directly!
                     </>
                   )}
                 </p>
               </div>
             </div>
-            <span className="text-xs font-bold px-3 py-1 bg-white text-pink-600 rounded-lg border border-pink-200 shadow-2xs whitespace-nowrap">
+            <span className="text-xs font-bold px-3 py-1 bg-slate-800 text-pink-300 rounded-lg border border-pink-500/30 whitespace-nowrap">
               {isAr ? 'بدون تطبيقات' : 'No App Required'}
             </span>
           </div>
@@ -321,13 +321,13 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
       </section>
 
       {/* Key Features for This Specific Tool */}
-      <section className="py-14 sm:py-20 bg-slate-50">
+      <section className="py-14 sm:py-20 bg-slate-950">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
               {isAr ? `مميزات أداة ${meta.h1}` : `Features of ${meta.h1}`}
             </h2>
-            <p className="mt-2 text-sm sm:text-base text-slate-600">
+            <p className="mt-2 text-sm sm:text-base text-slate-400">
               {isAr
                 ? 'لماذا يعتبر sssclips أسرع وأفضل موقع لتحميل وسائط انستقرام.'
                 : 'Why sssclips is the fastest and most reliable Instagram downloader online.'}
@@ -338,16 +338,16 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
             {meta.features.map((feature, i) => (
               <div
                 key={i}
-                className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs flex items-start gap-3.5"
+                className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 shadow-md flex items-start gap-3.5"
               >
-                <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-8 h-8 rounded-lg bg-emerald-950/70 text-emerald-400 border border-emerald-800/60 flex items-center justify-center shrink-0 mt-0.5">
                   <CheckCircle2 className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm sm:text-base text-slate-900">
+                  <h3 className="font-bold text-sm sm:text-base text-white">
                     {feature}
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 mt-1">
+                  <p className="text-xs sm:text-sm text-slate-400 mt-1">
                     {isAr
                       ? 'مصمم لتوفير أقصى سرعة تحميل وتشغيل سلس على جميع الهواتف والأجهزة.'
                       : 'Optimized for rapid download speed and flawless playback across all devices.'}
@@ -360,13 +360,13 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
       </section>
 
       {/* Device Guides (iPhone, Android, PC) */}
-      <section className="py-14 bg-white border-y border-slate-200/80">
+      <section className="py-14 bg-slate-950 border-y border-slate-900">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-10">
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
               {isAr ? 'الأجهزة وأنظمة التشغيل المدعومة' : 'Supported Devices & Operating Systems'}
             </h2>
-            <p className="mt-2 text-sm sm:text-base text-slate-600">
+            <p className="mt-2 text-sm sm:text-base text-slate-400">
               {isAr
                 ? 'توافق شامل مع جميع الأجهزة دون الحاجة لتثبيت أي تطبيقات خارجية.'
                 : 'Universal compatibility without installing apps from the App Store or Google Play.'}
@@ -374,42 +374,42 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200">
-              <div className="w-10 h-10 rounded-xl bg-pink-100 text-pink-600 flex items-center justify-center mb-4">
+            <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800">
+              <div className="w-10 h-10 rounded-xl bg-pink-950/70 text-pink-400 border border-pink-800/60 flex items-center justify-center mb-4">
                 <Smartphone className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-base text-slate-900 mb-2">
+              <h3 className="font-bold text-base text-white mb-2">
                 {isAr ? 'آيفون وآيباد (iOS)' : 'iPhone & iPad (iOS)'}
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                 {isAr
                   ? 'افتح متصفح Safari، الصق الرابط في sssclips، اضغط تحميل ثم اختر "حفظ الفيديو" لحفظه مباشرة في تطبيق الصور.'
                   : 'Open Safari, paste the link into sssclips, click Download, and tap "Save Video" to save directly to your Photos camera roll.'}
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200">
-              <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center mb-4">
+            <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800">
+              <div className="w-10 h-10 rounded-xl bg-purple-950/70 text-purple-400 border border-purple-800/60 flex items-center justify-center mb-4">
                 <Smartphone className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-base text-slate-900 mb-2">
+              <h3 className="font-bold text-base text-white mb-2">
                 {isAr ? 'هواتف وأجهزة أندرويد (Android)' : 'Android Phones & Tablets'}
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                 {isAr
                   ? 'يعمل بسلاسة على Google Chrome و Samsung Internet و Firefox. تُحفظ الملفات تلقائياً في المعرض ومجلد التنزيلات.'
                   : 'Works seamlessly in Google Chrome, Samsung Internet, and Firefox. Files are automatically saved to your Gallery and Downloads folder.'}
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200">
-              <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4">
+            <div className="p-6 rounded-2xl bg-slate-900/90 border border-slate-800">
+              <div className="w-10 h-10 rounded-xl bg-indigo-950/70 text-indigo-400 border border-indigo-800/60 flex items-center justify-center mb-4">
                 <Monitor className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-base text-slate-900 mb-2">
+              <h3 className="font-bold text-base text-white mb-2">
                 {isAr ? 'الكمبيوتر واللابتوب (Windows & Mac)' : 'PC, Mac & Linux'}
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                 {isAr
                   ? 'قم بتحميل ملفات MP4 و JPG الأصلية عالية الدقة في ثوانٍ على أنظمة Windows و macOS باستخدام أي متصفح.'
                   : 'Download original high-definition MP4 and JPG files in seconds on Windows, macOS, and Chromebooks using any web browser.'}
@@ -420,16 +420,16 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
       </section>
 
       {/* Tailored FAQs Section */}
-      <section className="py-14 sm:py-20 bg-slate-50">
+      <section className="py-14 sm:py-20 bg-slate-950">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="text-xs font-bold uppercase tracking-widest text-purple-600 bg-purple-50 px-3 py-1 rounded-full border border-purple-100">
+            <span className="text-xs font-bold uppercase tracking-widest text-purple-400 bg-purple-950/60 px-3 py-1 rounded-full border border-purple-800/50">
               {isAr ? 'الأسئلة الشائعة' : 'FAQ'}
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-3">
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mt-3">
               {translations.faqTitle || (isAr ? 'الأسئلة الشائعة' : 'Frequently Asked Questions')}
             </h2>
-            <p className="mt-2 text-sm sm:text-base text-slate-600">
+            <p className="mt-2 text-sm sm:text-base text-slate-400">
               {isAr
                 ? `إجابات سريعة حول ${meta.h1}.`
                 : `Common questions about saving ${meta.h1.toLowerCase()}.`}
@@ -442,14 +442,14 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
               return (
                 <div
                   key={idx}
-                  className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-2xs transition-all"
+                  className="bg-slate-900/90 rounded-2xl border border-slate-800 overflow-hidden shadow-lg transition-all"
                 >
                   <button
                     onClick={() => setActiveFaq(isOpen ? null : idx)}
-                    className="w-full text-left rtl:text-right p-5 sm:p-6 flex items-center justify-between gap-4 font-bold text-slate-900 hover:text-pink-600 transition-colors"
+                    className="w-full text-left rtl:text-right p-5 sm:p-6 flex items-center justify-between gap-4 font-bold text-white hover:text-pink-400 transition-colors cursor-pointer"
                   >
                     <span className="text-sm sm:text-base flex items-center gap-2.5">
-                      <HelpCircle className="w-4 h-4 text-pink-500 shrink-0" />
+                      <HelpCircle className="w-4 h-4 text-pink-400 shrink-0" />
                       <span>{faq.q}</span>
                     </span>
                     <span className="text-slate-400 font-mono text-lg shrink-0">
@@ -457,7 +457,7 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
                     </span>
                   </button>
                   {isOpen && (
-                    <div className="px-5 pb-5 sm:px-6 sm:pb-6 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+                    <div className="px-5 pb-5 sm:px-6 sm:pb-6 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-slate-800/80 pt-3">
                       {faq.a}
                     </div>
                   )}
@@ -469,15 +469,15 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
       </section>
 
       {/* Internal Linking: Explore Related Downloaders in this Language */}
-      <section className="py-14 sm:py-20 bg-white border-t border-slate-200">
+      <section className="py-14 sm:py-20 bg-slate-950 border-t border-slate-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-10">
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
               {isAr
                 ? `أدوات تحميل انستقرام الأخرى (${locale.toUpperCase()})`
                 : `Other Instagram Downloaders (${locale.toUpperCase()})`}
             </h2>
-            <p className="mt-2 text-sm sm:text-base text-slate-600">
+            <p className="mt-2 text-sm sm:text-base text-slate-400">
               {isAr
                 ? 'تصفح مجموعتنا الكاملة من أدوات تحميل انستقرام السريعة وبدون علامة مائية.'
                 : 'Explore our full suite of fast, watermark-free Instagram media downloaders.'}
@@ -491,20 +491,20 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
                 <button
                   key={tool.slug}
                   onClick={() => onNavigateTool(tool.slug)}
-                  className="p-5 rounded-2xl bg-slate-50 hover:bg-pink-50/50 border border-slate-200 hover:border-pink-300 text-left rtl:text-right transition-all group flex flex-col justify-between"
+                  className="p-5 rounded-2xl bg-slate-900/90 hover:bg-slate-850 border border-slate-800 hover:border-pink-500/50 text-left rtl:text-right transition-all group flex flex-col justify-between cursor-pointer"
                 >
                   <div>
-                    <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                    <div className="w-10 h-10 rounded-xl bg-slate-950 border border-slate-800 shadow-sm flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                       {getIcon(tool.type)}
                     </div>
-                    <h3 className="font-bold text-sm sm:text-base text-slate-900 group-hover:text-pink-600 transition-colors">
+                    <h3 className="font-bold text-sm sm:text-base text-white group-hover:text-pink-400 transition-colors">
                       {localizedTool.h1 || tool.name}
                     </h3>
-                    <p className="text-xs text-slate-600 mt-1.5 line-clamp-2">
+                    <p className="text-xs text-slate-400 mt-1.5 line-clamp-2">
                       {localizedTool.description || tool.tagline}
                     </p>
                   </div>
-                  <div className="mt-4 flex items-center gap-1 text-xs font-bold text-pink-600 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform">
+                  <div className="mt-4 flex items-center gap-1 text-xs font-bold text-pink-400 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform">
                     <span>{isAr ? 'افتح الأداة' : 'Open Tool'}</span>
                     <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
                   </div>
@@ -514,8 +514,8 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
           </div>
 
           {/* Long-tail Educational Guides Links */}
-          <div className="mt-12 pt-8 border-t border-slate-100">
-            <h3 className="text-lg font-bold text-slate-900 mb-4 text-center">
+          <div className="mt-12 pt-8 border-t border-slate-900">
+            <h3 className="text-lg font-bold text-white mb-4 text-center">
               {isAr ? 'أدلة وشروحات مفيدة خطوة بخطوة' : 'Helpful Step-by-Step Guides'}
             </h3>
             <div className="flex flex-wrap items-center justify-center gap-2.5">
@@ -523,7 +523,7 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
                 <button
                   key={guide.slug}
                   onClick={() => onNavigateGuide && onNavigateGuide(guide.slug)}
-                  className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors"
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-semibold transition-colors cursor-pointer"
                 >
                   📖 {isAr ? ARABIC_GUIDE_TITLES[guide.slug] || guide.title : guide.title}
                 </button>
