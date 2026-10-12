@@ -12,6 +12,7 @@ const ARABIC_GUIDE_TITLES: Record<string, string> = {
   'how-to-download-instagram-reels-on-android': 'كيفية تحميل ريلز انستقرام على هواتف أندرويد',
   'how-to-download-instagram-stories-anonymously': 'كيفية مشاهدة وتحميل ستوري انستقرام بشكل مجهول',
   'how-to-save-instagram-photos-in-hd': 'كيفية حفظ صور وألبومات انستقرام بأعلى جودة HD',
+  'how-to-use-sssclips-url-shortcut': 'كيفية استخدام اختصار الرابط sssclips.com للتحميل الفوري',
   'how-to-use-insta1000gram-url-shortcut': 'كيفية استخدام اختصار الرابط sssclips.com للتحميل الفوري',
 };
 
@@ -60,7 +61,7 @@ export const DownloaderPageView: React.FC<DownloaderPageViewProps> = ({
       canonical.setAttribute('rel', 'canonical');
       document.head.appendChild(canonical);
     }
-    const currentCanonicalUrl = `https://www.sssclips.com/${locale}/${meta.slug}`;
+    const currentCanonicalUrl = `https://www.sssclips.com/${locale}/${meta.slug}/`;
     canonical.setAttribute('href', currentCanonicalUrl);
 
     // Dynamic JSON-LD injection

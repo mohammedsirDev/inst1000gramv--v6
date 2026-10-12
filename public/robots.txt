@@ -10,3 +10,5 @@ Disallow: /tv/
 Disallow: /m/
 
 Sitemap: https://www.sssclips.com/sitemap.xml
+Sitemap: https://www.sssclips.com/sitemap-downloaders.xml
+Sitemap: https://www.sssclips.com/sitemap-guides.xml

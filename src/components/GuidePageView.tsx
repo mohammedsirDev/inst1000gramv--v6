@@ -36,10 +36,41 @@ export const GuidePageView: React.FC<GuidePageViewProps> = ({
 
   useEffect(() => {
     document.title = isAr
-      ? `${displayTitle} | SSSClips`
-      : `${guide.title} (Step-by-Step Guide) | SSSClips`;
+      ? `${displayTitle} | sssclips`
+      : `${guide.title} (Step-by-Step Guide) | sssclips`;
+
+    // Update canonical link
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    const currentCanonicalUrl = `https://www.sssclips.com/${locale}/guide/${guide.slug}/`;
+    canonical.setAttribute('href', currentCanonicalUrl);
+
+    // Dynamic JSON-LD injection
+    const scriptId = 'guide-page-jsonld';
+    let scriptTag = document.getElementById(scriptId) as HTMLScriptElement | null;
+    if (!scriptTag) {
+      scriptTag = document.createElement('script');
+      scriptTag.id = scriptId;
+      scriptTag.type = 'application/ld+json';
+      document.head.appendChild(scriptTag);
+    }
+
+    const jsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'HowTo',
+      name: displayTitle,
+      url: currentCanonicalUrl,
+      description: `Complete guide on ${guide.title.toLowerCase()} in high quality using sssclips.`,
+      inLanguage: locale,
+    };
+    scriptTag.textContent = JSON.stringify(jsonLd);
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [guide, isAr, displayTitle]);
+  }, [guide, isAr, displayTitle, locale]);
 
   // Find matching tool
   const matchingTool = DOWNLOADER_PAGES.find((p) => p.type === guide.category) || DOWNLOADER_PAGES[0];

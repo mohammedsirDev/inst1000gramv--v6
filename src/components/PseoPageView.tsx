@@ -24,6 +24,16 @@ export const PseoPageView: React.FC<PseoPageViewProps> = ({ page, onBack, onOpen
     }
     // Update document title and meta description for SEO fidelity
     document.title = page.title;
+
+    // Update canonical link
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    const currentCanonicalUrl = `https://www.sssclips.com/${page.slug}/`;
+    canonical.setAttribute('href', currentCanonicalUrl);
     
     // Inject dynamic page-specific Schema.org JSON-LD
     const scriptId = 'pseo-dynamic-jsonld';
@@ -40,8 +50,8 @@ export const PseoPageView: React.FC<PseoPageViewProps> = ({ page, onBack, onOpen
       "@graph": [
         {
           "@type": "WebPage",
-          "@id": `https://www.sssclips.com/${page.slug}/#webpage`,
-          "url": `https://www.sssclips.com/${page.slug}`,
+          "@id": `${currentCanonicalUrl}#webpage`,
+          "url": currentCanonicalUrl,
           "name": page.title,
           "description": page.metaDescription,
           "inLanguage": page.lang

@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { SupportedLanguage, MediaType } from '../types';
 import { Film, Video, Image, History, Sparkles, Globe, Search, Tv, User, Bookmark } from 'lucide-react';
+import { PWAInstallButton } from './PWAInstallButton';
 
 interface HeaderProps {
   activeTab: MediaType;
@@ -133,6 +134,9 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Right Action Buttons */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* PWA iPhone / Mobile Installation Action */}
+            <PWAInstallButton variant="header" />
+
             {/* Task 4: Desktop Bookmarklet Shortcut */}
             {onOpenBookmarklet && (
               <button

@@ -125,6 +125,34 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
+// Middleware: 301 permanent redirect for URLs missing the canonical trailing slash
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+  const rawPath = req.path;
+  // Ignore root /, api, smart media paths, static assets with extensions or vite internals
+  if (
+    rawPath === '/' ||
+    rawPath.startsWith('/api') ||
+    rawPath.startsWith('/@') ||
+    rawPath.startsWith('/src') ||
+    rawPath.startsWith('/node_modules') ||
+    rawPath.startsWith('/reels/') ||
+    rawPath.startsWith('/reel/') ||
+    rawPath.startsWith('/p/') ||
+    rawPath.startsWith('/stories/') ||
+    rawPath.startsWith('/tv/') ||
+    rawPath.startsWith('/m/') ||
+    /\.[a-zA-Z0-9]+$/.test(rawPath)
+  ) {
+    return next();
+  }
+  if (!rawPath.endsWith('/')) {
+    const query = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+    return res.redirect(301, `${rawPath}/${query}`);
+  }
+  next();
+});
+
 // /robots.txt
 app.get('/robots.txt', (req: Request, res: Response) => {
   res.header('Content-Type', 'text/plain; charset=utf-8');
@@ -141,6 +169,8 @@ app.get('/robots.txt', (req: Request, res: Response) => {
     'Disallow: /m/',
     '',
     `Sitemap: https://${SITE_DOMAIN}/sitemap.xml`,
+    `Sitemap: https://${SITE_DOMAIN}/sitemap-downloaders.xml`,
+    `Sitemap: https://${SITE_DOMAIN}/sitemap-guides.xml`,
     '',
   ];
   res.send(lines.join('\n'));
@@ -211,14 +241,14 @@ app.get('/sitemap-downloaders.xml', (req: Request, res: Response) => {
   for (const tool of DOWNLOADER_PAGES) {
     for (const lang of ALL_SUPPORTED_LANGUAGES) {
       xml += `  <url>\n`;
-      xml += `    <loc>https://${SITE_DOMAIN}/${lang}/${tool.slug}</loc>\n`;
+      xml += `    <loc>https://${SITE_DOMAIN}/${lang}/${tool.slug}/</loc>\n`;
       xml += `    <lastmod>${now}</lastmod>\n`;
       xml += `    <changefreq>weekly</changefreq>\n`;
       xml += `    <priority>0.9</priority>\n`;
       for (const altLang of ALL_SUPPORTED_LANGUAGES) {
-        xml += `    <xhtml:link rel="alternate" hreflang="${altLang}" href="https://${SITE_DOMAIN}/${altLang}/${tool.slug}" />\n`;
+        xml += `    <xhtml:link rel="alternate" hreflang="${altLang}" href="https://${SITE_DOMAIN}/${altLang}/${tool.slug}/" />\n`;
       }
-      xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="https://${SITE_DOMAIN}/en/${tool.slug}" />\n`;
+      xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="https://${SITE_DOMAIN}/en/${tool.slug}/" />\n`;
       xml += `  </url>\n`;
     }
   }
@@ -239,10 +269,14 @@ app.get('/sitemap-guides.xml', (req: Request, res: Response) => {
   for (const guide of GUIDE_PAGES) {
     for (const lang of ALL_SUPPORTED_LANGUAGES) {
       xml += `  <url>\n`;
-      xml += `    <loc>https://${SITE_DOMAIN}/${lang}/guide/${guide.slug}</loc>\n`;
+      xml += `    <loc>https://${SITE_DOMAIN}/${lang}/guide/${guide.slug}/</loc>\n`;
       xml += `    <lastmod>${now}</lastmod>\n`;
       xml += `    <changefreq>monthly</changefreq>\n`;
       xml += `    <priority>0.7</priority>\n`;
+      for (const altLang of ALL_SUPPORTED_LANGUAGES) {
+        xml += `    <xhtml:link rel="alternate" hreflang="${altLang}" href="https://${SITE_DOMAIN}/${altLang}/guide/${guide.slug}/" />\n`;
+      }
+      xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="https://${SITE_DOMAIN}/en/guide/${guide.slug}/" />\n`;
       xml += `  </url>\n`;
     }
   }
@@ -283,7 +317,7 @@ app.get(/^\/sitemap_(\d+)\.xml$/, (req: Request, res: Response) => {
 
   for (const page of chunkPages) {
     xml += `  <url>\n`;
-    xml += `    <loc>https://${SITE_DOMAIN}/${page.slug}</loc>\n`;
+    xml += `    <loc>https://${SITE_DOMAIN}/${page.slug}/</loc>\n`;
     xml += `    <lastmod>${page.lastmod || now}</lastmod>\n`;
     xml += `    <changefreq>weekly</changefreq>\n`;
     xml += `    <priority>0.8</priority>\n`;
@@ -744,18 +778,36 @@ const CANONICAL_SLUG_MAP: Record<string, string> = {
 function injectLocalizedServerMeta(rawHtml: string, urlPath: string): string {
   const cleanPath = urlPath.replace(/\/+$/, '') || '/';
 
-  // Match /:locale/:slug or /:locale
+  // 1. Match /:locale/guide/:guideSlug
+  const guideMatch = cleanPath.match(/^\/([a-zA-Z]{2}(?:-[a-zA-Z]+)?)\/guide\/([a-zA-Z0-9\-]+)$/);
+  // 2. Match /:locale/profile-downloader
+  const profileMatch = cleanPath.match(/^\/([a-zA-Z]{2}(?:-[a-zA-Z]+)?)\/profile-downloader$/);
+  // 3. Match /:locale/:slug or /:locale
   const match = cleanPath.match(/^\/([a-zA-Z]{2}(?:-[a-zA-Z]+)?)(?:\/([a-zA-Z0-9\-]+))?$/);
 
-  const rawLocale = match ? (match[1].includes('-') ? match[1] : match[1].toLowerCase()) : 'en';
+  const rawLocale = (guideMatch ? guideMatch[1] : profileMatch ? profileMatch[1] : match ? match[1] : 'en').toLowerCase();
   const rawSlug = match ? match[2]?.toLowerCase() : undefined;
   const canonicalSlug = rawSlug ? CANONICAL_SLUG_MAP[rawSlug] : undefined;
 
   const isRtl = rawLocale === 'ar' || rawLocale === 'fa';
-  let title = 'Instagram Video Downloader – Download Reels, Stories & Photos 1080p | SSSClips';
+  let title = 'sssclips – Download Instagram Reels, Videos, Stories & Photos in 1080p HD';
   let desc = 'Fast, free Instagram Downloader: Save Instagram Reels, Videos, Stories, and Photos in 1080p Full HD MP4 without watermark. 100% anonymous, no login needed.';
 
-  if (canonicalSlug) {
+  if (guideMatch) {
+    const guideSlug = guideMatch[2].toLowerCase();
+    const matchedGuide = GUIDE_PAGES.find((g) => g.slug === guideSlug);
+    if (matchedGuide) {
+      title = rawLocale === 'ar'
+        ? `${matchedGuide.title} | sssclips`
+        : `${matchedGuide.title} (Step-by-Step Guide) | sssclips`;
+      desc = `Complete step-by-step tutorial: ${matchedGuide.title} in HD quality with sssclips.`;
+    }
+  } else if (profileMatch) {
+    title = rawLocale === 'ar'
+      ? 'تحميل صورة حساب انستقرام بالحجم الكامل (DP Downloader) | sssclips'
+      : 'Instagram Profile Picture Downloader – Full HD Zoom DP | sssclips';
+    desc = 'View and download full-resolution Instagram profile pictures in HD without login.';
+  } else if (canonicalSlug) {
     const langData = LOCALIZED_DOWNLOADER_TITLES[rawLocale] || LOCALIZED_DOWNLOADER_TITLES.en;
     const entry = langData[canonicalSlug] || LOCALIZED_DOWNLOADER_TITLES.en[canonicalSlug];
     if (entry) {

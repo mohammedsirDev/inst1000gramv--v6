@@ -308,6 +308,17 @@ function MainApp() {
       xDefault.setAttribute('href', `https://www.sssclips.com/en/${currentRoute.slug}/`);
       xDefault.setAttribute('data-dynamic-hreflang', 'true');
       document.head.appendChild(xDefault);
+    } else if (currentRoute.type === 'guide') {
+      canonical.setAttribute(
+        'href',
+        `https://www.sssclips.com/${currentRoute.locale}/guide/${currentRoute.guideSlug}/`
+      );
+    } else if (currentRoute.type === 'profile-downloader') {
+      const loc = currentRoute.locale || currentLang;
+      canonical.setAttribute(
+        'href',
+        `https://www.sssclips.com/${loc}/profile-downloader/`
+      );
     }
   }, [currentRoute, currentLang]);
 
