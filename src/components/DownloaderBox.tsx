@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { MediaType, InstagramMediaResult } from '../types';
 import { detectMediaTypeFromUrl } from '../utils/router';
-import { Download, Clipboard, X, Loader2, Sparkles, Wifi, ShieldCheck, Film, Video, Image, History, Tv } from 'lucide-react';
+import { Download, Clipboard, X, Loader2, Sparkles, Wifi, ShieldCheck, Film, Video, Image, History, Tv, Share2, Smartphone } from 'lucide-react';
+import { IOSShareModal } from './IOSShareModal';
 
 interface DownloaderBoxProps {
   activeTab: MediaType;
@@ -29,6 +30,14 @@ export const DownloaderBox: React.FC<DownloaderBoxProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [retryCount, setRetryCount] = useState<number>(0);
+  const [isIOS, setIsIOS] = useState<boolean>(false);
+  const [showIOSModal, setShowIOSModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsIOS(/iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase()));
+    }
+  }, []);
 
   const sampleLinks: { label: string; url: string; type: MediaType }[] = [
     {
@@ -370,6 +379,25 @@ export const DownloaderBox: React.FC<DownloaderBoxProps> = ({
           </button>
         </div>
 
+        {/* iPhone Share Sheet Helper Callout */}
+        {isIOS && (
+          <div className="mt-3 flex items-center justify-between text-xs text-slate-300 bg-purple-950/40 border border-purple-800/50 px-3.5 py-2 rounded-xl">
+            <div className="flex items-center gap-2">
+              <Smartphone className="w-3.5 h-3.5 text-pink-400 shrink-0" />
+              <span className="text-[11px] sm:text-xs">
+                {isAr ? 'مستخدم آيفون؟ يمكنك إضافة sssclips لقائمة المشاركة بنقرة واحدة.' : 'On iPhone? Add sssclips directly to your iOS Share Sheet.'}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowIOSModal(true)}
+              className="text-pink-400 hover:text-pink-300 font-extrabold underline cursor-pointer text-[11px] shrink-0"
+            >
+              {isAr ? 'طريقة الإعداد' : 'How it works'}
+            </button>
+          </div>
+        )}
+
         {/* Error / Private Account Message */}
         {error && (
           <div
@@ -432,6 +460,12 @@ export const DownloaderBox: React.FC<DownloaderBoxProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Dedicated iOS Share Sheet Setup Modal */}
+      <IOSShareModal
+        isOpen={showIOSModal}
+        onClose={() => setShowIOSModal(false)}
+      />
     </div>
   );
 };

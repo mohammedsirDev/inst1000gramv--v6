@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { SupportedLanguage, MediaType } from '../types';
-import { Film, Video, Image, History, Sparkles, Globe, Search, Tv, User, Bookmark } from 'lucide-react';
+import { Film, Video, Image, History, Sparkles, Globe, Search, Tv, User, Bookmark, Share2 } from 'lucide-react';
 import { PWAInstallButton } from './PWAInstallButton';
 
 interface HeaderProps {
@@ -11,6 +11,7 @@ interface HeaderProps {
   onNavigateHome: () => void;
   onLanguageChange?: (lang: SupportedLanguage) => void;
   onOpenBookmarklet?: () => void;
+  onOpenIOSShare?: () => void;
   onNavigateProfileDownloader?: () => void;
   isProfileActive?: boolean;
 }
@@ -22,6 +23,7 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigateHome,
   onLanguageChange,
   onOpenBookmarklet,
+  onOpenIOSShare,
   onNavigateProfileDownloader,
   isProfileActive,
 }) => {
@@ -136,6 +138,18 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-2 sm:gap-3">
             {/* PWA iPhone / Mobile Installation Action */}
             <PWAInstallButton variant="header" />
+
+            {/* iOS Share Sheet helper shortcut */}
+            {onOpenIOSShare && (
+              <button
+                onClick={onOpenIOSShare}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-pink-300 bg-pink-950/40 hover:bg-pink-900/60 border border-pink-700/50 rounded-xl transition-all cursor-pointer shadow-xs"
+                title={currentLang === 'ar' ? 'إعداد قائمة المشاركة على الآيفون' : 'iPhone Share Sheet Setup'}
+              >
+                <Share2 className="w-3.5 h-3.5 text-pink-400" />
+                <span>{currentLang === 'ar' ? 'مشاركة الآيفون' : 'iOS Share'}</span>
+              </button>
+            )}
 
             {/* Task 4: Desktop Bookmarklet Shortcut */}
             {onOpenBookmarklet && (

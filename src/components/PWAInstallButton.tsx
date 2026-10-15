@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 import { useLanguage } from '../context/LanguageContext';
-import { Download, Share2, PlusSquare, X, Smartphone, CheckCircle2 } from 'lucide-react';
+import { Download, Share2, PlusSquare, X, Smartphone, CheckCircle2, Sparkles, HelpCircle } from 'lucide-react';
+import { IOSShareModal } from './IOSShareModal';
 
 interface PWAInstallButtonProps {
   variant?: 'header' | 'banner' | 'footer';
@@ -16,9 +17,36 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
   const { currentLang } = useLanguage();
   const [showIOSModal, setShowIOSModal] = useState(false);
   const [showAndroidModal, setShowAndroidModal] = useState(false);
+  const [showIOSShareModal, setShowIOSShareModal] = useState(false);
   const isAr = currentLang === 'ar';
 
-  // Do not render if already running in standalone PWA mode
+  // If already installed on iOS, provide a dedicated "iOS Share Sheet" quick helper button!
+  if (isInstalled && isIOS) {
+    return (
+      <>
+        <button
+          onClick={() => setShowIOSShareModal(true)}
+          className={
+            className ||
+            (variant === 'header'
+              ? 'flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-pink-300 bg-pink-950/60 hover:bg-pink-900/80 border border-pink-700/60 rounded-xl transition-all shadow-sm cursor-pointer'
+              : 'flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-pink-300 bg-pink-950/60 hover:bg-pink-900/80 border border-pink-700/60 rounded-xl transition-all shadow-md cursor-pointer')
+          }
+          title={isAr ? 'إعداد قائمة المشاركة على آيفون' : 'iPhone Share Sheet Setup'}
+        >
+          <Share2 className="w-3.5 h-3.5 text-pink-400" />
+          <span>{isAr ? 'مشاركة الآيفون' : 'iPhone Share'}</span>
+        </button>
+
+        <IOSShareModal
+          isOpen={showIOSShareModal}
+          onClose={() => setShowIOSShareModal(false)}
+        />
+      </>
+    );
+  }
+
+  // Do not render if already running in standalone PWA mode on other platforms
   if (isInstalled) {
     return null;
   }
@@ -171,9 +199,9 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
               </div>
             </div>
 
-            <div className="space-y-3.5 my-5 text-sm text-slate-300">
-              <div className="flex items-start gap-3 bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
-                <div className="w-7 h-7 rounded-lg bg-pink-500/20 text-pink-400 flex items-center justify-center shrink-0 font-bold text-xs mt-0.5">
+            <div className="space-y-3 my-4 text-xs sm:text-sm text-slate-300">
+              <div className="flex items-start gap-3 bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/50">
+                <div className="w-6 h-6 rounded-lg bg-pink-500/20 text-pink-400 flex items-center justify-center shrink-0 font-bold text-xs mt-0.5">
                   1
                 </div>
                 <div className="leading-snug">
@@ -186,8 +214,8 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
-                <div className="w-7 h-7 rounded-lg bg-pink-500/20 text-pink-400 flex items-center justify-center shrink-0 font-bold text-xs mt-0.5">
+              <div className="flex items-start gap-3 bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/50">
+                <div className="w-6 h-6 rounded-lg bg-pink-500/20 text-pink-400 flex items-center justify-center shrink-0 font-bold text-xs mt-0.5">
                   2
                 </div>
                 <div className="leading-snug">
@@ -199,8 +227,8 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
-                <div className="w-7 h-7 rounded-lg bg-pink-500/20 text-pink-400 flex items-center justify-center shrink-0 font-bold text-xs mt-0.5">
+              <div className="flex items-start gap-3 bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/50">
+                <div className="w-6 h-6 rounded-lg bg-pink-500/20 text-pink-400 flex items-center justify-center shrink-0 font-bold text-xs mt-0.5">
                   3
                 </div>
                 <div className="leading-snug">
@@ -210,22 +238,52 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
                   </span>
                   <span>
                     {isAr
-                      ? ' في الزاوية العلوية ليظهر التطبيق بأيقونة sssclips على شاشتك.'
-                      : ' in the top-right corner to place sssclips on your home screen.'}
+                      ? ' في الزاوية العلوية لتثبيت الأيقونة.'
+                      : ' in the top-right corner to place on your home screen.'}
                   </span>
                 </div>
               </div>
+            </div>
+
+            {/* Special Callout: iOS Share Sheet integration */}
+            <div className="my-3 p-3 bg-purple-950/40 border border-purple-700/50 rounded-xl text-xs">
+              <p className="font-bold text-purple-300 mb-1 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-pink-400" />
+                <span>{isAr ? 'تريد ظهوره في قائمة المشاركة؟' : 'Want it inside the iOS Share Sheet?'}</span>
+              </p>
+              <p className="text-[11px] text-slate-300 mb-2 leading-relaxed">
+                {isAr
+                  ? 'آبل تقيد قائمة المشاركة، لكن يمكنك إضافته بنقرة واحدة عبر اختصار آبل.'
+                  : 'Apple limits PWAs in the Share Sheet, but you can enable it via Apple Shortcuts.'}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowIOSModal(false);
+                  setShowIOSShareModal(true);
+                }}
+                className="w-full py-1.5 px-3 rounded-lg bg-purple-600/40 hover:bg-purple-600/60 border border-purple-500/50 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+              >
+                <Share2 className="w-3 h-3 text-pink-300" />
+                <span>{isAr ? 'شرح إضافة sssclips لقائمة المشاركة' : 'Setup iOS Share Sheet (Shortcuts)'}</span>
+              </button>
             </div>
 
             <button
               onClick={() => setShowIOSModal(false)}
               className="w-full py-2.5 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 font-bold text-sm text-white transition cursor-pointer shadow-md"
             >
-              {isAr ? 'فهمت، شكراً!' : 'Got it!'}
+              {isAr ? 'إغلاق' : 'Close'}
             </button>
           </div>
         </div>
       )}
+
+      {/* iOS Dedicated Share Sheet Modal */}
+      <IOSShareModal
+        isOpen={showIOSShareModal}
+        onClose={() => setShowIOSShareModal(false)}
+      />
     </>
   );
 };

@@ -13,6 +13,8 @@ import { GuidePageView } from './components/GuidePageView';
 import { ShareTargetView } from './components/ShareTargetView';
 import { ProfileDownloaderView } from './components/ProfileDownloaderView';
 import { BookmarkletModal } from './components/BookmarkletModal';
+import { IOSShareModal } from './components/IOSShareModal';
+import { ClipboardDetectorBanner } from './components/ClipboardDetectorBanner';
 import { Footer } from './components/Footer';
 import { AdminModal } from './components/admin/AdminModal';
 import { MediaType, InstagramMediaResult, PseoPage, SupportedLanguage, DownloaderSlug } from './types';
@@ -45,7 +47,12 @@ function MainApp() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [adminOpen, setAdminOpen] = useState<boolean>(false);
   const [bookmarkletOpen, setBookmarkletOpen] = useState<boolean>(false);
+  const [iosShareModalOpen, setIosShareModalOpen] = useState<boolean>(false);
   const [legacyPseoPage, setLegacyPseoPage] = useState<PseoPage | null>(null);
+
+  const handleClipboardDownload = (targetUrl: string) => {
+    navigateTo(`/share-target?url=${encodeURIComponent(targetUrl)}`);
+  };
 
   const getCategoryMeta = (type: string) => {
     const t = type.toLowerCase();
@@ -360,6 +367,11 @@ function MainApp() {
   if (currentRoute.type === 'share-target') {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+        <ClipboardDetectorBanner
+          onDownloadUrl={handleClipboardDownload}
+          onOpenIOSShareGuide={() => setIosShareModalOpen(true)}
+        />
+
         <Header
           activeTab={activeTab}
           onSelectTab={(tab) => {
@@ -370,6 +382,7 @@ function MainApp() {
           onNavigateHome={() => navigateTo(`/${currentLang}/`)}
           onLanguageChange={handleLanguageChange}
           onOpenBookmarklet={() => setBookmarkletOpen(true)}
+          onOpenIOSShare={() => setIosShareModalOpen(true)}
           onNavigateProfileDownloader={() => navigateTo(`/${currentLang}/profile-downloader`)}
         />
 
@@ -397,6 +410,11 @@ function MainApp() {
           isOpen={bookmarkletOpen}
           onClose={() => setBookmarkletOpen(false)}
         />
+
+        <IOSShareModal
+          isOpen={iosShareModalOpen}
+          onClose={() => setIosShareModalOpen(false)}
+        />
       </div>
     );
   }
@@ -406,6 +424,11 @@ function MainApp() {
     const localePrefix = currentRoute.locale || currentLang;
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+        <ClipboardDetectorBanner
+          onDownloadUrl={handleClipboardDownload}
+          onOpenIOSShareGuide={() => setIosShareModalOpen(true)}
+        />
+
         <Header
           activeTab={activeTab}
           onSelectTab={(tab) => {
@@ -416,6 +439,7 @@ function MainApp() {
           onNavigateHome={() => navigateTo(`/${localePrefix}/`)}
           onLanguageChange={handleLanguageChange}
           onOpenBookmarklet={() => setBookmarkletOpen(true)}
+          onOpenIOSShare={() => setIosShareModalOpen(true)}
           onNavigateProfileDownloader={() => navigateTo(`/${localePrefix}/profile-downloader`)}
           isProfileActive={true}
         />
@@ -444,6 +468,11 @@ function MainApp() {
           isOpen={bookmarkletOpen}
           onClose={() => setBookmarkletOpen(false)}
         />
+
+        <IOSShareModal
+          isOpen={iosShareModalOpen}
+          onClose={() => setIosShareModalOpen(false)}
+        />
       </div>
     );
   }
@@ -453,6 +482,11 @@ function MainApp() {
     const meta = getDownloaderDataForLocale(currentRoute.locale, currentRoute.slug);
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+        <ClipboardDetectorBanner
+          onDownloadUrl={handleClipboardDownload}
+          onOpenIOSShareGuide={() => setIosShareModalOpen(true)}
+        />
+
         <Header
           activeTab={meta.type}
           onSelectTab={(tab) => {
@@ -465,6 +499,7 @@ function MainApp() {
           onNavigateHome={() => navigateTo(`/${currentRoute.locale}/`)}
           onLanguageChange={handleLanguageChange}
           onOpenBookmarklet={() => setBookmarkletOpen(true)}
+          onOpenIOSShare={() => setIosShareModalOpen(true)}
           onNavigateProfileDownloader={() => navigateTo(`/${currentRoute.locale}/profile-downloader`)}
         />
 
@@ -498,6 +533,11 @@ function MainApp() {
           isOpen={bookmarkletOpen}
           onClose={() => setBookmarkletOpen(false)}
         />
+
+        <IOSShareModal
+          isOpen={iosShareModalOpen}
+          onClose={() => setIosShareModalOpen(false)}
+        />
       </div>
     );
   }
@@ -508,6 +548,11 @@ function MainApp() {
       GUIDE_PAGES.find((g) => g.slug === currentRoute.guideSlug) || GUIDE_PAGES[0];
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+        <ClipboardDetectorBanner
+          onDownloadUrl={handleClipboardDownload}
+          onOpenIOSShareGuide={() => setIosShareModalOpen(true)}
+        />
+
         <Header
           activeTab={guide.category}
           onSelectTab={(tab) => {
@@ -520,6 +565,7 @@ function MainApp() {
           onNavigateHome={() => navigateTo(`/${currentRoute.locale}/`)}
           onLanguageChange={handleLanguageChange}
           onOpenBookmarklet={() => setBookmarkletOpen(true)}
+          onOpenIOSShare={() => setIosShareModalOpen(true)}
           onNavigateProfileDownloader={() => navigateTo(`/${currentRoute.locale}/profile-downloader`)}
         />
 
@@ -553,6 +599,11 @@ function MainApp() {
           isOpen={bookmarkletOpen}
           onClose={() => setBookmarkletOpen(false)}
         />
+
+        <IOSShareModal
+          isOpen={iosShareModalOpen}
+          onClose={() => setIosShareModalOpen(false)}
+        />
       </div>
     );
   }
@@ -561,6 +612,11 @@ function MainApp() {
   if (legacyPseoPage) {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+        <ClipboardDetectorBanner
+          onDownloadUrl={handleClipboardDownload}
+          onOpenIOSShareGuide={() => setIosShareModalOpen(true)}
+        />
+
         <Header
           activeTab={activeTab}
           onSelectTab={(tab) => {
@@ -574,6 +630,7 @@ function MainApp() {
           }}
           onLanguageChange={handleLanguageChange}
           onOpenBookmarklet={() => setBookmarkletOpen(true)}
+          onOpenIOSShare={() => setIosShareModalOpen(true)}
           onNavigateProfileDownloader={() => navigateTo(`/${currentLang}/profile-downloader`)}
         />
 
@@ -609,6 +666,11 @@ function MainApp() {
           isOpen={bookmarkletOpen}
           onClose={() => setBookmarkletOpen(false)}
         />
+
+        <IOSShareModal
+          isOpen={iosShareModalOpen}
+          onClose={() => setIosShareModalOpen(false)}
+        />
       </div>
     );
   }
@@ -618,6 +680,11 @@ function MainApp() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-pink-500 selection:text-white">
+      <ClipboardDetectorBanner
+        onDownloadUrl={handleClipboardDownload}
+        onOpenIOSShareGuide={() => setIosShareModalOpen(true)}
+      />
+
       {/* Top Banner Notice */}
       <div className="bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 text-white text-[11px] sm:text-xs font-semibold py-1.5 px-4 text-center tracking-wide flex items-center justify-center gap-2">
         <span className="flex h-2 w-2 relative">
@@ -705,6 +772,7 @@ function MainApp() {
         }}
         onLanguageChange={handleLanguageChange}
         onOpenBookmarklet={() => setBookmarkletOpen(true)}
+        onOpenIOSShare={() => setIosShareModalOpen(true)}
         onNavigateProfileDownloader={() => navigateTo(`/${currentLang}/profile-downloader`)}
       />
 
@@ -802,6 +870,12 @@ function MainApp() {
       <BookmarkletModal
         isOpen={bookmarkletOpen}
         onClose={() => setBookmarkletOpen(false)}
+      />
+
+      {/* iOS Share Sheet Setup Modal */}
+      <IOSShareModal
+        isOpen={iosShareModalOpen}
+        onClose={() => setIosShareModalOpen(false)}
       />
     </div>
   );

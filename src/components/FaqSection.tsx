@@ -3,10 +3,22 @@ import { useLanguage } from '../context/LanguageContext';
 import { ChevronDown, HelpCircle } from 'lucide-react';
 
 export const FaqSection: React.FC = () => {
-  const { translations } = useLanguage();
+  const { translations, currentLang } = useLanguage();
+  const isAr = currentLang === 'ar';
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
-  const faqs = translations.faqs || [];
+  const baseFaqs = translations.faqs || [];
+
+  const iosFaq = {
+    q: isAr
+      ? 'كيف أشارك مقاطع انستقرام مباشرة من الآيفون عبر قائمة المشاركة (Share Sheet)؟'
+      : 'Why doesn\'t sssclips appear in the iPhone "Share via" menu automatically, and how do I enable it?',
+    a: isAr
+      ? 'يقيد نظام Apple iOS قائمة المشاركة على تطبيقات متجر App Store فقط، ولا يدعم ميزة Web Share Target لتطبيقات الويب (بعكس الأندرويد). لتفعيل المشاركة بنقرة واحدة على الآيفون: يمكنك استخدام اختصار آبل الرسمي (Apple Shortcut) الموضح في زر "مشاركة الآيفون"، أو ببساطة الضغط على "نسخ الرابط" في انستقرام وفتح sssclips، حيث سيتعرف الكاشف الذكي على الرابط فوراً دون الحاجة للصق اليدوي.'
+      : 'Apple\'s iOS restricts the native Share Sheet app row exclusively to native App Store apps and does not support the Web Share Target API for PWAs (unlike Android). To share in 1 tap on iPhone: you can set up our 10-second Apple Shortcut (via the "iPhone Share" guide button), or simply tap "Copy link" in Instagram and open sssclips — our smart clipboard detector will instantly pop up your download ready in 1080p!',
+  };
+
+  const faqs = [...baseFaqs, iosFaq];
 
   return (
     <section className="py-14 sm:py-20 bg-slate-950 border-t border-slate-900">

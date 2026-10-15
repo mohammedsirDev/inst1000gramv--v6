@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { Copy, ArrowRight, Download, Smartphone, Monitor, Check } from 'lucide-react';
+import { Copy, ArrowRight, Download, Smartphone, Monitor, Check, Share2, Sparkles } from 'lucide-react';
+import { IOSShareModal } from './IOSShareModal';
 
 export const HowToGuide: React.FC = () => {
-  const { translations } = useLanguage();
+  const { translations, currentLang } = useLanguage();
+  const isAr = currentLang === 'ar';
+  const [showIOSModal, setShowIOSModal] = useState(false);
 
   const steps = [
     {
@@ -123,6 +126,14 @@ export const HowToGuide: React.FC = () => {
               <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
                 {translations.mobileOptimizedDesc}
               </p>
+              <button
+                type="button"
+                onClick={() => setShowIOSModal(true)}
+                className="mt-2 text-xs font-bold text-pink-600 hover:text-pink-700 flex items-center gap-1 cursor-pointer"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span>{isAr ? 'شرح إضافة التطبيق لقائمة مشاركة الآيفون' : 'Add sssclips to iOS Share Sheet'}</span>
+              </button>
             </div>
           </div>
 
@@ -141,6 +152,11 @@ export const HowToGuide: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <IOSShareModal
+        isOpen={showIOSModal}
+        onClose={() => setShowIOSModal(false)}
+      />
     </section>
   );
 };

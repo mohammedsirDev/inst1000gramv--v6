@@ -77,16 +77,25 @@ export function detectMediaTypeFromUrl(inputUrl: string): NormalizedMediaType {
 export function parseCurrentRoute(pathname: string, search: string = ''): RouteType {
   const cleanPath = pathname.replace(/\/+$/, '') || '/';
 
-  // 0. Mobile Web Share Target: /share-target
-  if (cleanPath === '/share-target') {
-    const urlParams = new URLSearchParams(search);
-    const sharedUrl = urlParams.get('url') || '';
-    const sharedText = urlParams.get('text') || '';
-    const sharedTitle = urlParams.get('title') || '';
+  // 0. Mobile Web Share Target: /share-target or /?url=...
+  const urlParams = new URLSearchParams(search);
+  const sharedUrl =
+    urlParams.get('url') ||
+    urlParams.get('link') ||
+    urlParams.get('text') ||
+    urlParams.get('title') ||
+    urlParams.get('q') ||
+    urlParams.get('mediaUrl') ||
+    '';
+
+  if (
+    cleanPath === '/share-target' ||
+    (sharedUrl && (cleanPath === '/' || cleanPath.match(/^\/[a-zA-Z]{2}(?:-[a-zA-Z]+)?$/)))
+  ) {
     return {
       type: 'share-target',
-      url: sharedUrl || sharedText || sharedTitle,
-      text: sharedText || sharedTitle || sharedUrl,
+      url: sharedUrl,
+      text: sharedUrl,
     };
   }
 
@@ -204,7 +213,8 @@ export function parseCurrentRoute(pathname: string, search: string = ''): RouteT
 
 export function navigateTo(path: string, options?: { scroll?: boolean }) {
   if (typeof window !== 'undefined') {
-    if (window.location.pathname !== path) {
+    const currentFull = window.location.pathname + window.location.search;
+    if (currentFull !== path) {
       window.history.pushState({}, '', path);
     }
     window.dispatchEvent(new PopStateEvent('popstate'));
