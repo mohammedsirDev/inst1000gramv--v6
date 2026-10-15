@@ -443,8 +443,8 @@ app.get('/api/pseo/page/:slug(*)', (req: Request, res: Response) => {
       mediaType: slug.includes('reels') ? 'reels' : slug.includes('story') ? 'stories' : slug.includes('photo') ? 'photo' : slug.includes('igtv') ? 'igtv' : 'video',
       lang: slug.startsWith('ar/') ? 'ar' : slug.startsWith('es/') ? 'es' : slug.startsWith('fr/') ? 'fr' : slug.startsWith('pt/') ? 'pt' : 'en',
       targetKeyword: slug.replace(/[-/]/g, ' '),
-      title: `${slug.replace(/[-/]/g, ' ')} | insta1000gram Fast Downloader`,
-      metaDescription: `High speed download for ${slug.replace(/[-/]/g, ' ')}. Original quality, 1080p stream, zero watermark on insta1000gram.`,
+      title: `${slug.replace(/[-/]/g, ' ')} | sssclips Fast Downloader`,
+      metaDescription: `High speed download for ${slug.replace(/[-/]/g, ' ')}. Original quality, 1080p stream, zero watermark on sssclips.`,
       h1: `${slug.replace(/[-/]/g, ' ').toUpperCase()}`,
       intro: `Save original high definition Instagram media directly to your device with our zero-compression accelerated edge download pipeline.`,
       features: [
@@ -927,10 +927,10 @@ async function startServer() {
   }
 
   app.listen(Number(PORT), '0.0.0.0', () => {
-    console.log(`[insta1000gram] Server listening on http://0.0.0.0:${PORT}`);
-    console.log(`[insta1000gram] Site Domain: https://${SITE_DOMAIN}`);
-    console.log(`[insta1000gram] Sitemaps Index: http://localhost:${PORT}/sitemap.xml`);
-    console.log(`[insta1000gram] Admin user: ${ADMIN_USERNAME}`);
+    console.log(`[sssclips] Server listening on http://0.0.0.0:${PORT}`);
+    console.log(`[sssclips] Site Domain: https://${SITE_DOMAIN}`);
+    console.log(`[sssclips] Sitemaps Index: http://localhost:${PORT}/sitemap.xml`);
+    console.log(`[sssclips] Admin user: ${ADMIN_USERNAME}`);
   });
 }
 

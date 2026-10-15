@@ -68,14 +68,14 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose, onPrevi
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-base sm:text-lg tracking-tight">
-                  insta1000gram Django Administration
+                  sssclips Django Administration
                 </span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                   ENV SECURE
                 </span>
               </div>
               <p className="text-xs text-slate-400">
-                Site Domain: www.insta1000gram.com • Node/Express &amp; Django-Inspired Admin Engine
+                Site Domain: www.sssclips.com • Node/Express &amp; Django-Inspired Admin Engine
               </p>
             </div>
           </div>

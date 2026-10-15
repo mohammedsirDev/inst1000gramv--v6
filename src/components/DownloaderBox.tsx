@@ -57,13 +57,27 @@ export const DownloaderBox: React.FC<DownloaderBoxProps> = ({
   const handlePaste = async () => {
     try {
       const text = await navigator.clipboard.readText();
-      if (text) {
-        setUrl(text);
+      if (text && text.trim()) {
+        const clean = text.trim();
+        setUrl(clean);
         setError(null);
+        // If it looks like an Instagram URL, automatically start the resolution
+        if (clean.includes('instagram.com') || clean.includes('sssclips.com')) {
+          handleDownload(clean);
+        }
+      } else {
+        setError(
+          isAr
+            ? 'الحافظة فارغة، يرجى نسخ رابط المنشور من انستقرام أولاً.'
+            : 'Clipboard is empty. Please copy a link from Instagram first.'
+        );
       }
     } catch {
-      setUrl('https://www.instagram.com/reel/DdclRxYT4UJ/?stkn=cTdwcjg3Njl6amw2');
-      setError(null);
+      setError(
+        isAr
+          ? 'اضغط مطولاً داخل الصندوق واختر "لصق" لإدراج الرابط.'
+          : 'Tap and hold the input box, then tap "Paste" to insert your link.'
+      );
     }
   };
 

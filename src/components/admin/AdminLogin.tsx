@@ -53,7 +53,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onClose }) =>
               <Shield className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-extrabold text-base tracking-tight">insta1000gram Administration</h3>
+              <h3 className="font-extrabold text-base tracking-tight">sssclips Administration</h3>
               <p className="text-[11px] text-slate-400">Django-Style Secure Admin Portal</p>
             </div>
           </div>

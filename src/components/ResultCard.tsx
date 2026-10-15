@@ -542,7 +542,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
         url: downloadProxyUrl,
       });
     } catch (err: any) {
-      console.error('[insta1000gram] Download error:', err);
+      console.error('[sssclips] Download error:', err);
       const errMsg = err?.message || 'Download failed. Please try the direct mirror link.';
       setDownloadError(errMsg);
       setDownloadProgress({
@@ -579,8 +579,8 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onClear }) => {
       return;
     }
     const filename = isZip
-      ? `insta1000gram_${result.type || 'album'}_all.zip`
-      : `insta1000gram_${result.type}_${format.quality.replace(/[^a-zA-Z0-9]/g, '_')}.${
+      ? `sssclips_${result.type || 'album'}_all.zip`
+      : `sssclips_${result.type}_${format.quality.replace(/[^a-zA-Z0-9]/g, '_')}.${
           format.extension
         }`;
 
