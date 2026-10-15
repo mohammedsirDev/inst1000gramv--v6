@@ -132,6 +132,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   // Ignore root /, api, smart media paths, static assets with extensions or vite internals
   if (
     rawPath === '/' ||
+    rawPath === '/share-target' ||
+    rawPath.startsWith('/share-target') ||
+    rawPath === '/sw.js' ||
     rawPath.startsWith('/api') ||
     rawPath.startsWith('/@') ||
     rawPath.startsWith('/src') ||
@@ -151,6 +154,15 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     return res.redirect(301, `${rawPath}/${query}`);
   }
   next();
+});
+
+// /sw.js - Serve PWA Service Worker with root scope permissions
+app.get('/sw.js', (req: Request, res: Response) => {
+  const swPath = path.resolve(__dirname, 'public', 'sw.js');
+  res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+  res.setHeader('Service-Worker-Allowed', '/');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.sendFile(swPath);
 });
 
 // /robots.txt

@@ -16,6 +16,8 @@ export function extractInstagramUrlFromShared(textOrUrl: string): string {
   if (!textOrUrl) return '';
   const match = textOrUrl.match(/https?:\/\/(?:www\.)?(?:instagram\.com|sssclips\.com|1kgram\.com|inst(?:a)?1000gram\.com)[^\s"'>]+/i);
   if (match) return match[0];
+  const noProtoMatch = textOrUrl.match(/(?:www\.)?(?:instagram\.com|sssclips\.com|1kgram\.com|inst(?:a)?1000gram\.com)[^\s"'>]+/i);
+  if (noProtoMatch) return `https://${noProtoMatch[0]}`;
   const trimmed = textOrUrl.trim();
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
   return trimmed;
@@ -80,10 +82,11 @@ export function parseCurrentRoute(pathname: string, search: string = ''): RouteT
     const urlParams = new URLSearchParams(search);
     const sharedUrl = urlParams.get('url') || '';
     const sharedText = urlParams.get('text') || '';
+    const sharedTitle = urlParams.get('title') || '';
     return {
       type: 'share-target',
-      url: sharedUrl,
-      text: sharedText,
+      url: sharedUrl || sharedText || sharedTitle,
+      text: sharedText || sharedTitle || sharedUrl,
     };
   }
 

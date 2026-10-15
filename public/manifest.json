@@ -40,8 +40,32 @@
     "action": "/share-target",
     "method": "GET",
     "params": {
-      "url": "url",
-      "text": "text"
+      "title": "title",
+      "text": "text",
+      "url": "url"
     }
-  }
+  },
+  "shortcuts": [
+    {
+      "name": "Download Reels",
+      "short_name": "Reels",
+      "description": "Download 1080p Instagram Reels",
+      "url": "/en/reels-downloader/",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Download Stories",
+      "short_name": "Stories",
+      "description": "Download Instagram Stories Anonymously",
+      "url": "/en/story-downloader/",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Download Photos",
+      "short_name": "Photos",
+      "description": "Download Full HD Instagram Photos",
+      "url": "/en/photo-downloader/",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    }
+  ]
 }

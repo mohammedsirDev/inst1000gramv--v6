@@ -104,7 +104,7 @@ export const ProfileDownloaderView: React.FC = () => {
         );
       }, 800);
     } catch {
-      window.open(targetUrl, '_blank');
+      window.location.href = targetUrl;
     }
   };
 

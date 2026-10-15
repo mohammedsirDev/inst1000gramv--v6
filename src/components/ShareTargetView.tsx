@@ -1,10 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { ResultCard } from './ResultCard';
 import { DownloaderBox } from './DownloaderBox';
 import { InstagramMediaResult, MediaType } from '../types';
 import { extractInstagramUrlFromShared, detectMediaTypeFromUrl } from '../utils/router';
-import { Share2, Loader2, Sparkles, AlertCircle, ArrowLeft } from 'lucide-react';
+import {
+  Share2,
+  Sparkles,
+  AlertCircle,
+  ArrowLeft,
+  Download,
+  Zap,
+  CheckCircle2,
+  Settings2,
+  Smartphone,
+  Info,
+} from 'lucide-react';
 
 interface ShareTargetViewProps {
   onBackHome: () => void;
@@ -21,14 +32,64 @@ export const ShareTargetView: React.FC<ShareTargetViewProps> = ({ onBackHome }) 
   const [result, setResult] = useState<InstagramMediaResult | null>(null);
   const [activeTab, setActiveTab] = useState<MediaType>('reel');
 
+  // Auto-download preference & countdown state
+  const [autoDownloadEnabled, setAutoDownloadEnabled] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('sssclips_auto_download') === 'true';
+  });
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const [downloadTriggered, setDownloadTriggered] = useState<boolean>(false);
+  const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const toggleAutoDownload = (enabled: boolean) => {
+    setAutoDownloadEnabled(enabled);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sssclips_auto_download', enabled ? 'true' : 'false');
+    }
+    if (!enabled && countdownTimerRef.current) {
+      clearInterval(countdownTimerRef.current);
+      setCountdown(null);
+    }
+  };
+
+  const triggerDownloadAction = () => {
+    if (!result) return;
+    setDownloadTriggered(true);
+    if (countdownTimerRef.current) {
+      clearInterval(countdownTimerRef.current);
+      setCountdown(null);
+    }
+
+    const targetUrl =
+      result.videoUrl ||
+      result.directUrl ||
+      (result.slides && result.slides[0]?.url) ||
+      '';
+    const ext = result.type === 'photo' ? 'jpg' : 'mp4';
+    const safeFilename = `sssclips_${result.type || 'reel'}_${result.shortcode || 'video'}.${ext}`;
+
+    const downloadProxyUrl = `/api/download/proxy?url=${encodeURIComponent(
+      targetUrl
+    )}&filename=${encodeURIComponent(safeFilename)}&type=${result.type === 'photo' ? 'photo' : 'video'}`;
+
+    const anchor = document.createElement('a');
+    anchor.href = downloadProxyUrl;
+    anchor.download = safeFilename;
+    anchor.target = '_self';
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+  };
+
   useEffect(() => {
-    // 1. Read url and text from window.location.search
+    // 1. Read url, text, and title from window.location.search
     if (typeof window === 'undefined') return;
 
     const params = new URLSearchParams(window.location.search);
     const rawUrlParam = params.get('url') || '';
     const rawTextParam = params.get('text') || '';
-    const combined = rawUrlParam || rawTextParam;
+    const rawTitleParam = params.get('title') || '';
+    const combined = rawUrlParam || rawTextParam || rawTitleParam;
 
     setSharedRawUrl(combined);
 
@@ -49,7 +110,7 @@ export const ShareTargetView: React.FC<ShareTargetViewProps> = ({ onBackHome }) 
     const detected = detectMediaTypeFromUrl(extracted);
     setActiveTab(detected);
 
-    // 3. Call existing download extraction API
+    // 3. Call download extraction API
     const resolveMedia = async () => {
       try {
         setIsLoading(true);
@@ -71,6 +132,12 @@ export const ShareTargetView: React.FC<ShareTargetViewProps> = ({ onBackHome }) 
 
         const data: InstagramMediaResult = await res.json();
         setResult(data);
+
+        // If user enabled auto-download, start a 3-second countdown
+        const shouldAuto = localStorage.getItem('sssclips_auto_download') === 'true';
+        if (shouldAuto) {
+          setCountdown(3);
+        }
       } catch (err: any) {
         setError(err?.message || (isAr ? 'تعذر استخراج الوسائط' : 'Extraction failed.'));
       } finally {
@@ -79,7 +146,31 @@ export const ShareTargetView: React.FC<ShareTargetViewProps> = ({ onBackHome }) 
     };
 
     resolveMedia();
+
+    return () => {
+      if (countdownTimerRef.current) {
+        clearInterval(countdownTimerRef.current);
+      }
+    };
   }, []);
+
+  // Handle countdown tick
+  useEffect(() => {
+    if (countdown === null) return;
+    if (countdown > 0) {
+      countdownTimerRef.current = setTimeout(() => {
+        setCountdown((prev) => (prev !== null && prev > 0 ? prev - 1 : 0));
+      }, 1000);
+    } else if (countdown === 0) {
+      triggerDownloadAction();
+      setCountdown(null);
+    }
+    return () => {
+      if (countdownTimerRef.current) {
+        clearTimeout(countdownTimerRef.current);
+      }
+    };
+  }, [countdown]);
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 my-8 animate-in fade-in duration-300">
@@ -129,6 +220,89 @@ export const ShareTargetView: React.FC<ShareTargetViewProps> = ({ onBackHome }) 
               ? 'يتم الاتصال بسيرفرات انستقرام الأصلية لتحميل الريلز أو المنشور بدون علامة مائية...'
               : 'Connecting to master edge CDN to prepare your watermark-free video...'}
           </p>
+        </div>
+      )}
+
+      {/* Quick Action & Auto-Download Control Bar */}
+      {!isLoading && result && (
+        <div className="mb-6 bg-slate-900/90 border border-slate-800 rounded-3xl p-4 sm:p-5 shadow-xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  {isAr ? 'جاهز للتحميل بجودة 1080p' : 'Ready in 1080p Full HD'}
+                </span>
+                {downloadTriggered && (
+                  <span className="text-[11px] text-pink-400 font-bold animate-pulse">
+                    {isAr ? 'بدأ التنزيل على جهازك!' : 'Download started on your device!'}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-300">
+                {isAr
+                  ? 'تم استخراج الفيديو بنجاح من انستقرام بأعلى دقة أصلية بدون علامة مائية.'
+                  : 'Successfully extracted master media with zero compression & no watermark.'}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 sm:self-center">
+              {countdown !== null && countdown > 0 ? (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={triggerDownloadAction}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-sm shadow-lg shadow-emerald-600/30 cursor-pointer animate-pulse"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>
+                      {isAr ? `تحميل الآن (${countdown} ثوانٍ)` : `Download Now (${countdown}s)`}
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (countdownTimerRef.current) clearInterval(countdownTimerRef.current);
+                      setCountdown(null);
+                    }}
+                    className="px-3 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-xs font-bold transition cursor-pointer"
+                  >
+                    {isAr ? 'إلغاء' : 'Pause'}
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={triggerDownloadAction}
+                  className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-extrabold text-sm shadow-xl shadow-pink-600/30 transition-transform active:scale-95 cursor-pointer"
+                >
+                  <Download className="w-4.5 h-4.5" />
+                  <span>{isAr ? 'تحميل مباشر بنقرة واحدة (1080p)' : 'Instant 1-Tap Download (1080p)'}</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* User Preference: Auto vs Manual */}
+          <div className="mt-3.5 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
+            <div className="flex items-center gap-2">
+              <Info className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+              <span>
+                {isAr
+                  ? 'التحميل اليدوي بنقرة واحدة يضمن نجاح التنزيل 100% دون أن يحظره المتصفح.'
+                  : 'Manual 1-tap download is recommended to prevent mobile browser pop-up blocks.'}
+              </span>
+            </div>
+
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={autoDownloadEnabled}
+                onChange={(e) => toggleAutoDownload(e.target.checked)}
+                className="w-4 h-4 rounded text-pink-600 focus:ring-pink-500 focus:ring-offset-slate-900 bg-slate-800 border-slate-700"
+              />
+              <span className="font-semibold text-slate-300">
+                {isAr ? 'تفعيل التنزيل التلقائي عند المشاركة' : 'Auto-download automatically on share'}
+              </span>
+            </label>
+          </div>
         </div>
       )}
 

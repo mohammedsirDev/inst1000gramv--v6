@@ -13,6 +13,7 @@ export const BookmarkletModal: React.FC<BookmarkletModalProps> = ({ isOpen, onCl
   const { currentLang } = useLanguage();
   const isAr = currentLang === 'ar';
   const [copied, setCopied] = useState(false);
+  const [showClickNotice, setShowClickNotice] = useState(false);
 
   if (!isOpen) return null;
 
@@ -61,11 +62,8 @@ export const BookmarkletModal: React.FC<BookmarkletModalProps> = ({ isOpen, onCl
               href={BOOKMARKLET_CODE}
               onClick={(e) => {
                 e.preventDefault();
-                alert(
-                  isAr
-                    ? 'اسحب هذا الزر إلى شريط إشارات متصفحك (Bookmarks Bar) أو انسخ الكود بالأسفل.'
-                    : 'Drag this button up to your browser Bookmarks Bar, or copy the code below!'
-                );
+                setShowClickNotice(true);
+                setTimeout(() => setShowClickNotice(false), 4000);
               }}
               draggable
               className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-extrabold text-sm shadow-lg shadow-pink-600/30 cursor-grab active:cursor-grabbing border border-pink-400/30 select-none"
@@ -73,6 +71,13 @@ export const BookmarkletModal: React.FC<BookmarkletModalProps> = ({ isOpen, onCl
               <Sparkles className="w-4 h-4" />
               <span>📥 SSSClips 1-Click</span>
             </a>
+            {showClickNotice && (
+              <p className="text-xs text-pink-400 font-medium mt-2 bg-pink-500/10 py-1 px-2 rounded-lg border border-pink-500/20">
+                {isAr
+                  ? 'اسحب هذا الزر إلى شريط إشارات متصفحك (Bookmarks Bar) أو انسخ الكود بالأسفل.'
+                  : 'Drag this button up to your browser Bookmarks Bar, or copy the code below!'}
+              </p>
+            )}
             <p className="text-[11px] text-slate-500 mt-2">
               {isAr ? 'اضغط Ctrl+Shift+B (أو Cmd+Shift+B في ماك) لإظهار شريط الإشارات' : 'Press Ctrl+Shift+B (Cmd+Shift+B on Mac) to show Bookmarks Bar'}
             </p>
